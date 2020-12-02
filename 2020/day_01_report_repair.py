@@ -37,16 +37,15 @@ def solve(entries: [int], version: Version):
     
     if version == Version.part1:
         print("[ PART: 1 ]")
-        for i in range(numberOfEntries):
+        for i in range(numberOfEntries-1):
             entry1 = entries[i]
-            for j in range(numberOfEntries):
-                if i != j:
-                    entry2 = entries[j]
-                    if entry1+entry2 == expectedSum:
-                        solution = entry1*entry2
-                        print("%s + %s == 2020" % (entry1, entry2))
-                        print("%s * %s == %s" % (entry1, entry2, solution))
-                        return solution
+            for j in range(i+1, numberOfEntries):
+                entry2 = entries[j]
+                if entry1+entry2 == expectedSum:
+                    solution = entry1*entry2
+                    print("%s + %s == 2020" % (entry1, entry2))
+                    print("%s * %s == %s" % (entry1, entry2, solution))
+                    return solution
     elif version == Version.part2:
         print("[ PART: 2 ]")
         for i in range(numberOfEntries):
