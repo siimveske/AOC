@@ -1,8 +1,3 @@
-'''
-Created on Dec 2, 2020
-
-@author: siimv
-'''
 import os
 
 
@@ -11,19 +6,19 @@ class ValidatorVersion():
     part2 = 2
     
 class Password:
-    def __init__(self, minLength: int, maxLength: int, letter: str, pwd: str):
-        self.minLength = minLength
-        self.maxLength = maxLength
-        self.letter    = letter
-        self.pwd       = pwd
+    def __init__(self, start: int, stop: int, letter: str, pwd: str):
+        self.start  = start
+        self.stop   = stop
+        self.letter = letter
+        self.pwd    = pwd
     
     def isValid(self, version: ValidatorVersion):
         if version is ValidatorVersion.part1:
             letterCount = self.pwd.count(self.letter)
-            return letterCount >= self.minLength and letterCount <= self.maxLength
+            return letterCount >= self.start and letterCount <= self.stop
         elif version is ValidatorVersion.part2:
-            A = self.pwd[self.minLength-1] == self.letter
-            B = self.pwd[self.maxLength-1] == self.letter
+            A = self.pwd[self.start-1] == self.letter
+            B = self.pwd[self.stop-1] == self.letter
             return (A and not B) or (B and not A)
         else:
             raise Exception("Invalid validator version")
@@ -36,12 +31,11 @@ def getValidCount(passwordList: [Password], version: ValidatorVersion):
     return count
 
 def parseData(filename: str):
-    '''Parse line such as "1-3 a: abcde" into components
-        # min:1
-        # max:3
+    '''Parse line such as "1-3 a: abcde" into Password components
+        # start:1
+        # stop:3
         # letter:a
         # pwd:abcde
-        and store the result as Password object
         @Returns List[Password]
     '''
     data = []
