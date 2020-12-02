@@ -31,6 +31,33 @@ def main():
     print("Solution Part 2: %s" % part2_solution)
         
 def solve(entries: [int], version: Version):
+    '''
+        Example combinations for list [172, 979, 366, 299, 675]
+        --- Part 1 ---
+        172 979 - 0 1
+        172 366 - 0 2
+        172 299 - 0 3
+        172 675 - 0 4
+        979 366 - 1 2
+        979 299 - 1 3
+        979 675 - 1 4
+        366 299 - 2 3
+        366 675 - 2 4
+        299 675 - 3 4
+        
+        --- Part 2 ---
+        172 979 366 - 0 1 2
+        172 979 299 - 0 1 3
+        172 979 675 - 0 1 4
+        172 366 299 - 0 2 3
+        172 366 675 - 0 2 4
+        172 299 675 - 0 3 4
+        979 366 299 - 1 2 3
+        979 366 675 - 1 2 4
+        979 299 675 - 1 3 4
+        366 299 675 - 2 3 4
+    '''
+    
     solution        = 0
     expectedSum     = 2020 
     numberOfEntries = len(entries)
@@ -48,19 +75,17 @@ def solve(entries: [int], version: Version):
                     return solution
     elif version == Version.part2:
         print("[ PART: 2 ]")
-        for i in range(numberOfEntries):
+        for i in range(numberOfEntries-2):
             entry1 = entries[i]
-            for j in range(numberOfEntries):
-                if i != j:
-                    entry2 = entries[j]
-                    for k in range(numberOfEntries):
-                        if i != k and j !=k:
-                            entry3 = entries[k]
-                            if entry1+entry2+entry3 == expectedSum:
-                                solution = entry1*entry2*entry3
-                                print("%s + %s + %s == 2020" % (entry1, entry2, entry3))
-                                print("%s * %s * %s == %s" % (entry1, entry2, entry3, solution))
-                                return solution
+            for j in range(i+1, numberOfEntries-1):
+                entry2 = entries[j]
+                for k in range(j+1, numberOfEntries):
+                    entry3 = entries[k]
+                    if entry1+entry2+entry3 == expectedSum:
+                        solution = entry1*entry2*entry3
+                        print("%s + %s + %s == 2020" % (entry1, entry2, entry3))
+                        print("%s * %s * %s == %s" % (entry1, entry2, entry3, solution))
+                        return solution
     else:
         raise Exception("Invalid version!")
     
