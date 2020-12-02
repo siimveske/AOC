@@ -5,6 +5,11 @@ Created on Dec 2, 2020
 '''
 import os
 
+
+class ValidatorVersion():
+    part1 = 1
+    part2 = 2
+    
 class Password:
     def __init__(self, minLength: int, maxLength: int, letter: str, pwd: str):
         self.minLength = minLength
@@ -12,14 +17,21 @@ class Password:
         self.letter    = letter
         self.pwd       = pwd
     
-    def isValid(self):
-        letterCount = self.pwd.count(self.letter)
-        return letterCount >= self.minLength and letterCount <= self.maxLength
+    def isValid(self, version: ValidatorVersion):
+        if version is ValidatorVersion.part1:
+            letterCount = self.pwd.count(self.letter)
+            return letterCount >= self.minLength and letterCount <= self.maxLength
+        elif version is ValidatorVersion.part2:
+            A = self.pwd[self.minLength-1] == self.letter
+            B = self.pwd[self.maxLength-1] == self.letter
+            return (A and not B) or (B and not A)
+        else:
+            raise Exception("Invalid validator version")
     
-def getValidCount(passwordList: [Password]):
+def getValidCount(passwordList: [Password], version: ValidatorVersion):
     count = 0
     for password in passwordList:
-        if password.isValid():
+        if password.isValid(version):
             count += 1
     return count
 
@@ -49,15 +61,23 @@ def parseData(filename: str):
 
 def test():
     filename = 'day_02_test_input.txt'
+    
     passwordList = parseData(filename)
-    count = getValidCount(passwordList)
-    assert count == 2
+    v1 = getValidCount(passwordList, ValidatorVersion.part1)
+    v2 = getValidCount(passwordList, ValidatorVersion.part2)
+    
+    assert v1 == 2
+    assert v2 == 1
 
 def main():
     filename = 'day_02_input.txt'
+    
     passwordList = parseData(filename)
-    count = getValidCount(passwordList)
-    print("Valid password count: %s" % count)
+    count1 = getValidCount(passwordList, ValidatorVersion.part1)
+    count2 = getValidCount(passwordList, ValidatorVersion.part2)
+    
+    print("Valid password count for part 1: %s" % count1)
+    print("Valid password count for part 2: %s" % count2)
     
     
 if __name__ == '__main__':
