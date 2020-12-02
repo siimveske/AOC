@@ -1,17 +1,17 @@
 from typing import List
 
 def test():
-    items = [1721, 979, 366, 299, 675, 1456]
-    return solve(items)
+    entries = [1721, 979, 366, 299, 675, 1456]
+    return solve(entries)
 
-def solve(items: List[int]):
-    for i in range(len(items)):
-        item1 = items[i]
-        for j in range(len(items)):
+def solve(entries: List[int]):
+    for i in range(len(entries)):
+        entry1 = entries[i]
+        for j in range(len(entries)):
             if i != j:
-                item2 = items[j]
-                if item1+item2 == 2020:
-                    return item1*item2
+                entry2 = entries[j]
+                if entry1+entry2 == 2020:
+                    return entry1*entry2
     return 0
 
 
