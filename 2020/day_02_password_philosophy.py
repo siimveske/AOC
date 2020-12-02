@@ -38,18 +38,11 @@ def parseData(filename: str):
     
     with open(input_file_path, 'r') as f:
         for line in f:
-            # parse line "1-3 a: abcde" into components:
-            # min:1
-            # max:3
-            # letter:a
-            # pwd: abcde
             components = line.split()
             minLength, maxLength = components[0].split('-')
             letter = components[1][0]
             pwd = components[2]
-            item = Password(int(minLength), int(maxLength), letter, pwd)
-            data.append(item)
-        
+            data.append(Password(int(minLength), int(maxLength), letter, pwd))
         f.close()
     
     return data
