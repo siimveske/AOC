@@ -23,7 +23,7 @@ class Password:
         else:
             raise Exception("Invalid validator version")
     
-def getValidCount(passwordList: [Password], version: ValidatorVersion):
+def getValidCount(passwordList: list[Password], version: ValidatorVersion):
     count = 0
     for password in passwordList:
         if password.isValid(version):
