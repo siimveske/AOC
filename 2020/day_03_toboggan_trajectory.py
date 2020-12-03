@@ -17,45 +17,61 @@ def parseData(filename: str):
     return fData
 
 def solve(data: list[str], version: Version):
+      
     if version is Version.part1:
-        segmentWitdth = len(data[0])
-        mapHeight = len(data) - 1
-        x = 0
-        y = 0
-        treeCount = 0
-        
-        while y < mapHeight:
-            x = (x + 3) % segmentWitdth
-            y += 1
-            print("X: %3s Y:%3s" % (x, y), end='')
-            if y <= mapHeight and data[y][x] == '#':
-                print('   #', end='')
-                treeCount += 1
-            print()
-        
-        return treeCount
+        return getTreeCount(data, deltaX=3, deltaY=1)
     elif version is Version.part2:
-        pass
+        
+        product = 1
+        routes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
+        
+        for deltaX, deltaY in routes:
+            product *= getTreeCount(data, deltaX, deltaY)
+            
+        return product
     else:
         raise Exception('Invalid version!')
     
+def getTreeCount(data: list[str], deltaX: int, deltaY: int):
+    
+    x = 0
+    y = 0
+    treeCount = 0
+    segmentWidth = len(data[0])
+    mapHeight = len(data) - 1
+    
+    while y < mapHeight:
+        x = (x + deltaX) % segmentWidth
+        y += deltaY
+        if y <= mapHeight and data[y][x] == '#':
+            treeCount += 1
+            
+    print("Tree count for route (%s %s) == %s" % (deltaX, deltaY, treeCount))
+    return treeCount
+    
 def test():
-    print("---- TEST ----")
+    print("---- TEST PART 1 ----")
     
     data = parseData('day_03_test_input.txt')
     solution_part1 = solve(data, Version.part1)
+    print("Solution for Part 1: %s\n" % solution_part1)
     assert solution_part1 == 7
     
-    print("---- END ----")
+    print("---- TEST PART 2 ----")
+    
+    solution_part2 = solve(data, Version.part2)
+    print("Solution for Part 2: %s\n" % solution_part2)
+    assert solution_part2 == 336
 
 def main():
-    print("---- PROGRAM ----")
-    
+    print("---- PROGRAM PART 1 ----")
     data = parseData('day_03_input.txt')
     solution_part1 = solve(data, Version.part1)
-    
-    print("---- END ----")
-    print("Solution Part 1: %s" % solution_part1)
+    print("Solution for Part 1: %s\n" % solution_part1)
+          
+    print("---- PROGRAM PART 2 ----")
+    solution_part2 = solve(data, Version.part2)
+    print("Solution for Part 2: %s" % solution_part2)
     
     
 if __name__ == '__main__':
