@@ -9,19 +9,18 @@ def parseData(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
     
-    fData = []
+    data = []
     with open(input_file_path, 'r') as file:
         for line in file:
-            fData.append(line.strip())
+            data.append(line.strip())
     
-    return fData
+    return data
 
 def solve(data: list[str], version: Version):
       
     if version is Version.part1:
         return getTreeCount(data, deltaX=3, deltaY=1)
     elif version is Version.part2:
-        
         product = 1
         routes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
         
@@ -51,14 +50,12 @@ def getTreeCount(data: list[str], deltaX: int, deltaY: int):
     
 def test():
     print("---- TEST PART 1 ----")
-    
     data = parseData('day_03_test_input.txt')
     solution_part1 = solve(data, Version.part1)
     print("Solution for Part 1: %s\n" % solution_part1)
     assert solution_part1 == 7
     
     print("---- TEST PART 2 ----")
-    
     solution_part2 = solve(data, Version.part2)
     print("Solution for Part 2: %s\n" % solution_part2)
     assert solution_part2 == 336
