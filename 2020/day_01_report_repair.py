@@ -30,7 +30,7 @@ def main():
     print("Solution Part 1: %s" % part1_solution)
     print("Solution Part 2: %s" % part2_solution)
         
-def solve(entries: [int], version: Version):
+def solve(entries: list[int], version: Version):
     '''
         Example combinations for list [172, 979, 366, 299, 675]
         --- Part 1 ---
