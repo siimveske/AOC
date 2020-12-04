@@ -174,17 +174,15 @@ def main():
 def test():
     print("---- TEST PART 1 ----")
     passports = parseData('day_04_test_input.txt')
-    filteredPassports = getValidPassportsPart1(passports)
-    part1Solution = len(filteredPassports)
-    print("Solution for Part 1: %s\n" % part1Solution)
-    assert part1Solution == 2
+    solution_part1 = len( getValidPassportsPart1(passports))
+    print("Solution for Part 1: %s\n" % solution_part1)
+    assert solution_part1 == 2
 
     print("---- TEST PART 2 ----")
     passports = parseData('day_04_test_input2.txt')
-    validPassports = getValidPassportsPart2(passports)
-    part2Solution = len(validPassports)
-    print("Solution for Part 2: %s\n" % part2Solution)
-    assert part2Solution == 4
+    solution_part2 = len(getValidPassportsPart2(passports))
+    print("Solution for Part 2: %s\n" % solution_part2)
+    assert solution_part2 == 4
 
           
 if __name__ == '__main__':
