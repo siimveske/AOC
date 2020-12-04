@@ -7,8 +7,8 @@ def parseData(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
     
-    data = []
     passport = {}
+    passport_list = []
     
     with open(input_file_path, 'r') as file:
         for line in file:
@@ -19,36 +19,36 @@ def parseData(filename: str):
                     key, value = item.split(":")
                     passport[key.strip()] = value.strip()
             elif passport:
-                data.append(passport)
+                passport_list.append(passport)
                 passport = {}
         if passport:
-            data.append(passport)
+            passport_list.append(passport)
             passport = {}
             
-    return data
+    return passport_list
 
-def getValidPassportsPart1(passportList):
+def getValidPassportsPart1(passport_list: list[dict]):
     
-    validPassports = []
-    expectedFields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
+    valid_passports = []
+    expected_fields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
     
-    for passport in passportList:
+    for passport in passport_list:
         isvalid = True
-        for field in expectedFields:
+        for field in expected_fields:
             if field not in passport.keys():
                 isvalid = False
                 break
         if isvalid:
-            validPassports.append(passport)
+            valid_passports.append(passport)
     
-    return validPassports
+    return valid_passports
 
-def getValidPassportsPart2(passportList):
+def getValidPassportsPart2(passport_list):
     
-    validPassports = []
-    filteredPassports = getValidPassportsPart1(passportList)
+    valid_passports = []
+    filtered_passports = getValidPassportsPart1(passport_list)
     
-    for passport in filteredPassports:
+    for passport in filtered_passports:
         if not isValidBirthYear(passport.get('byr')):
             continue
         if not isValidIssueYear(passport.get('iyr')):
@@ -63,46 +63,46 @@ def getValidPassportsPart2(passportList):
             continue
         if not isValidPassportID(passport.get('pid')):
             continue
-        validPassports.append(passport)
+        valid_passports.append(passport)
         
-    return validPassports
+    return valid_passports
 
-def isValidBirthYear(birthYear: str):
+def isValidBirthYear(birth_year: str):
     '''
-    Validate that birthYear is:
+    Validate that birth_year is:
         1. four digits
         2. at least 1920 and at most 2002
     '''
     p = re.compile('^[0-9]{4}$')
-    result = p.match(birthYear)
+    result = p.match(birth_year)
     if result:
         result = int(result.string)
         return 1920 <= result <= 2002
     else:
         return False
 
-def isValidIssueYear(issueYear: str):
+def isValidIssueYear(issue_year: str):
     '''
-    Validate that issueYear is:
+    Validate that issue_year is:
         1. four digits
         2. at least 2010 and at most 2020
     '''
     p = re.compile('^[0-9]{4}$')
-    result = p.match(issueYear)
+    result = p.match(issue_year)
     if result:
         result = int(result.string)
         return 2010 <= result <= 2020
     else:
         return False
     
-def isValidExpirationYear(expirationYear: str):
+def isValidExpirationYear(expiration_year: str):
     '''
-    Validate that expirationYear is:
+    Validate that expiration_year is:
         1. four digits
         2. at least 2020 and at most 2030
     '''
     p = re.compile('^[0-9]{4}$')
-    result = p.match(expirationYear)
+    result = p.match(expiration_year)
     if result:
         result = int(result.string)
         return 2020 <= result <= 2030
@@ -128,33 +128,33 @@ def isValidHeight(height: str):
     else:
         return False
 
-def isValidHairColor(hairColor: str):
+def isValidHairColor(hair_color: str):
     '''
-    Validate that hairColor is:
+    Validate that hair_color is:
         1. a # followed by exactly six characters 0-9 or a-f
     '''
     p = re.compile('^#[0-9abcdef]{6}$')
-    result = p.match(hairColor)
+    result = p.match(hair_color)
     if result:
         return True
     else:
         return False
 
-def isValidEyeColor(eyeColor: str):
+def isValidEyeColor(eye_color: str):
     '''
-    Validate that eyeColor is exactly
+    Validate that eye_color is exactly
     one of: amb blu brn gry grn hzl oth
     '''
-    validEyeColors = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
-    return eyeColor in validEyeColors
+    valid_eye_colors = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
+    return eye_color in valid_eye_colors
 
-def isValidPassportID(passportID: str):
+def isValidPassportID(passport_id: str):
     '''
-    Validate that passportID is
+    Validate that passport_id is
     nine-digit number, including leading zeroes
     '''
     p = re.compile('^[0-9]{9}$')
-    result = p.match(passportID)
+    result = p.match(passport_id)
     if result:
         return True
     else:
@@ -162,26 +162,26 @@ def isValidPassportID(passportID: str):
 
 def main():
     print("---- PROGRAM PART 1 ----")
-    passportList = parseData('day_04_input.txt')
-    count = len(getValidPassportsPart1(passportList))
+    passports = parseData('day_04_input.txt')
+    count = len(getValidPassportsPart1(passports))
     print("Solution for Part 1: %s\n" % count)
     
     print("---- PROGRAM PART 2 ----")
-    passportList = parseData('day_04_input.txt')
-    count = len(getValidPassportsPart2(passportList))
+    passports = parseData('day_04_input.txt')
+    count = len(getValidPassportsPart2(passports))
     print("Solution for Part 2: %s\n" % count)
 
 def test():
     print("---- TEST PART 1 ----")
-    passportList = parseData('day_04_test_input.txt')
-    filteredPassports = getValidPassportsPart1(passportList)
+    passports = parseData('day_04_test_input.txt')
+    filteredPassports = getValidPassportsPart1(passports)
     part1Solution = len(filteredPassports)
     print("Solution for Part 1: %s\n" % part1Solution)
     assert part1Solution == 2
 
     print("---- TEST PART 2 ----")
-    passportList = parseData('day_04_test_input2.txt')
-    validPassports = getValidPassportsPart2(passportList)
+    passports = parseData('day_04_test_input2.txt')
+    validPassports = getValidPassportsPart2(passports)
     part2Solution = len(validPassports)
     print("Solution for Part 2: %s\n" % part2Solution)
     assert part2Solution == 4
