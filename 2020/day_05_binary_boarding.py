@@ -48,11 +48,23 @@ def getMaxID(tickets):
     print("Highest seat ID on a boarding pass: %s" % max_id)
 
 
+def getMissingID(tickets):
+    sorted_tickets = sorted(tickets, key=lambda i: i['id'])
+
+    index = sorted_tickets[0]['id']  # Lowest id
+    for ticket in sorted_tickets:
+        if ticket['id'] != index:
+            print("Missing seat ID: %s" % index)
+            break
+        index += 1
+
+
 def main():
     print("---- PROGRAM ----")
     raw_tickets = readFile('day_05_input.txt')
     tickets = decode(raw_tickets)
     getMaxID(tickets)
+    getMissingID(tickets)
 
 
 def test():
