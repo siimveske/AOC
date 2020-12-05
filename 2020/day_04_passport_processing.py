@@ -3,13 +3,13 @@ import re
 
 
 def parseData(filename: str):
-    
+
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
-    
+
     passport = {}
     passport_list = []
-    
+
     with open(input_file_path, 'r') as file:
         for line in file:
             line = line.strip()
@@ -24,14 +24,15 @@ def parseData(filename: str):
         if passport:
             passport_list.append(passport)
             passport = {}
-            
+
     return passport_list
 
+
 def getValidPassportsPart1(passport_list: list[dict]):
-    
+
     valid_passports = []
     expected_fields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
-    
+
     for passport in passport_list:
         isvalid = True
         for field in expected_fields:
@@ -40,14 +41,15 @@ def getValidPassportsPart1(passport_list: list[dict]):
                 break
         if isvalid:
             valid_passports.append(passport)
-    
+
     return valid_passports
 
+
 def getValidPassportsPart2(passport_list):
-    
+
     valid_passports = []
     filtered_passports = getValidPassportsPart1(passport_list)
-    
+
     for passport in filtered_passports:
         if not isValidBirthYear(passport.get('byr')):
             continue
@@ -64,8 +66,9 @@ def getValidPassportsPart2(passport_list):
         if not isValidPassportID(passport.get('pid')):
             continue
         valid_passports.append(passport)
-        
+
     return valid_passports
+
 
 def isValidBirthYear(birth_year: str):
     '''
@@ -81,6 +84,7 @@ def isValidBirthYear(birth_year: str):
     else:
         return False
 
+
 def isValidIssueYear(issue_year: str):
     '''
     Validate that issue_year is:
@@ -94,7 +98,8 @@ def isValidIssueYear(issue_year: str):
         return 2010 <= result <= 2020
     else:
         return False
-    
+
+
 def isValidExpirationYear(expiration_year: str):
     '''
     Validate that expiration_year is:
@@ -108,6 +113,7 @@ def isValidExpirationYear(expiration_year: str):
         return 2020 <= result <= 2030
     else:
         return False
+
 
 def isValidHeight(height: str):
     '''
@@ -128,6 +134,7 @@ def isValidHeight(height: str):
     else:
         return False
 
+
 def isValidHairColor(hair_color: str):
     '''
     Validate that hair_color is:
@@ -140,6 +147,7 @@ def isValidHairColor(hair_color: str):
     else:
         return False
 
+
 def isValidEyeColor(eye_color: str):
     '''
     Validate that eye_color is exactly
@@ -147,6 +155,7 @@ def isValidEyeColor(eye_color: str):
     '''
     valid_eye_colors = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
     return eye_color in valid_eye_colors
+
 
 def isValidPassportID(passport_id: str):
     '''
@@ -160,21 +169,23 @@ def isValidPassportID(passport_id: str):
     else:
         return False
 
+
 def main():
     print("---- PROGRAM PART 1 ----")
     passports = parseData('day_04_input.txt')
     count = len(getValidPassportsPart1(passports))
     print("Solution for Part 1: %s\n" % count)
-    
+
     print("---- PROGRAM PART 2 ----")
     passports = parseData('day_04_input.txt')
     count = len(getValidPassportsPart2(passports))
     print("Solution for Part 2: %s\n" % count)
 
+
 def test():
     print("---- TEST PART 1 ----")
     passports = parseData('day_04_test_input.txt')
-    solution_part1 = len( getValidPassportsPart1(passports))
+    solution_part1 = len(getValidPassportsPart1(passports))
     print("Solution for Part 1: %s\n" % solution_part1)
     assert solution_part1 == 2
 
@@ -184,7 +195,7 @@ def test():
     print("Solution for Part 2: %s\n" % solution_part2)
     assert solution_part2 == 4
 
-          
+
 if __name__ == '__main__':
     test()
     main()
