@@ -17,8 +17,8 @@ def readFile(filename: str):
 def decode(raw_tickets):
     decoded_tickets = []
     for ticket in raw_tickets:
-        rows = ticket[:-3]  # letters 0 to last -3
-        cols = ticket[-3:]  # last 3 letters
+        rows = ticket[:7]
+        cols = ticket[7:]
         row = search(rows, 0, 127)
         col = search(cols, 0, 7)
         ticket_id = row * 8 + col
