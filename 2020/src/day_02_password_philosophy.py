@@ -23,7 +23,7 @@ class Password:
             B = self.pwd[self.stop - 1] == self.letter
             return (A and not B) or (B and not A)
         else:
-            raise Exception("Invalid validator version")
+            raise Exception('Invalid validator version')
 
 
 def getValidCount(passwordList: list[Password], version: ValidatorVersion):
@@ -35,7 +35,7 @@ def getValidCount(passwordList: list[Password], version: ValidatorVersion):
 
 
 def parseData(filename: str):
-    '''Parse line such as "1-3 a: abcde" into Password components
+    '''Parse line such as '1-3 a: abcde' into Password components
         # start:1
         # stop:3
         # letter:a
@@ -76,8 +76,8 @@ def main():
     count1 = getValidCount(passwordList, ValidatorVersion.part1)
     count2 = getValidCount(passwordList, ValidatorVersion.part2)
 
-    print("Valid password count for part 1: %s" % count1)
-    print("Valid password count for part 2: %s" % count2)
+    print('Valid password count for part 1: %s' % count1)
+    print('Valid password count for part 2: %s' % count2)
 
 
 if __name__ == '__main__':
