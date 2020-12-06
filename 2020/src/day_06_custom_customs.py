@@ -41,7 +41,9 @@ def getAnswerCount(answers):
 
 def test():
     print("---- TEST ----")
-    groups = readFile('day_06_test_input.txt')
+    filepath = os.path.join('..', 'test', 'day_06_input.txt')
+    groups = readFile(filepath)
+    
     anyone_answers = getAnyoneAnswers(groups)
     anyone_answers_count = getAnswerCount(anyone_answers)
     print(f"Sum of counts part 1: { anyone_answers_count }")
@@ -57,7 +59,8 @@ def test():
 
 def main():
     print("---- PROGRAM ----")
-    groups = readFile('day_06_input.txt')
+    filepath = os.path.join('..', 'data', 'day_06_input.txt')
+    groups = readFile(filepath)
 
     anyone_answers = getAnyoneAnswers(groups)
     anyone_answers_count = getAnswerCount(anyone_answers)

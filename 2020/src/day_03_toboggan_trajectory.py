@@ -54,7 +54,7 @@ def getTreeCount(data: list[str], deltaX: int, deltaY: int):
 
 def test():
     print("---- TEST PART 1 ----")
-    data = parseData('day_03_test_input.txt')
+    data = parseData(os.path.join('..', 'test', 'day_03_input.txt'))
     solution_part1 = solve(data, Version.part1)
     print("Solution for Part 1: %s\n" % solution_part1)
     assert solution_part1 == 7
@@ -67,7 +67,7 @@ def test():
 
 def main():
     print("---- PROGRAM PART 1 ----")
-    data = parseData('day_03_input.txt')
+    data = parseData(os.path.join('..', 'data', 'day_03_input.txt'))
     solution_part1 = solve(data, Version.part1)
     print("Solution for Part 1: %s\n" % solution_part1)
 

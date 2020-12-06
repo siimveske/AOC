@@ -59,7 +59,7 @@ def parseData(filename: str):
 
 
 def test():
-    filename = 'day_02_test_input.txt'
+    filename = os.path.join('..', 'test', 'day_02_input.txt')
 
     passwordList = parseData(filename)
     v1 = getValidCount(passwordList, ValidatorVersion.part1)
@@ -70,7 +70,7 @@ def test():
 
 
 def main():
-    filename = 'day_02_input.txt'
+    filename = os.path.join('..', 'data', 'day_02_input.txt')
 
     passwordList = parseData(filename)
     count1 = getValidCount(passwordList, ValidatorVersion.part1)

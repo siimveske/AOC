@@ -172,25 +172,26 @@ def isValidPassportID(passport_id: str):
 
 def main():
     print("---- PROGRAM PART 1 ----")
-    passports = parseData('day_04_input.txt')
+    filepath = os.path.join('..', 'data', 'day_04_input.txt')
+    passports = parseData(filepath)
     count = len(getValidPassportsPart1(passports))
     print("Solution for Part 1: %s\n" % count)
 
     print("---- PROGRAM PART 2 ----")
-    passports = parseData('day_04_input.txt')
+    passports = parseData(filepath)
     count = len(getValidPassportsPart2(passports))
     print("Solution for Part 2: %s\n" % count)
 
 
 def test():
     print("---- TEST PART 1 ----")
-    passports = parseData('day_04_test_input.txt')
+    passports = parseData(os.path.join('..', 'test', 'day_04_input.txt'))
     solution_part1 = len(getValidPassportsPart1(passports))
     print("Solution for Part 1: %s\n" % solution_part1)
     assert solution_part1 == 2
 
     print("---- TEST PART 2 ----")
-    passports = parseData('day_04_test_input2.txt')
+    passports = parseData(os.path.join('..', 'test', 'day_04_input2.txt'))
     solution_part2 = len(getValidPassportsPart2(passports))
     print("Solution for Part 2: %s\n" % solution_part2)
     assert solution_part2 == 4

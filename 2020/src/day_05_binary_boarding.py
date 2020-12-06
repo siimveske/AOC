@@ -61,7 +61,8 @@ def getMissingID(tickets):
 
 def main():
     print("---- PROGRAM ----")
-    raw_tickets = readFile('day_05_input.txt')
+    filepath = os.path.join('..', 'data', 'day_05_input.txt')
+    raw_tickets = readFile(filepath)
     tickets = decode(raw_tickets)
     getMaxID(tickets)
     getMissingID(tickets)
@@ -70,7 +71,8 @@ def main():
 def test():
     print("---- TEST ----")
 
-    raw_tickets = readFile('day_05_test_input.txt')
+    filepath = os.path.join('..', 'test', 'day_05_input.txt')
+    raw_tickets = readFile(filepath)
     tickets = decode(raw_tickets)
     getMaxID(tickets)
     # FBFBBFFRLR
