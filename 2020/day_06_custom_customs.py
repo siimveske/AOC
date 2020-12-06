@@ -12,12 +12,24 @@ def readFile(filename: str):
     return groups
 
 
-def getAnswers(groups):
+def getAnyoneAnswers(groups):
     answers = []
     for group in groups:
         unique_answers = set()
         for line in group.split():
-            unique_answers.update(set(line))
+            unique_answers |= set(line)
+        answers.append(unique_answers)
+
+    return answers
+
+
+def getEveryoneAnswers(groups):
+    answers = []
+    for group in groups:
+        lines = group.split()
+        unique_answers = set(lines[0])
+        for i in range(1, len(lines)):
+            unique_answers &= set(lines[i])
         answers.append(unique_answers)
 
     return answers
@@ -30,19 +42,30 @@ def getSumOfCounts(answers):
 def test():
     print("---- TEST ----")
     groups = readFile('day_06_test_input.txt')
-    answers = getAnswers(groups)
-    sum_of_counts = getSumOfCounts(answers)
-    print(f"Sum of counts: { sum_of_counts }\n")
+    anyone_answers = getAnyoneAnswers(groups)
+    anyone_answers_count = getSumOfCounts(anyone_answers)
+    print(f"Sum of counts part 1: { anyone_answers_count }")
 
-    assert sum_of_counts == 11
+    assert anyone_answers_count == 11
+
+    everyone_answers = getEveryoneAnswers(groups)
+    everyone_answers_count = getSumOfCounts(everyone_answers)
+    print(f"Sum of counts part 2: { everyone_answers_count }\n")
+
+    assert everyone_answers_count == 6
 
 
 def main():
     print("---- PROGRAM ----")
     groups = readFile('day_06_input.txt')
-    answers = getAnswers(groups)
-    sum_of_counts = getSumOfCounts(answers)
-    print(f"Sum of counts: {sum_of_counts}")
+
+    anyone_answers = getAnyoneAnswers(groups)
+    anyone_answers_count = getSumOfCounts(anyone_answers)
+    print(f"Sum of counts part 1: {anyone_answers_count}")
+
+    everyone_answers = getEveryoneAnswers(groups)
+    everyone_answers_count = getSumOfCounts(everyone_answers)
+    print(f"Sum of counts part 2: { everyone_answers_count }\n")
 
 
 if __name__ == '__main__':
