@@ -15,10 +15,8 @@ def readFile(filename: str):
 def getAnyoneAnswers(groups):
     answers = []
     for group in groups:
-        unique_answers = set()
-        for line in group.split():
-            unique_answers |= set(line)
-        answers.append(unique_answers)
+        all_answers = ''.join(group.split())
+        answers.append(set(all_answers))
 
     return answers
 
