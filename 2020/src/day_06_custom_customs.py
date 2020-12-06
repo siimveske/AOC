@@ -12,7 +12,7 @@ def readFile(filename: str):
     return groups
 
 
-def getAnyoneAnswers(groups):
+def getAnswers(groups):
     answers = []
     for group in groups:
         all_answers = ''.join(group.split())
@@ -21,7 +21,7 @@ def getAnyoneAnswers(groups):
     return answers
 
 
-def getEveryoneAnswers(groups):
+def getSharedAnswers(groups):
     answers = []
     for group in groups:
         lines = group.split()
@@ -42,17 +42,17 @@ def test():
     filepath = os.path.join('..', 'test', 'day_06_input.txt')
     groups = readFile(filepath)
     
-    anyone_answers = getAnyoneAnswers(groups)
-    anyone_answers_count = getAnswerCount(anyone_answers)
-    print(f'Sum of counts part 1: { anyone_answers_count }')
+    answers = getAnswers(groups)
+    answer_count = getAnswerCount(answers)
+    print(f'Sum of counts part 1: { answer_count }')
 
-    assert anyone_answers_count == 11
+    assert answer_count == 11
 
-    everyone_answers = getEveryoneAnswers(groups)
-    everyone_answers_count = getAnswerCount(everyone_answers)
-    print(f'Sum of counts part 2: { everyone_answers_count }\n')
+    shared_answers = getSharedAnswers(groups)
+    shared_answer_count = getAnswerCount(shared_answers)
+    print(f'Sum of counts part 2: { shared_answer_count }\n')
 
-    assert everyone_answers_count == 6
+    assert shared_answer_count == 6
 
 
 def main():
@@ -60,13 +60,13 @@ def main():
     filepath = os.path.join('..', 'data', 'day_06_input.txt')
     groups = readFile(filepath)
 
-    anyone_answers = getAnyoneAnswers(groups)
-    anyone_answers_count = getAnswerCount(anyone_answers)
-    print(f'Sum of counts part 1: {anyone_answers_count}')
+    answers = getAnswers(groups)
+    answer_count = getAnswerCount(answers)
+    print(f'Sum of counts part 1: {answer_count}')
 
-    everyone_answers = getEveryoneAnswers(groups)
-    everyone_answers_count = getAnswerCount(everyone_answers)
-    print(f'Sum of counts part 2: { everyone_answers_count }\n')
+    shared_answers = getSharedAnswers(groups)
+    shared_answer_count = getAnswerCount(shared_answers)
+    print(f'Sum of counts part 2: { shared_answer_count }\n')
 
 
 if __name__ == '__main__':
