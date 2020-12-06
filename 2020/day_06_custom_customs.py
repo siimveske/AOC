@@ -12,38 +12,39 @@ def readFile(filename: str):
     return groups
 
 
-def parseGroupData(groups):
+def getAnswers(groups):
     answers = []
     for group in groups:
         unique_answers = set()
-        for person in group.split():
-            for answer in person:
-                unique_answers.add(answer)
+        for line in group.split():
+            unique_answers.update(set(line))
         answers.append(unique_answers)
 
-    counts = [len(i) for i in answers]
-    return counts
+    return answers
+
+
+def getSumOfCounts(answers):
+    return sum([len(i) for i in answers])
 
 
 def test():
     print("---- TEST ----")
     groups = readFile('day_06_test_input.txt')
-    answers = parseGroupData(groups)
-    sum_of_counts = sum(answers)
-    print(f"Sum of counts: {sum_of_counts}\n")
-    
+    answers = getAnswers(groups)
+    sum_of_counts = getSumOfCounts(answers)
+    print(f"Sum of counts: { sum_of_counts }\n")
+
     assert sum_of_counts == 11
 
 
 def main():
     print("---- PROGRAM ----")
     groups = readFile('day_06_input.txt')
-    answers = parseGroupData(groups)
-    sum_of_counts = sum(answers)
+    answers = getAnswers(groups)
+    sum_of_counts = getSumOfCounts(answers)
     print(f"Sum of counts: {sum_of_counts}")
 
 
 if __name__ == '__main__':
     test()
     main()
-    
