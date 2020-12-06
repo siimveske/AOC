@@ -35,7 +35,7 @@ def getEveryoneAnswers(groups):
     return answers
 
 
-def getSumOfCounts(answers):
+def getAnswerCount(answers):
     return sum([len(i) for i in answers])
 
 
@@ -43,13 +43,13 @@ def test():
     print("---- TEST ----")
     groups = readFile('day_06_test_input.txt')
     anyone_answers = getAnyoneAnswers(groups)
-    anyone_answers_count = getSumOfCounts(anyone_answers)
+    anyone_answers_count = getAnswerCount(anyone_answers)
     print(f"Sum of counts part 1: { anyone_answers_count }")
 
     assert anyone_answers_count == 11
 
     everyone_answers = getEveryoneAnswers(groups)
-    everyone_answers_count = getSumOfCounts(everyone_answers)
+    everyone_answers_count = getAnswerCount(everyone_answers)
     print(f"Sum of counts part 2: { everyone_answers_count }\n")
 
     assert everyone_answers_count == 6
@@ -60,11 +60,11 @@ def main():
     groups = readFile('day_06_input.txt')
 
     anyone_answers = getAnyoneAnswers(groups)
-    anyone_answers_count = getSumOfCounts(anyone_answers)
+    anyone_answers_count = getAnswerCount(anyone_answers)
     print(f"Sum of counts part 1: {anyone_answers_count}")
 
     everyone_answers = getEveryoneAnswers(groups)
-    everyone_answers_count = getSumOfCounts(everyone_answers)
+    everyone_answers_count = getAnswerCount(everyone_answers)
     print(f"Sum of counts part 2: { everyone_answers_count }\n")
 
 
