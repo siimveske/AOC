@@ -175,25 +175,25 @@ def main():
     filepath = os.path.join('..', 'data', 'day_04_input.txt')
     passports = parseData(filepath)
     count = len(getValidPassportsPart1(passports))
-    print('Solution for Part 1: %s\n' % count)
+    print(f'Solution for Part 1: {count}\n')
 
     print('---- PROGRAM PART 2 ----')
     passports = parseData(filepath)
     count = len(getValidPassportsPart2(passports))
-    print('Solution for Part 2: %s\n' % count)
+    print(f'Solution for Part 2: {count}\n')
 
 
 def test():
     print('---- TEST PART 1 ----')
     passports = parseData(os.path.join('..', 'test', 'day_04_input.txt'))
     solution_part1 = len(getValidPassportsPart1(passports))
-    print('Solution for Part 1: %s\n' % solution_part1)
+    print(f'Solution for Part 1: {solution_part1}\n')
     assert solution_part1 == 2
 
     print('---- TEST PART 2 ----')
     passports = parseData(os.path.join('..', 'test', 'day_04_input2.txt'))
     solution_part2 = len(getValidPassportsPart2(passports))
-    print('Solution for Part 2: %s\n' % solution_part2)
+    print(f'Solution for Part 2: {solution_part2}\n')
     assert solution_part2 == 4
 
 

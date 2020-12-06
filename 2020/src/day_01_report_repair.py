@@ -28,8 +28,8 @@ def main():
     part2_solution = solve(data, Version.part2)
 
     print('---- END PROGRAM ----\n')
-    print('Solution Part 1: %s' % part1_solution)
-    print('Solution Part 2: %s' % part2_solution)
+    print(f'Solution Part 1: {part1_solution}')
+    print(f'Solution Part 2: {part2_solution}')
 
 
 def solve(entries: list[int], version: Version):
@@ -72,9 +72,10 @@ def solve(entries: list[int], version: Version):
                 entry2 = entries[j]
                 if entry1 + entry2 == expectedSum:
                     solution = entry1 * entry2
-                    print('%s + %s == 2020' % (entry1, entry2))
-                    print('%s * %s == %s' % (entry1, entry2, solution))
+                    print(f'{entry1} + {entry2} == 2020')
+                    print(f'{entry1} * {entry2} == {solution}')
                     return solution
+    
     elif version == Version.part2:
         print('[ PART: 2 ]')
         for i in range(numberOfEntries - 2):
@@ -85,9 +86,10 @@ def solve(entries: list[int], version: Version):
                     entry3 = entries[k]
                     if entry1 + entry2 + entry3 == expectedSum:
                         solution = entry1 * entry2 * entry3
-                        print('%s + %s + %s == 2020' % (entry1, entry2, entry3))
-                        print('%s * %s * %s == %s' % (entry1, entry2, entry3, solution))
+                        print(f'{entry1} + {entry2} + {entry3} == 2020')
+                        print(f'{entry1} * {entry2} * {entry3} == {solution}')
                         return solution
+    
     else:
         raise Exception('Invalid version!')
 

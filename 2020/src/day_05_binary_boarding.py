@@ -22,7 +22,7 @@ def decode(raw_tickets):
         row = search(rows, 0, 127)
         col = search(cols, 0, 7)
         ticket_id = row * 8 + col
-        print('%s: row %s, column %s, seat ID %s' % (ticket, row, col, ticket_id))
+        print(f'{ticket}: row {row}, column {col}, seat ID {ticket_id}')
         decoded_tickets.append({'row': row, 'col': col, 'id': ticket_id})
     return decoded_tickets
 
@@ -45,7 +45,7 @@ def getMaxID(tickets):
     for ticket in tickets:
         if ticket['id'] > max_id:
             max_id = ticket['id']
-    print('Highest seat ID on a boarding pass: %s' % max_id)
+    print(f'Highest seat ID on a boarding pass: {max_id}')
 
 
 def getMissingID(tickets):
@@ -54,7 +54,7 @@ def getMissingID(tickets):
     index = sorted_tickets[0]['id']  # Lowest id
     for ticket in sorted_tickets:
         if ticket['id'] != index:
-            print('Missing seat ID: %s' % index)
+            print(f'Missing seat ID: {index}')
             break
         index += 1
 

@@ -48,7 +48,7 @@ def getTreeCount(data: list[str], deltaX: int, deltaY: int):
         if y <= mapHeight and data[y][x] == '#':
             treeCount += 1
 
-    print('Tree count for route (%s %s) == %s' % (deltaX, deltaY, treeCount))
+    print(f'Tree count for route ({deltaX} {deltaY}) == {treeCount}')
     return treeCount
 
 
@@ -56,12 +56,12 @@ def test():
     print('---- TEST PART 1 ----')
     data = parseData(os.path.join('..', 'test', 'day_03_input.txt'))
     solution_part1 = solve(data, Version.part1)
-    print('Solution for Part 1: %s\n' % solution_part1)
+    print(f'Solution for Part 1: {solution_part1}\n')
     assert solution_part1 == 7
 
     print('---- TEST PART 2 ----')
     solution_part2 = solve(data, Version.part2)
-    print('Solution for Part 2: %s\n' % solution_part2)
+    print(f'Solution for Part 2: {solution_part2}\n')
     assert solution_part2 == 336
 
 
@@ -69,11 +69,11 @@ def main():
     print('---- PROGRAM PART 1 ----')
     data = parseData(os.path.join('..', 'data', 'day_03_input.txt'))
     solution_part1 = solve(data, Version.part1)
-    print('Solution for Part 1: %s\n' % solution_part1)
+    print(f'Solution for Part 1: {solution_part1}\n')
 
     print('---- PROGRAM PART 2 ----')
     solution_part2 = solve(data, Version.part2)
-    print('Solution for Part 2: %s' % solution_part2)
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':

@@ -76,8 +76,8 @@ def main():
     count1 = getValidCount(passwordList, ValidatorVersion.part1)
     count2 = getValidCount(passwordList, ValidatorVersion.part2)
 
-    print('Valid password count for part 1: %s' % count1)
-    print('Valid password count for part 2: %s' % count2)
+    print(f'Valid password count for part 1: {count1}')
+    print(f'Valid password count for part 2: {count2}')
 
 
 if __name__ == '__main__':
