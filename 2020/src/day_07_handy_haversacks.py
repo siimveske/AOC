@@ -13,25 +13,25 @@ def parseRules(filename: str):
             container, content = line.split('bags contain')
             result = re.findall(pattern, content)
 
-            colors = []
+            colors = {}
             if result:
-                for _, clr in result:
-                    colors.append(clr)
+                for cnt, clr in result:
+                    colors[clr] = int(cnt)
             rules[container.strip()] = colors
-    
+
     return rules
 
 
 def isValidContainer(rules, key, value):
     if not rules[key]:
         return False
-    if value in rules[key]:
+    if value in rules[key].keys():
         return True
-    
-    for color in rules[key]:
+
+    for color in rules[key].keys():
         if isValidContainer(rules, color, value):
             return True
-        
+
     return False
 
 
@@ -45,13 +45,34 @@ def getValidContainers(rules, color='shiny gold'):
     return valid_containers
 
 
+def countBags(rules, lookup='shiny gold'):
+    result = sum(rules[lookup].values())
+    for bag, amount in rules[lookup].items():
+        if rules[bag]:
+            cnt = countBags(rules, bag)
+            result += amount * cnt
+    return result
+
+
 def test():
     print('---- TEST ----')
     filepath = os.path.join('..', 'test', 'day_07_input.txt')
     rules = parseRules(filepath)
     containers = getValidContainers(rules)
-    print(f"Valid containers: {containers}")
-    print(f"Part 1 solution: {len(containers)}\n")
+
+    print(f"Part 1 solution: {len(containers)}")
+
+    bagCount1 = countBags(rules)
+    filepath = os.path.join('..', 'test', 'day_07_input2.txt')
+    rules = parseRules(filepath)
+    bagCount2 = countBags(rules)
+
+    print(f"Part 2 solution 1: {bagCount1}")
+    print(f"Part 2 solution 2: {bagCount2}")
+    print()
+    
+    assert bagCount1 == 32
+    assert bagCount2 == 126
 
 
 def main():
@@ -59,8 +80,10 @@ def main():
     filepath = os.path.join('..', 'data', 'day_07_input.txt')
     rules = parseRules(filepath)
     containers = getValidContainers(rules)
-    print(f"Valid containers: {containers}")
+    bagCount = countBags(rules)
+
     print(f"Part 1 solution: {len(containers)}")
+    print(f"Part 2 solution: {bagCount}\n")
 
 
 if __name__ == '__main__':
