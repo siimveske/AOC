@@ -2,23 +2,16 @@ import os
 import re
 
 
-def parseRules(filename: str):
+def parseRules(filename):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     rules = {}
-    pattern = '([0-9]+) ([a-z]+ [a-z]+)'
     with open(input_file_path, 'r') as file:
         for line in file:
-            container, content = line.split('bags contain')
-            result = re.findall(pattern, content)
-
-            colors = {}
-            if result:
-                for cnt, clr in result:
-                    colors[clr] = int(cnt)
-            rules[container.strip()] = colors
-
+            bag, content = line.split(' bags contain ')
+            inner_bags = re.findall('([0-9]+) ([a-z]+ [a-z]+)', content)
+            rules[bag] = {clr:int(cnt) for cnt, clr in inner_bags}
     return rules
 
 
@@ -35,23 +28,18 @@ def isValidContainer(rules, key, value):
     return False
 
 
-def getValidContainers(rules, color='shiny gold'):
+def getValidContainers(rules, bag='shiny gold'):
     valid_containers = []
     for clr in rules.keys():
-        if clr == color:
+        if clr == bag:
             continue
-        if isValidContainer(rules, clr, color):
+        if isValidContainer(rules, clr, bag):
             valid_containers.append(clr)
     return valid_containers
 
 
-def countBags(rules, lookup='shiny gold'):
-    result = sum(rules[lookup].values())
-    for bag, amount in rules[lookup].items():
-        if rules[bag]:
-            cnt = countBags(rules, bag)
-            result += amount * cnt
-    return result
+def countBags(rules, bag='shiny gold'):
+    return sum([n + n * countBags(rules, inner_bag) for inner_bag, n in rules[bag].items()])
 
 
 def test():
