@@ -15,27 +15,13 @@ def parseRules(filename):
     return rules
 
 
-def isValidContainer(rules, key, value):
-    if not rules[key]:
-        return False
-    if value in rules[key].keys():
-        return True
-
-    for color in rules[key].keys():
-        if isValidContainer(rules, color, value):
-            return True
-
-    return False
+def hasGold(bag, rules):
+    for inner_bag in rules[bag]:
+        return (inner_bag == 'shiny gold' or hasGold(inner_bag, rules))
 
 
-def getValidContainers(rules, bag='shiny gold'):
-    valid_containers = []
-    for clr in rules.keys():
-        if clr == bag:
-            continue
-        if isValidContainer(rules, clr, bag):
-            valid_containers.append(clr)
-    return valid_containers
+def getValidContainers(rules):
+    return [bag for bag in rules if hasGold(bag, rules)]
 
 
 def countBags(rules, bag='shiny gold'):
@@ -58,7 +44,7 @@ def test():
     print(f"Part 2 solution 1: {bagCount1}")
     print(f"Part 2 solution 2: {bagCount2}")
     print()
-    
+
     assert bagCount1 == 32
     assert bagCount2 == 126
 
