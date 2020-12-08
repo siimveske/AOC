@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 
 def loadProgram(file: str):
@@ -9,7 +10,7 @@ def loadProgram(file: str):
     with open(input_file_path, 'r') as file:
         for line in file:
             command, arg = line.split()
-            program.append({'command': command, 'arg': int(arg), 'cnt': 0})
+            program.append({'command': command, 'arg': int(arg)})
 
     return program
 
@@ -17,12 +18,14 @@ def loadProgram(file: str):
 def executeProgram(program: list[dict]):
     i = 0
     acc = 0
+    history = defaultdict(int)
+    
     while i < len(program):
-        command, arg, cnt = program[i].values()
+        command, arg = program[i].values()
 
-        if cnt > 0:
+        if history[i] > 0:
             return {'status': 'error', 'acc': acc}
-        program[i]['cnt'] += 1
+        history[i] += 1
 
         if command == 'nop':
             i += 1
@@ -35,16 +38,9 @@ def executeProgram(program: list[dict]):
     return {'status': 'ok', 'acc': acc}
 
 
-def resetProgram(program: list[dict]):
-    for instruction in program:
-        instruction['cnt'] = 0
-    return program
-
-
 def fixProgram(program: list[dict]):
-    resetProgram(program)
     for i in range(len(program)):
-        command, arg, _ = program[i].values()
+        command, arg = program[i].values()
         if command == 'nop' and arg != 0:
             program[i]['command'] = 'jmp'
             result = executeProgram(program)
@@ -52,7 +48,6 @@ def fixProgram(program: list[dict]):
                 return result
             else:
                 program[i]['command'] = 'nop'
-                resetProgram(program)
         elif command == 'jmp':
             program[i]['command'] = 'nop'
             result = executeProgram(program)
@@ -60,7 +55,6 @@ def fixProgram(program: list[dict]):
                 return result
             else:
                 program[i]['command'] = 'jmp'
-                resetProgram(program)
 
 
 def test():
