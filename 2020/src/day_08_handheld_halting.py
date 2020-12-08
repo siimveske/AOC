@@ -47,14 +47,14 @@ def fixProgram(program: list[dict]):
             if result.get('status') == 'ok':
                 return result
             else:
-                program[i]['command'] = 'nop'
+                program[i]['command'] = command
         elif command == 'jmp':
             program[i]['command'] = 'nop'
             result = executeProgram(program)
             if result.get('status') == 'ok':
                 return result
             else:
-                program[i]['command'] = 'jmp'
+                program[i]['command'] = command
 
 
 def test():
