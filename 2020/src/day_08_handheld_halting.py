@@ -19,7 +19,7 @@ def executeProgram(program: list[dict]):
     i = 0
     acc = 0
     history = defaultdict(int)
-    
+
     while i < len(program):
         command, arg = program[i].values()
 
@@ -41,20 +41,16 @@ def executeProgram(program: list[dict]):
 def fixProgram(program: list[dict]):
     for i in range(len(program)):
         command, arg = program[i].values()
-        if command == 'nop' and arg != 0:
-            program[i]['command'] = 'jmp'
-            result = executeProgram(program)
-            if result.get('status') == 'ok':
+
+        if command == 'acc':
+            continue
+
+        if (command == 'nop' and arg != 0) or (command == 'jmp'):
+            alt_command = 'nop' if command == 'jmp' else 'jmp'
+            alt_program = [*program[:i], {'command': alt_command, 'arg': arg}, *program[i + 1:]]
+            result = executeProgram(alt_program)
+            if executeProgram(alt_program).get('status') == 'ok':
                 return result
-            else:
-                program[i]['command'] = command
-        elif command == 'jmp':
-            program[i]['command'] = 'nop'
-            result = executeProgram(program)
-            if result.get('status') == 'ok':
-                return result
-            else:
-                program[i]['command'] = command
 
 
 def test():
