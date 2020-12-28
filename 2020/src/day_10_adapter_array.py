@@ -37,15 +37,13 @@ def test():
     print('---- TEST ----')
 
     file = os.path.join('..', 'test', 'day_10_input.txt')
+
     jolts = load_program(file)
     diff = get_diff(jolts)
+    paths = get_paths(jolts)
 
     assert diff == 35
-    print('part1: ', diff)
-
-    paths = get_paths(jolts)
     assert paths == 8
-    print('part2: ', paths)
 
 
 def main():
