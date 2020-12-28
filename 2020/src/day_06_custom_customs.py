@@ -41,7 +41,7 @@ def test():
     print('---- TEST ----')
     filepath = os.path.join('..', 'test', 'day_06_input.txt')
     groups = readFile(filepath)
-    
+
     answers = getAnswers(groups)
     answer_count = getAnswerCount(answers)
     print(f'Sum of counts part 1: { answer_count }')
