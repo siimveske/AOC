@@ -34,8 +34,6 @@ def get_paths(jolts):
 
 
 def test():
-    print('---- TEST ----')
-
     file = os.path.join('..', 'test', 'day_10_input.txt')
 
     jolts = load_program(file)
@@ -47,9 +45,8 @@ def test():
 
 
 def main():
-    print('\n---- PROGRAM ----')
-
     file = os.path.join('..', 'data', 'day_10_input.txt')
+
     jolts = load_program(file)
     diff = get_diff(jolts)
     paths = get_paths(jolts)
