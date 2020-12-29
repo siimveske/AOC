@@ -142,7 +142,7 @@ def get_occupied_visible_seat_count(plan, row, col):
     return count
 
 
-def distribute_people(plan):
+def distribute_people(plan, count, only_adjacent):
     new_plan = copy.deepcopy(plan)
 
     for row in range(len(plan)):
@@ -150,102 +150,53 @@ def distribute_people(plan):
             seat = plan[row][col]
             if seat == FLOOR:
                 continue
-            cnt = get_occupied_seat_count(plan, row, col)
+
+            if only_adjacent:
+                cnt = get_occupied_seat_count(plan, row, col)
+            else:
+                cnt = get_occupied_visible_seat_count(plan, row, col)
+
             if seat == EMPTY and cnt == 0:
                 new_plan[row][col] = OCCUPIED
-            elif seat == OCCUPIED and cnt >= 4:
+            elif seat == OCCUPIED and cnt >= count:
                 new_plan[row][col] = EMPTY
 
     return new_plan
-
-
-def distribute_people2(plan):
-    new_plan = copy.deepcopy(plan)
-
-    for row in range(len(plan)):
-        for col in range(len(plan[row])):
-            seat = plan[row][col]
-            if seat == FLOOR:
-                continue
-            cnt = get_occupied_visible_seat_count(plan, row, col)
-            if seat == EMPTY and cnt == 0:
-                new_plan[row][col] = OCCUPIED
-            elif seat == OCCUPIED and cnt >= 5:
-                new_plan[row][col] = EMPTY
-
-    return new_plan
-
-
-def print_plan(plan):
-    for row in range(len(plan)):
-        for col in range(len(plan[row])):
-            print(plan[row][col], end=" "),
-        print()
-
-
-def is_equal(l1, l2):
-    num_equal = sum(x == y for x, y in zip(l1, l2))
-    return num_equal == len(l1) == len(l2)
 
 
 def count_seats(plan):
-    seat_count = 0
-    for row in range(len(plan)):
-        for col in range(len(plan[row])):
-            if plan[row][col] == OCCUPIED:
-                seat_count += 1
-    return seat_count
+    return sum(row.count(OCCUPIED) for row in plan)
 
 
-def part1(plan):
-    # count = 1
+def distribute_and_count(plan, count, only_adjacent):
     while True:
-        # print(f'round ', count)
-        new_plan = distribute_people(plan)
-        # print_plan(new_plan)
-        if is_equal(plan, new_plan):
+        new_plan = distribute_people(plan, count, only_adjacent)
+        if plan == new_plan:
             break
         else:
             plan = new_plan
-            # count += 1
 
-    seat_count = count_seats(plan)
-    print("part 1: ", seat_count)
-
-
-def part2(plan):
-    # count = 1
-    # print_plan(plan)
-    while True:
-        # print(f'round ', count)
-        new_plan = distribute_people2(plan)
-        # print_plan(new_plan)
-        if is_equal(plan, new_plan):
-            break
-        else:
-            plan = new_plan
-            # count += 1
-
-    seat_count = count_seats(plan)
-    print("part 2: ", seat_count)
+    return count_seats(plan)
 
 
 def test():
     print('---- TEST ----')
     file = os.path.join('..', 'test', 'day_11_input.txt')
+
     plan = load_program(file)
-    part1(plan)
-    part2(plan)
+    print('part 1:', distribute_and_count(plan, count=4, only_adjacent=True))
+    print('part 2:', distribute_and_count(plan, count=5, only_adjacent=False))
 
 
 def main():
     print('---- PROGRAM ----')
     file = os.path.join('..', 'data', 'day_11_input.txt')
+
     plan = load_program(file)
-    part1(plan)
-    part2(plan)
+    print('part 1:', distribute_and_count(plan, count=4, only_adjacent=True))
+    print('part 2:', distribute_and_count(plan, count=5, only_adjacent=False))
 
 
 if __name__ == '__main__':
-    # test()
+    test()
     main()
