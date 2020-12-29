@@ -34,6 +34,114 @@ def get_occupied_seat_count(plan, row, col):
     return count
 
 
+def get_occupied_visible_seat_count(plan, row, col):
+
+    top = 0
+    bottom = len(plan)
+    left = 0
+    right = len(plan[row])
+
+    count = 0
+
+    # Check left
+    j = col - 1
+    while j >= left:
+        item = plan[row][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        j -= 1
+
+    # Check right
+    j = col + 1
+    while j < right:
+        item = plan[row][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        j += 1
+
+    # Check top
+    i = row - 1
+    while i >= top:
+        item = plan[i][col]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i -= 1
+
+    # Check bottom
+    i = row + 1
+    while i < bottom:
+        item = plan[i][col]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i += 1
+
+    # Check top-left
+    i = row - 1
+    j = col - 1
+    while i >= top and j >= left:
+        item = plan[i][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i -= 1
+        j -= 1
+
+    # Check top-right
+    i = row - 1
+    j = col + 1
+    while i >= top and j < right:
+        item = plan[i][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i -= 1
+        j += 1
+
+    # Check bottom-right
+    i = row + 1
+    j = col + 1
+    while i < bottom and j < right:
+        item = plan[i][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i += 1
+        j += 1
+
+    # Check bottom-left
+    i = row + 1
+    j = col - 1
+    while i < bottom and j >= left:
+        item = plan[i][j]
+        if item == EMPTY:
+            break
+        if item == OCCUPIED:
+            count += 1
+            break
+        i += 1
+        j -= 1
+
+    return count
+
+
 def distribute_people(plan):
     new_plan = copy.deepcopy(plan)
 
@@ -46,6 +154,23 @@ def distribute_people(plan):
             if seat == EMPTY and cnt == 0:
                 new_plan[row][col] = OCCUPIED
             elif seat == OCCUPIED and cnt >= 4:
+                new_plan[row][col] = EMPTY
+
+    return new_plan
+
+
+def distribute_people2(plan):
+    new_plan = copy.deepcopy(plan)
+
+    for row in range(len(plan)):
+        for col in range(len(plan[row])):
+            seat = plan[row][col]
+            if seat == FLOOR:
+                continue
+            cnt = get_occupied_visible_seat_count(plan, row, col)
+            if seat == EMPTY and cnt == 0:
+                new_plan[row][col] = OCCUPIED
+            elif seat == OCCUPIED and cnt >= 5:
                 new_plan[row][col] = EMPTY
 
     return new_plan
@@ -88,18 +213,39 @@ def part1(plan):
     print("part 1: ", seat_count)
 
 
+def part2(plan):
+    # count = 1
+    # print_plan(plan)
+    while True:
+        # print(f'round ', count)
+        new_plan = distribute_people2(plan)
+        # print_plan(new_plan)
+        if is_equal(plan, new_plan):
+            break
+        else:
+            plan = new_plan
+            # count += 1
+
+    seat_count = count_seats(plan)
+    print("part 2: ", seat_count)
+
+
 def test():
+    print('---- TEST ----')
     file = os.path.join('..', 'test', 'day_11_input.txt')
     plan = load_program(file)
     part1(plan)
+    part2(plan)
 
 
 def main():
+    print('---- PROGRAM ----')
     file = os.path.join('..', 'data', 'day_11_input.txt')
     plan = load_program(file)
     part1(plan)
+    part2(plan)
 
 
 if __name__ == '__main__':
-    test()
-    # main()
+    # test()
+    main()
