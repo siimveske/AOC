@@ -22,7 +22,8 @@ def load_program(file):
     return instructions
 
 
-def move(x, y, amount, direction):
+def move_waypoint(waypoint, amount, direction):
+    x, y = waypoint
     if direction == 'E':
         return (x + amount, y)
     if direction == 'W':
@@ -33,7 +34,7 @@ def move(x, y, amount, direction):
         return (x, y - amount)
 
 
-def rotate(angle, direction, amount):
+def update_angle(angle, direction, amount):
     if direction == 'L':
         new_orientation = angle - amount
         if new_orientation <= -360:
@@ -47,7 +48,7 @@ def rotate(angle, direction, amount):
 
 
 def rotate_waypoint(waypoint, direction, amount):
-    px, py, tmp = waypoint
+    px, py = waypoint
 
     if direction == 'R':
         amount *= -1
@@ -56,26 +57,11 @@ def rotate_waypoint(waypoint, direction, amount):
     qx = math.cos(angle) * px - math.sin(angle) * py
     qy = math.sin(angle) * px + math.cos(angle) * py
 
-    return (qx, qy, tmp)
-
-
-def transform(waypoint, instruction):
-    x, y, angle = waypoint
-    command, value = instruction
-
-    if command == 'F':
-        direction = COMPASS[angle]
-        x, y = move(x, y, value, direction)
-    elif command in ['N', 'S', 'E', 'W']:
-        x, y = move(x, y, value, command)
-    elif command in ['L', 'R']:
-        angle = rotate(angle, command, value)
-
-    return (x, y, angle)
+    return (qx, qy)
 
 
 def move_ship(waypoint, ship, amount):
-    xWp, yWp = waypoint[0], waypoint[1]
+    xWp, yWp = waypoint
     xS, yS = ship
     return (xS + xWp * amount, yS + yWp * amount)
 
@@ -86,10 +72,19 @@ def manhattan_distance(position):
 
 
 def part1(file):
-    waypoint = (0, 0, 0)  # x, y, angle
     instructions = load_program(file)
+
+    angle = 0
+    waypoint = (0, 0)
     for instruction in instructions:
-        waypoint = transform(waypoint , instruction)
+        command, value = instruction
+        if command == 'F':
+            direction = COMPASS[angle]
+            waypoint = move_waypoint(waypoint, value, direction)
+        elif command in ['N', 'S', 'E', 'W']:
+            waypoint = move_waypoint(waypoint, value, command)
+        elif command in ['L', 'R']:
+            angle = update_angle(angle, command, value)
 
     distance = manhattan_distance(waypoint)
     print('part 1:', distance)
@@ -98,16 +93,16 @@ def part1(file):
 
 
 def part2(file):
-    waypoint = (10, 1, 0)  # x, y, angle
-    ship = (0, 0)
     instructions = load_program(file)
 
+    ship = (0, 0)
+    waypoint = (10, 1)
     for instruction in instructions:
         command, value = instruction
         if command == 'F':
             ship = move_ship(waypoint, ship, value)
         elif command in ['N', 'S', 'E', 'W']:
-            waypoint = transform(waypoint , instruction)
+            waypoint = move_waypoint(waypoint, value, command)
         elif command in ['L', 'R']:
             waypoint = rotate_waypoint(waypoint, command, value)
 
