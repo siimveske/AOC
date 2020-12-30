@@ -11,3 +11,6 @@
 # Eclipse pydev configuration
 /.project
 /.pydevproject
+
+# Spyder configuration
+/.spyproject/**
