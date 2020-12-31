@@ -1,4 +1,5 @@
 import os
+import math
 
 
 def load_program(file):
@@ -13,13 +14,19 @@ def load_program(file):
 
 
 def next_bus(start, buses):
-    return min([(bus - (start % bus), bus) for bus in buses])
+    best_bus = (math.inf, math.inf)
+    for bus in buses:
+        time_to_wait = bus - (start % bus)
+        if time_to_wait < best_bus[0]:
+            best_bus = (time_to_wait, bus)
+
+    return best_bus
 
 
 def part1(file):
     start, buses = load_program(file)
-    wait_time, bus_id = next_bus(start, buses)
-    result = wait_time * bus_id
+    wait_time, bus = next_bus(start, buses)
+    result = wait_time * bus
 
     print('part 1:', result)
     return result
