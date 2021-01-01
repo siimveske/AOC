@@ -35,6 +35,10 @@ def part1(file):
 
 
 def part2(file):
+    '''
+        1. https://github.com/mebeim/aoc/tree/master/2020#part-2---purely-mathematical-approach
+        2. https://github.com/codertee/adventofcode/blob/main/adventofcode/solutions/y2020/d13_modular.py
+    '''
     _, buses = load_program(file)
     time = step = buses[0]
     for index, bus in enumerate(buses[1:], 1):
