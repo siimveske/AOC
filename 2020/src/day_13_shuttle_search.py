@@ -8,7 +8,7 @@ def load_program(file):
 
     with open(input_file_path, 'r') as file:
         timestamp = int(file.readline())
-        bus_ids = [int(i) for i in file.readline().split(',') if i != 'x']
+        bus_ids = [int(i) if i != 'x' else i for i in file.readline().split(',')]
 
     return (timestamp, bus_ids)
 
@@ -16,6 +16,8 @@ def load_program(file):
 def next_bus(start, buses):
     best_bus = (math.inf, math.inf)
     for bus in buses:
+        if bus == 'x':
+            continue
         time_to_wait = bus - (start % bus)
         if time_to_wait < best_bus[0]:
             best_bus = (time_to_wait, bus)
@@ -33,7 +35,17 @@ def part1(file):
 
 
 def part2(file):
-    load_program(file)
+    _, buses = load_program(file)
+    time = step = buses[0]
+    for index, bus in enumerate(buses[1:], 1):
+        if bus == 'x':
+            continue
+        while (time + index) % bus != 0:
+            time += step
+        step *= bus
+
+    print('part 2:', time)
+    return time
 
 
 def test():
