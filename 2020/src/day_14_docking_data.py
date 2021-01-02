@@ -5,13 +5,19 @@ def load_program(file):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, file)
 
+    program = []
     with open(input_file_path, 'r') as file:
-        program = [line.strip().split(' = ') for line in file]
+        for line in file:
+            key, value = line.strip().split(' = ')
+            if key == 'mask':
+                program.append((key, value))
+            else:
+                program.append((int(key[4:-1]), int(value)))
 
     return program
 
 
-def apply_mask(mask, address):
+def apply_mask(address, mask):
     result = []
     mask_length = len(mask)
     bin_address = format(address, f'0{mask_length}b')
@@ -42,7 +48,6 @@ def part1(file):
             and_mask = int(value.replace('X', '1'), 2)
             or_mask = int(value.replace('X', '0'), 2)
         else:
-            value = int(value)
             result = (value & and_mask) | or_mask
             memory[key] = result
 
@@ -57,17 +62,18 @@ def part2(file):
     memory = {}
     mask = ''
     floating_bit_count = 0
+
     for key, value in program:
         if key == 'mask':
             mask = value
             floating_bit_count = mask.count('X')
         else:
-            address = int(key.replace('mem[', '').replace(']', ''))
-            template = apply_mask(mask, address)
+            template = apply_mask(key, mask)
             for i in range(pow(2, floating_bit_count)):
-                b = format(i, f'0{floating_bit_count}b')
-                masked_address = template.format(*b)
-                memory[int(masked_address, 2)] = int(value)
+                bitstring = format(i, f'0{floating_bit_count}b')
+                masked_address = template.format(*bitstring)
+                address = int(masked_address, 2)
+                memory[address] = value
 
     sum_of_all_values = sum(memory.values())
     print('part 2:', sum_of_all_values)
