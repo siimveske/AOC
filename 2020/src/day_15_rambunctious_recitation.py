@@ -3,22 +3,19 @@ from collections import defaultdict
 
 def play(numbers, game_length=2020):
 
-    turn = 1
-    history = defaultdict(list)
     last_number = 0
+    history = defaultdict(list)
 
-    for index, number in enumerate(numbers, start=1):
-        history[number] = [index]
-        turn += 1
+    for turn, number in enumerate(numbers, start=1):
+        history[number].append(turn)
         last_number = number
 
-    while turn <= game_length:
+    for turn in range(len(numbers) + 1, game_length + 1):
 
         '''first time the number had been spoken, new number spoken is 0'''
         if len(history[last_number]) == 1:
             last_number = 0
             history[last_number].append(turn)
-            turn += 1
             continue
 
         '''
@@ -30,8 +27,6 @@ def play(numbers, game_length=2020):
         next_number = last - last_but_one
         history[next_number].append(turn)
         last_number = next_number
-
-        turn += 1
 
     return last_number
 
@@ -77,5 +72,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # test()
+    test()
     main()
