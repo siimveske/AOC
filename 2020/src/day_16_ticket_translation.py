@@ -36,7 +36,6 @@ def parse_tickets(file):
                 lower_start, lower_stop = [int(i) for i in lower_ranges.split('-')]
                 upper_start, upper_stop = [int(i) for i in upper_ranges.split('-')]
                 data['notes'][field] = [lower_start, lower_stop, upper_start, upper_stop]
-
             elif state == State.YOUR_TICKET:
                 your_ticket = [int(i) for i in line.split(',')]
                 data['your_ticket'] = your_ticket
@@ -108,9 +107,10 @@ def part2(file):
             sets[i] = sets[i] - fieldset
 
     result = 1
+    your_ticket = tickets['your_ticket']
     for index, name in field_map.items():
         if name.startswith('departure'):
-            result *= tickets['your_ticket'][index]
+            result *= your_ticket[index]
 
     print('part 2:', result)
     return field_map
