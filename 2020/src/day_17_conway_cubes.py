@@ -1,40 +1,73 @@
 import os
-
-
-def binary(character):
-    if character == '#':
-        return 1
-    else:
-        return 0
+from itertools import product
 
 
 def parse_input(file):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, file)
 
-    initial_state = []
     with open(input_file_path, 'r') as file:
-        for line in file:
-            line = [binary(i) for i in line.strip()]
-            initial_state.append(list(line))
+        grid = [line.strip() for line in file]
 
-    return initial_state
+    cube = set()
+    for x, row in enumerate(grid):
+        for y, cell in enumerate(row):
+            if cell == '#':
+                cube.add((x, y, 0))
+
+    return cube
 
 
-def print_layer(cubes, z=0):
-    for row in cubes:
-        print(row)
+def neighbors(x, y, z):
+    for px in range(x - 1, x + 2):
+        for py in range(y - 1, y + 2):
+            for pz in range(z - 1, z + 2):
+                yield px, py, pz
+
+
+def alive_neighbors(cube, coords):
+    alive = 0
+    for n in neighbors(*coords):
+        if (n in cube) and (n != coords):
+            alive += 1
+
+    return alive
+
+
+def all_neighbors(cube):
+    return set(n for p in cube for n in neighbors(*p))
+
+
+def evolve(cube):
+    new_cube = set()
+    for neighbor in all_neighbors(cube):
+        alive_cnt = alive_neighbors(cube, neighbor)
+
+        if neighbor in cube:
+            if alive_cnt == 2 or alive_cnt == 3:
+                # alive cell stays alive only if exactly 2 or 3 neighbors are alive
+                new_cube.add(neighbor)
+        elif alive_cnt == 3:
+            # dead cell becomes alive only if exactly 3 neighbors are alive
+            new_cube.add(neighbor)
+
+    return new_cube
 
 
 def part1(file):
-    initial_state = parse_input(file)
-    print_layer(initial_state)
+    cube = parse_input(file)
+    for _ in range(6):
+        cube = evolve(cube)
+
+    total_alive = len(cube)
+    print('Part 1:', total_alive)
+    return total_alive
 
 
 def test():
     print('---- TEST ----')
     file = os.path.join('..', 'test', 'day_17_input.txt')
-    part1(file)
+    assert part1(file) == 112
 
 
 def main():
@@ -45,4 +78,4 @@ def main():
 
 if __name__ == '__main__':
     test()
-    # main()
+    main()
