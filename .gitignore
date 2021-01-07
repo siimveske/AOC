@@ -2,7 +2,7 @@
 *.code-workspace
 
 # Local History for Visual Studio Code
-.history/
+.history/*
 
 # Eclipse pydev configuration
 .project
@@ -11,4 +11,4 @@
 # Spyder configuration
 .spyproject/*
 
-./2020/help/
+2020/help/*
