@@ -1,6 +1,10 @@
 import os
 from itertools import product
 
+# Links to used references
+# https://github.com/mebeim/aoc/tree/master/2020#day-17---conway-cubes
+# https://github.com/codertee/adventofcode/blob/main/adventofcode/solutions/y2020/d17_life.py
+
 
 def parse_input(file, N):
     script_location = os.path.dirname(os.path.realpath(__file__))
