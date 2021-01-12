@@ -42,6 +42,28 @@ def evaluate(tokens):
     return accumulator
 
 
+def evaluate2(tokens):
+    multiplier = 1
+    accumulator = 0
+
+    while tokens:
+        tok = tokens.popleft()
+
+        if tok.isdigit():
+            val = int(tok)
+            accumulator += val * multiplier
+        elif tok == '*':
+            multiplier = accumulator
+            accumulator = 0
+        elif tok == '(':
+            val = evaluate2(tokens)
+            accumulator += val * multiplier
+        elif tok == ')':
+            break
+
+    return accumulator
+
+
 def part1(file):
     total = 0
     exprs = read_file(file)
@@ -52,43 +74,49 @@ def part1(file):
 
 
 def part2(file):
-    result = solve(file)
+    total = 0
+    exprs = read_file(file)
+    for expr in exprs:
+        total += evaluate2(deque(expr))
+
+    print('part2: ', total)
 
 
 def test():
     print('---- TEST ----')
 
     token = tokenize('1 + 2 * 3 + 4 * 5 + 6')
-    value = evaluate(deque(token))
-    assert value == 71
+    assert evaluate(deque(token)) == 71
+    assert evaluate2(deque(token)) == 231
 
     token = tokenize('1 + (2 * 3) + (4 * (5 + 6))')
-    value = evaluate(deque(token))
-    assert value == 51
+    assert evaluate(deque(token)) == 51
+    assert evaluate2(deque(token)) == 51
 
     token = tokenize('2 * 3 + (4 * 5)')
-    value = evaluate(deque(token))
-    assert value == 26
+    assert evaluate(deque(token)) == 26
+    assert evaluate2(deque(token)) == 46
 
     token = tokenize('5 + (8 * 3 + 9 + 3 * 4 * 3)')
-    value = evaluate(deque(token))
-    assert value == 437
+    assert evaluate(deque(token)) == 437
+    assert evaluate2(deque(token)) == 1445
 
     token = tokenize('5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))')
-    value = evaluate(deque(token))
-    assert value == 12240
+    assert evaluate(deque(token)) == 12240
+    assert evaluate2(deque(token)) == 669060
 
     token = tokenize('((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2')
-    value = evaluate(deque(token))
-    assert value == 13632
+    assert evaluate(deque(token)) == 13632
+    assert evaluate2(deque(token)) == 23340
 
 
 def main():
     print('---- PROGRAM ----')
     file = os.path.join('..', 'data', 'day_18_input.txt')
     part1(file)
+    part2(file)
 
 
 if __name__ == '__main__':
-    test()
-    #main()
+    #test()
+    main()
