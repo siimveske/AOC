@@ -8,7 +8,6 @@ def readInput(filename: str):
 
     with open(input_file_path, 'r') as f:
         data = [int(n) for n in f.readlines()]
-        f.close()
 
     return data
 
