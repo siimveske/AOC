@@ -12,6 +12,13 @@ def readInput(filename: str):
     return report
 
 
+def find_counts(report: list, bit_index: int):
+    result = [0, 0]
+    for item in report:
+        result[int(item[bit_index])] += 1
+    return result
+
+
 def part1(inputFile: str):
 
     report = readInput(inputFile)
@@ -19,13 +26,7 @@ def part1(inputFile: str):
     gamma_rate = ''
     epsilon_rate = ''
     for col in range(len(report[0])):
-        cnt_0 = 0
-        cnt_1 = 0
-        for row in range(len(report)):
-            if report[row][col] == '0':
-                cnt_0 += 1
-            else:
-                cnt_1 += 1
+        cnt_0, cnt_1 = find_counts(report, col)
         if cnt_0 > cnt_1:
             gamma_rate += '0'
             epsilon_rate += '1'
@@ -39,21 +40,68 @@ def part1(inputFile: str):
     return gamma_rate * epsilon_rate
 
 
+def find_oxygen_rating(report: list):
+
+    result = filter_oxygen_rating(report, 0)
+    for i in range(1, len(result[0])):
+        result = filter_oxygen_rating(result, i)
+        if len(result) == 1:
+            break
+
+    if len(result) > 1:
+        raise Exception('Failed to filter oxygen rating')
+
+    return int(result[0], 2)
+
+
+def find_co2_rating(report: list):
+
+    result = filter_co2_rating(report, 0)
+    for i in range(1, len(result[0])):
+        result = filter_co2_rating(result, i)
+        if len(result) == 1:
+            break
+
+    if len(result) > 1:
+        raise Exception('Failed to filter co2 rating')
+
+    return int(result[0], 2)
+
+
+def filter_oxygen_rating(report: list, index: int):
+    result = []
+    cnt_0, cnt_1 = find_counts(report, index)
+    for item in report:
+        if (cnt_0 > cnt_1) and item[index] == '0':
+            result.append(item)
+        elif (cnt_1 > cnt_0) and item[index] == '1':
+            result.append(item)
+        elif (cnt_0 == cnt_1) and item[index] == '1':
+            result.append(item)
+    return result
+
+
+def filter_co2_rating(report: list, index: int):
+    result = []
+    cnt_0, cnt_1 = find_counts(report, index)
+    for item in report:
+        if (cnt_0 < cnt_1) and item[index] == '0':
+            result.append(item)
+        elif (cnt_1 < cnt_0) and item[index] == '1':
+            result.append(item)
+        elif (cnt_0 == cnt_1) and item[index] == '0':
+            result.append(item)
+    return result
+
+
 def part2(inputFile: str):
 
-    instructions = readInput(inputFile)
+    report = readInput(inputFile)
 
-    x, depth, aim = 0, 0, 0
-    for cmd, val in instructions:
-        if cmd == 'up':
-            aim -= val
-        elif cmd == 'down':
-            aim += val
-        elif cmd == 'forward':
-            x += val
-            depth += (aim * val)
+    oxygen_rating = find_oxygen_rating(report)
+    co2_rating = find_co2_rating(report)
 
-    return x * depth
+    return oxygen_rating * co2_rating
 
 
 def test():
@@ -61,8 +109,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 198
     print('Part 1 OK')
-    # assert part2(filename) == 900
-    # print('Part 2 OK\n')
+    assert part2(filename) == 230
+    print('Part 2 OK\n')
 
 
 def main():
@@ -70,8 +118,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
