@@ -19,38 +19,33 @@ def part1(inputFile: str):
 
     instructions = readInput(inputFile)
 
-    h_pos = 0
-    depth = 0
-
+    x, depth = 0, 0
     for cmd, val in instructions:
         if cmd == 'forward':
-            h_pos += val
+            x += val
         elif cmd == 'down':
             depth += val
         else:
             depth -= val
 
-    return h_pos * depth
+    return x * depth
 
 
 def part2(inputFile: str):
 
     instructions = readInput(inputFile)
 
-    aim = 0
-    h_pos = 0
-    depth = 0
-
+    x, depth, aim = 0, 0, 0
     for cmd, val in instructions:
         if cmd == 'down':
             aim += val
         elif cmd == 'up':
             aim -= val
         else:
-            h_pos += val
+            x += val
             depth += (aim * val)
 
-    return h_pos * depth
+    return x * depth
 
 
 def test():
