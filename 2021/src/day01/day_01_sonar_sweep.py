@@ -3,13 +3,11 @@ import os
 
 def readInput(filename: str):
 
-    data = []
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r') as f:
-        for line in f:
-            data.append(int(line))
+        data = [int(n) for n in f.readlines()]
         f.close()
 
     return data
