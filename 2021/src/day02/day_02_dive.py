@@ -21,12 +21,12 @@ def part1(inputFile: str):
 
     x, depth = 0, 0
     for cmd, val in instructions:
-        if cmd == 'forward':
-            x += val
+        if cmd == 'up':
+            depth -= val
         elif cmd == 'down':
             depth += val
-        else:
-            depth -= val
+        elif cmd == 'forward':
+            x += val
 
     return x * depth
 
@@ -37,11 +37,11 @@ def part2(inputFile: str):
 
     x, depth, aim = 0, 0, 0
     for cmd, val in instructions:
-        if cmd == 'down':
-            aim += val
-        elif cmd == 'up':
+        if cmd == 'up':
             aim -= val
-        else:
+        elif cmd == 'down':
+            aim += val
+        elif cmd == 'forward':
             x += val
             depth += (aim * val)
 
