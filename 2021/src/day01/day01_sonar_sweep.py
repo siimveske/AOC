@@ -15,7 +15,10 @@ def readInput(filename: str):
     return data
 
 
-def count_depth_measurement_increases(depth_measurements: list):
+def part1(inputFile: str):
+
+    depth_measurements = readInput(inputFile)
+
     result = 0
     for i in range(1, len(depth_measurements)):
         if depth_measurements[i] > depth_measurements[i - 1]:
@@ -23,9 +26,16 @@ def count_depth_measurement_increases(depth_measurements: list):
     return result
 
 
-def part1(inputFile: str):
+def part2(inputFile: str):
+
     depth_measurements = readInput(inputFile)
-    result = count_depth_measurement_increases(depth_measurements)
+
+    result = 0
+    for i in range(3, len(depth_measurements)):
+        block_a = sum(depth_measurements[i - 3:i])
+        block_b = sum(depth_measurements[i - 2:i + 1])
+        if block_a < block_b:
+            result += 1
     return result
 
 
@@ -33,15 +43,20 @@ def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
     assert part1(filename) == 7
+    print('Part 1 OK')
+    assert part2(filename) == 5
+    print('Part 2 OK\n')
 
 
 def main():
-    print('---- PART 1 ----')
+    print('---- MAIN ----')
     filename = 'input.txt'
     solution_part1 = part1(filename)
-    print(f'Solution for Part 1: {solution_part1}\n')
+    print(f'Solution for Part 1: {solution_part1}')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 1: {solution_part2}\n')
 
 
 if __name__ == '__main__':
-    #test()
+    test()
     main()
