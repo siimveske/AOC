@@ -47,7 +47,39 @@ def part1(inputFile: str):
 
 
 def part2(inputFile: str):
-    pass
+    input = readInput(inputFile)
+
+    line_count = defaultdict(int)
+    for x0, y0, x1, y1 in input:
+
+        x_step = 1 if x0 < x1 else -1
+        y_step = 1 if y0 < y1 else -1
+
+        if x0 == x1:
+            for y in range(y0, y1 + y_step, y_step):
+                line_key = '%s,%s' % (x0, y)
+                line_count[line_key] += 1
+        elif y0 == y1:
+            for x in range(x0, x1 + x_step, x_step):
+                line_key = '%s,%s' % (x, y0)
+                line_count[line_key] += 1
+        else:
+            x_cords = []
+            y_cords = []
+            for x in range(x0, x1 + x_step, x_step):
+                x_cords.append(x)
+            for y in range(y0, y1 + y_step, y_step):
+                y_cords.append(y)
+            for i in range(len(x_cords)):
+                line_key = '%s,%s' % (x_cords[i], y_cords[i])
+                line_count[line_key] += 1
+
+    result = 0
+    for value in line_count.values():
+        if value >= 2:
+            result += 1
+
+    return result
 
 
 def test():
@@ -55,8 +87,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 5
     print('Part 1 OK')
-    #assert part2(filename) == 1924
-    #print('Part 2 OK\n')
+    assert part2(filename) == 12
+    print('Part 2 OK\n')
 
 
 def main():
@@ -64,8 +96,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    #solution_part2 = part2(filename)
-    #print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
