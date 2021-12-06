@@ -30,18 +30,15 @@ def play_bingo(numbers, boards):
     drawn_numbers = numbers[0:5]
     for nr in numbers[5:]:
         for board in boards:
-            # Check rows
             for row in range(5):
+                h_bingo = True
+                v_bingo = True
                 for col in range(5):
                     if board[row][col] not in drawn_numbers:
-                        break
-                    if col == 4:
-                        unmarked_numbers = get_unmarked_numbers(board, drawn_numbers)
-                        return sum(unmarked_numbers) * drawn_numbers[-1]
-            # Check cols
-            for row in range(5):
-                for col in range(5):
+                        h_bingo = False
                     if board[col][row] not in drawn_numbers:
+                        v_bingo = False
+                    if not h_bingo and not v_bingo:
                         break
                     if col == 4:
                         unmarked_numbers = get_unmarked_numbers(board, drawn_numbers)
@@ -65,20 +62,14 @@ def play_bingo2(numbers, boards):
             for row in range(5):
                 if board in completed_boards:
                     break
+                h_bingo = True
+                v_bingo = True
                 for col in range(5):
                     if board[row][col] not in drawn_numbers:
-                        break
-                    if col == 4:
-                        completed_boards.append(board)
-                        if len(completed_boards) == len(boards):
-                            unmarked_numbers = get_unmarked_numbers(board, drawn_numbers)
-                            return sum(unmarked_numbers) * drawn_numbers[-1]
-            # Check cols
-            for row in range(5):
-                if board in completed_boards:
-                    break
-                for col in range(5):
+                        h_bingo = False
                     if board[col][row] not in drawn_numbers:
+                        v_bingo = False
+                    if not h_bingo and not v_bingo:
                         break
                     if col == 4:
                         completed_boards.append(board)
