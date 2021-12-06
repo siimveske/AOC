@@ -1,4 +1,8 @@
 import os
+'''
+Refactored solution. Inspired by
+https://github.com/mebeim/aoc/blob/master/2021/solutions/day04.py
+'''
 
 
 def readInput(filename: str):
@@ -8,97 +12,69 @@ def readInput(filename: str):
 
     with open(input_file_path, 'r') as f:
         numbers = [int(i) for i in f.readline().split(',')]
-        board = []
-        boards = []
-        for line in f:
-            if line == '\n':
-                if board:
-                    boards.append(board)
-                    board = []
-            else:
-                board.append([int(i) for i in line.split()])
-        else:
-            boards.append(board)
-            board = []
+        raw_cards = f.read().split('\n\n')
 
-    return (numbers, boards)
+        cards = []
+        for raw_card in raw_cards:
+            raw_card = raw_card.strip().splitlines()
+            card = list(list(map(int, row.split())) for row in raw_card)
+            cards.append(card)
+
+    return (numbers, cards)
 
 
-def play_bingo(numbers, boards):
-
-    # Check rows
-    drawn_numbers = numbers[0:5]
-    for nr in numbers[5:]:
-        for board in boards:
-            for row in range(5):
-                h_bingo = True
-                v_bingo = True
-                for col in range(5):
-                    if board[row][col] not in drawn_numbers:
-                        h_bingo = False
-                    if board[col][row] not in drawn_numbers:
-                        v_bingo = False
-                    if not h_bingo and not v_bingo:
-                        break
-                    if col == 4:
-                        unmarked_numbers = get_unmarked_numbers(board, drawn_numbers)
-                        return sum(unmarked_numbers) * drawn_numbers[-1]
-
-        drawn_numbers.append(nr)
-
-    raise Exception("Failed to solve bingo!")
+def check_win(card, row, c):
+    if sum(x == -1 for x in row) == 5:
+        return True
+    if sum(r[c] == -1 for r in card) == 5:
+        return True
+    return False
 
 
-def play_bingo2(numbers, boards):
-
-    completed_boards = []
-    drawn_numbers = numbers[0:5]
-    for nr in numbers[5:]:
-        for board in boards:
-            if board in completed_boards:
-                continue
-
-            # Check rows
-            for row in range(5):
-                if board in completed_boards:
-                    break
-                h_bingo = True
-                v_bingo = True
-                for col in range(5):
-                    if board[row][col] not in drawn_numbers:
-                        h_bingo = False
-                    if board[col][row] not in drawn_numbers:
-                        v_bingo = False
-                    if not h_bingo and not v_bingo:
-                        break
-                    if col == 4:
-                        completed_boards.append(board)
-                        if len(completed_boards) == len(boards):
-                            unmarked_numbers = get_unmarked_numbers(board, drawn_numbers)
-                            return sum(unmarked_numbers) * drawn_numbers[-1]
-
-        drawn_numbers.append(nr)
-
-    raise Exception("Failed to solve bingo!")
+def mark(card, number):
+    for r, row in enumerate(card):
+        for c, cell in enumerate(row):
+            if cell == number:
+                card[r][c] = -1
+                return check_win(card, row, c)
+    return False
 
 
-def get_unmarked_numbers(board, drawn_numbers):
-    unmarked_numbers = []
-    for row in board:
-        for nr in row:
-            if nr not in drawn_numbers:
-                unmarked_numbers.append(nr)
-    return unmarked_numbers
+def winner_score(card, last_number):
+    unmarked_tot = 0
+    for row in card:
+        unmarked_tot += sum([cell for cell in row if cell != -1])
+
+    return unmarked_tot * last_number
 
 
 def part1(inputFile: str):
-    numbers, boards = readInput(inputFile)
-    return play_bingo(numbers, boards)
+    numbers, cards = readInput(inputFile)
+    for number in numbers:
+        for card in cards:
+            win = mark(card, number)
+            if win:
+                score = winner_score(card, number)
+                return score
 
 
 def part2(inputFile: str):
-    numbers, boards = readInput(inputFile)
-    return play_bingo2(numbers, boards)
+    numbers, cards = readInput(inputFile)
+    n_cards = len(cards)
+    n_won = 0
+
+    for number in numbers:
+        for i, card in enumerate(cards):
+            if card is None:
+                continue
+
+            win = mark(card, number)
+            if win:
+                n_won += 1
+                if n_won == n_cards:
+                    score = winner_score(card, number)
+                    return score
+                cards[i] = None
 
 
 def test():
