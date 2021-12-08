@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 
 '''
-part 2 solution taken from
+part 2 fast solution taken from:
 https://github.com/mebeim/aoc/tree/master/2021#day-7---the-treachery-of-whales
 '''
 
@@ -20,12 +20,34 @@ def readInput(filename: str):
 def part1(inputFile: str):
     positions = readInput(inputFile)
     solution_map = defaultdict(int)
-    for i in positions:
-        if not solution_map[i]:
-            for j in positions:
-                solution_map[i] += abs(i - j)
+    start = min(positions)
+    end = max(positions) + 1
+
+    for i in range(start, end):
+        for j in positions:
+            if i == j:
+                continue
+            solution_map[i] += abs(i - j)
 
     # find the minimum by comparing the second element of each tuple
+    result = min(solution_map.items(), key=lambda x: x[1])
+    return result[1]
+
+
+def part2(inputFile: str):
+    positions = readInput(inputFile)
+    solution_map = defaultdict(int)
+    start = min(positions)
+    end = max(positions) + 1
+
+    for i in range(start, end):  # all valid places
+        for j in positions:  # number to be moved
+            if i == j:
+                continue
+            delta = abs(i - j)
+            cost = (delta * (delta + 1)) // 2
+            solution_map[i] += cost
+
     result = min(solution_map.items(), key=lambda x: x[1])
     return result[1]
 
@@ -38,30 +60,13 @@ def sum_distances(nums, x):
     return tot
 
 
-def part2(inputFile: str):
+def part2_fast(inputFile: str):
     positions = readInput(inputFile)
     mean = sum(positions) // len(positions)
     a = sum_distances(positions, mean)
     b = sum_distances(positions, mean + 1)
     answer = min(sum_distances(positions, mean), sum_distances(positions, mean + 1))
     return answer
-    '''
-    solution_map = defaultdict(int)
-    for i in positions:
-        if not solution_map[i]:
-            for j in positions:
-                if i == j:
-                    continue
-                a = 1
-                n = abs(i - j)
-                #cost = ((a + n) / 2) * n
-                cost = n * (n + 1) // 2
-                solution_map[i] += cost
-
-    # find the minimum by comparing the second element of each tuple
-    result = min(solution_map.items(), key=lambda x: x[1])
-    return result[1]
-    '''
 
 
 def test():
@@ -70,7 +75,9 @@ def test():
     assert part1(filename) == 37
     print('Part 1 OK')
     assert part2(filename) == 168
-    print('Part 2 OK\n')
+    print('Part 2 OK')
+    assert part2_fast(filename) == 168
+    print('Part 2 Fast OK\n')
 
 
 def main():
