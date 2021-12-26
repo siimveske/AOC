@@ -33,49 +33,35 @@ def part2(inputFile: str):
     return decodeSegments(data)
 
 
+def _decodeUniqueSegments(segments: list, segment_map: dict, digit_map: defaultdict):
+    for segment in segments:
+        segment_length = len(segment)
+
+        if segment in segment_map or segment_length not in [2, 3, 4, 7]:
+            continue
+
+        # 1,4,7 and 8 have unique segment length
+        if segment_length == 2:
+            segment_map[segment] = 1
+            digit_map[1] = segment
+        elif segment_length == 3:
+            segment_map[segment] = 7
+            digit_map[7] = segment
+        elif segment_length == 4:
+            segment_map[segment] = 4
+            digit_map[4] = segment
+        elif segment_length == 7:
+            segment_map[segment] = 8
+            digit_map[8] = segment
+
+
 def decodeSegments(data: list):
     result = 0
     for segments, digits in data:
         segment_map = {}
         digit_map = defaultdict(set)
-        for digit in digits:
-            num_of_segments = len(digit)
-            if num_of_segments not in [2, 3, 4, 7]:
-                continue
-
-            # 1,4,7 and 8 have unique segment length
-            if num_of_segments == 2:
-                segment_map[digit] = 1
-                digit_map[1] = digit
-            elif num_of_segments == 3:
-                segment_map[digit] = 7
-                digit_map[7] = digit
-            elif num_of_segments == 4:
-                segment_map[digit] = 4
-                digit_map[4] = digit
-            elif num_of_segments == 7:
-                segment_map[digit] = 8
-                digit_map[8] = digit
-
-        for segment in segments:
-            segment_length = len(segment)
-
-            if segment in segment_map or segment_length not in [2, 3, 4, 7]:
-                continue
-
-            # 1,4,7 and 8 have unique segment length
-            if segment_length == 2:
-                segment_map[segment] = 1
-                digit_map[1] = segment
-            elif segment_length == 3:
-                segment_map[segment] = 7
-                digit_map[7] = segment
-            elif segment_length == 4:
-                segment_map[segment] = 4
-                digit_map[4] = segment
-            elif segment_length == 7:
-                segment_map[segment] = 8
-                digit_map[8] = segment
+        _decodeUniqueSegments(digits, segment_map, digit_map)
+        _decodeUniqueSegments(segments, segment_map, digit_map)
 
         for segment in segments:
             if segment in segment_map:
