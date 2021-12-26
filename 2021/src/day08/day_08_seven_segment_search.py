@@ -35,27 +35,27 @@ def part2(inputFile: str):
 
 def decodeSegments(data: list):
     result = 0
-    for segments, numbers in data:
+    for segments, digits in data:
         segment_map = {}
         digit_map = defaultdict(set)
-        for number in numbers:
-            number_length = len(number)
-            if number_length not in [2, 3, 4, 7]:
+        for digit in digits:
+            num_of_segments = len(digit)
+            if num_of_segments not in [2, 3, 4, 7]:
                 continue
 
             # 1,4,7 and 8 have unique segment length
-            if number_length == 2:
-                segment_map[number] = 1
-                digit_map[1] = number
-            elif number_length == 3:
-                segment_map[number] = 7
-                digit_map[7] = number
-            elif number_length == 4:
-                segment_map[number] = 4
-                digit_map[4] = number
-            elif number_length == 7:
-                segment_map[number] = 8
-                digit_map[8] = number
+            if num_of_segments == 2:
+                segment_map[digit] = 1
+                digit_map[1] = digit
+            elif num_of_segments == 3:
+                segment_map[digit] = 7
+                digit_map[7] = digit
+            elif num_of_segments == 4:
+                segment_map[digit] = 4
+                digit_map[4] = digit
+            elif num_of_segments == 7:
+                segment_map[digit] = 8
+                digit_map[8] = digit
 
         for segment in segments:
             segment_length = len(segment)
@@ -122,8 +122,8 @@ def decodeSegments(data: list):
 
         # decode output numbers
         output = ''
-        for number in numbers:
-            output += str(segment_map[number])
+        for digit in digits:
+            output += str(segment_map[digit])
         result += int(output)
 
     return result
