@@ -1,6 +1,4 @@
 import os
-from collections import defaultdict
-from queue import Queue
 
 CHUNK_MAP = {
     '(': ')',
@@ -14,6 +12,13 @@ VALUE_MAP = {
     ']': 57,
     '}': 1197,
     '>': 25137
+}
+
+SCORE_MAP = {
+    ')': 1,
+    ']': 2,
+    '}': 3,
+    '>': 4
 }
 
 
@@ -44,8 +49,32 @@ def part1(inputFile: str):
     return points
 
 
-def part2(cords, graph):
-    pass
+def part2(inputFile):
+    chunks = readInput(inputFile)
+
+    score_list = []
+    for line in chunks:
+        score = 0
+        stack = []
+        for character in line:
+            if character in CHUNK_MAP.keys():
+                stack.append(CHUNK_MAP[character])
+            else:
+                expected_stop = stack.pop()
+                if character != expected_stop:
+                    stack = []
+                    break
+
+        if stack:
+            for character in stack[::-1]:
+                score *= 5
+                score += SCORE_MAP[character]
+            score_list.append(score)
+
+    sorted_score_list = sorted(score_list)
+    mid_item_index = len(sorted_score_list) // 2
+    mid_value = sorted_score_list[mid_item_index]
+    return mid_value
 
 
 def test():
@@ -53,8 +82,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 26397
     print('Part 1 OK')
-    #assert part2(cords, graph) == 1134
-    #print('Part 2 OK')
+    assert part2(filename) == 288957
+    print('Part 2 OK')
 
 
 def main():
@@ -62,8 +91,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    #solution_part2 = part2(cords, graph)
-    #print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
