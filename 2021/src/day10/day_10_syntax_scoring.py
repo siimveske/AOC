@@ -1,18 +1,6 @@
 import os
-import math
 from collections import defaultdict
 from queue import Queue
-
-
-def readInput(filename: str):
-
-    script_location = os.path.dirname(os.path.realpath(__file__))
-    input_file_path = os.path.join(script_location, filename)
-
-    with open(input_file_path, 'r') as f:
-        chunks = [line.strip() for line in f]
-    return chunks
-
 
 CHUNK_MAP = {
     '(': ')',
@@ -29,10 +17,20 @@ VALUE_MAP = {
 }
 
 
+def readInput(filename: str):
+
+    script_location = os.path.dirname(os.path.realpath(__file__))
+    input_file_path = os.path.join(script_location, filename)
+
+    with open(input_file_path, 'r') as f:
+        chunks = [line.strip() for line in f]
+    return chunks
+
+
 def part1(inputFile: str):
     chunks = readInput(inputFile)
 
-    invalid_chunks = []
+    points = 0
     for line in chunks:
         stack = []
         for character in line:
@@ -41,12 +39,8 @@ def part1(inputFile: str):
             else:
                 expected_stop = stack.pop()
                 if character != expected_stop:
-                    invalid_chunks.append(character)
+                    points += VALUE_MAP[character]
                     break
-    points = 0
-    for i in invalid_chunks:
-        points += VALUE_MAP[i]
-
     return points
 
 
