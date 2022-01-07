@@ -34,7 +34,6 @@ def evolve(energy_map):
     rows = len(energy_map)
     cols = len(energy_map[0])
     flash_cnt = 0
-    new_map = [[0] * cols for i in range(rows)]
 
     flashed_octopuses = []
     for row in range(rows):
@@ -42,16 +41,16 @@ def evolve(energy_map):
             new_value = energy_map[row][col] + 1
             if new_value > 9:
                 flashed_octopuses.append((row, col))
-                new_map[row][col] = 0
+                energy_map[row][col] = 0
                 flash_cnt += 1
             else:
-                new_map[row][col] = new_value
+                energy_map[row][col] = new_value
 
     while flashed_octopuses:
         octopus = flashed_octopuses.pop()
         neighbours = get_neighbours(octopus, rows, cols)
         for row, col in neighbours:
-            new_value = new_map[row][col]
+            new_value = energy_map[row][col]
             if new_value == 0:
                 continue
             else:
@@ -59,29 +58,35 @@ def evolve(energy_map):
 
             if new_value > 9:
                 flashed_octopuses.append((row, col))
-                new_map[row][col] = 0
+                energy_map[row][col] = 0
                 flash_cnt += 1
             else:
-                new_map[row][col] = new_value
+                energy_map[row][col] = new_value
 
-    return (new_map, flash_cnt)
+    return flash_cnt
 
 
 def part1(inputFile: str):
-    data = readInput(inputFile)
+    energy_map = readInput(inputFile)
 
-    new_map = data
     total_flash_cnt = 0
     for i in range(100):
-        new_map, f_cnt = evolve(new_map)
-        total_flash_cnt += f_cnt
+        total_flash_cnt += evolve(energy_map)
 
     return total_flash_cnt
 
 
-def part2(inputFile):
-    chunks = readInput(inputFile)
-    pass
+def part2(inputFile: str):
+    energy_map = readInput(inputFile)
+
+    generation = 1
+    while True:
+        if evolve(energy_map) == 100:
+            break
+        else:
+            generation += 1
+
+    return generation
 
 
 def test():
@@ -89,8 +94,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 1656
     print('Part 1 OK')
-    # assert part2(filename) == 288957
-    # print('Part 2 OK')
+    assert part2(filename) == 195
+    print('Part 2 OK')
 
 
 def main():
@@ -98,8 +103,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
