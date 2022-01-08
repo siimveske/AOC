@@ -11,8 +11,10 @@ def readInput(filename: str):
     with open(input_file_path, 'r') as f:
         for line in f:
             A, B = line.strip().split('-')
-            paths[A].append(B)
-            paths[B].append(A)
+            if B != 'start':
+                paths[A].append(B)
+            if A != 'start':
+                paths[B].append(A)
     paths.pop('end')
     return paths
 
@@ -47,7 +49,7 @@ def find_paths(graph):
             continue
 
         if current.islower() and current in path:
-            if current == 'start' or visited:
+            if visited:
                 continue
             visited = True
 
