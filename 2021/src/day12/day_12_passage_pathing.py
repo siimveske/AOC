@@ -36,32 +36,22 @@ def find_all_paths(graph, start, end, path=[]):
     return paths
 
 
-def find_all_paths2(graph, start, end, path=[]):
-    path = path + [start]
-    if start == end:
-        return [path]
-    if start not in graph:
-        return []
-
+def find_paths(graph):
     paths = []
+    stack = [('start', [], False)]
+    while stack:
+        current, path, visited = stack.pop()
 
-    count_map = defaultdict(int)
-    doubble_visit_counter = 0
-    for node in path:
-        count_map[node] += 1
-    for key in count_map.keys():
-        if key.islower() and key not in ['start', 'end'] and count_map[key] >= 2:
-            doubble_visit_counter += 1
+        if current == 'end':
+            paths.append(path + [current])
+            continue
 
-    for node in graph[start]:
-        if node in path and node in ['start', 'end']:
-            continue
-        if node.islower() and node in path and doubble_visit_counter:
-            continue
-        else:
-            newpaths = find_all_paths2(graph, node, end, path)
-            for newpath in newpaths:
-                paths.append(newpath)
+        if current.islower() and current in path:
+            if current == 'start' or visited:
+                continue
+            visited = True
+
+        stack.extend([(node, [*path, current], visited) for node in graph[current]])
 
     return paths
 
@@ -74,7 +64,7 @@ def part1(inputFile: str):
 
 def part2(inputFile: str):
     graph = readInput(inputFile)
-    paths = find_all_paths2(graph, 'start', 'end')
+    paths = find_paths(graph)
     return len(paths)
 
 
