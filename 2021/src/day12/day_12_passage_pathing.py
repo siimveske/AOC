@@ -36,6 +36,36 @@ def find_all_paths(graph, start, end, path=[]):
     return paths
 
 
+def find_all_paths2(graph, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return [path]
+    if start not in graph:
+        return []
+
+    paths = []
+
+    count_map = defaultdict(int)
+    doubble_visit_counter = 0
+    for node in path:
+        count_map[node] += 1
+    for key in count_map.keys():
+        if key.islower() and key not in ['start', 'end'] and count_map[key] >= 2:
+            doubble_visit_counter += 1
+
+    for node in graph[start]:
+        if node in path and node in ['start', 'end']:
+            continue
+        if node.islower() and node in path and doubble_visit_counter:
+            continue
+        else:
+            newpaths = find_all_paths2(graph, node, end, path)
+            for newpath in newpaths:
+                paths.append(newpath)
+
+    return paths
+
+
 def part1(inputFile: str):
     graph = readInput(inputFile)
     paths = find_all_paths(graph, 'start', 'end')
@@ -44,6 +74,8 @@ def part1(inputFile: str):
 
 def part2(inputFile: str):
     graph = readInput(inputFile)
+    paths = find_all_paths2(graph, 'start', 'end')
+    return len(paths)
 
 
 def test():
@@ -51,8 +83,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 10
     print('Part 1 OK')
-    # assert part2(filename) == 195
-    # print('Part 2 OK')
+    assert part2(filename) == 36
+    print('Part 2 OK')
 
 
 def main():
@@ -60,8 +92,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
