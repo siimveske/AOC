@@ -1,6 +1,7 @@
 import os
-from collections import Counter
+import heapq
 from collections import defaultdict
+from math import inf as INFINITY
 
 
 def readInput(filename: str):
@@ -38,38 +39,60 @@ def readInput(filename: str):
                 row, col = n
                 graph[i, j].append((n, risk_levels[row][col]))
                 graph[row, col].append(((i, j), risk_levels[i][j]))
-                print()
 
     return (graph, (height - 1, width - 1))
 
 
-def find_paths(graph, endnode):
+def dijkstra(grid, destination):
+    '''Dijkstra's shortest path Algorithm
+    web: https://github.com/mebeim/aoc/tree/master/2021#day-12---passage-pathing
+    '''
 
-    start = ((0, 0), 0)
-    min_cost = float('inf')
-    stack = [(start, [], 0)]
+    source = (0, 0)
+    queue = [(0, source)]
+    mindist = defaultdict(lambda: INFINITY, {source: 0})
+    visited = set()
 
-    while stack:
-        (current, risk), path, cost = stack.pop()
+    while queue:
+        # Get the node with lowest distance from the queue (and its distance)
+        dist, node = heapq.heappop(queue)
 
-        if current in path:
+        # If we got to the destination, we have our answer.
+        if node == destination:
+            return dist
+
+        # If we already visited this node, skip it, proceed to the next one.
+        if node in visited:
             continue
 
-        new_cost = cost + risk
-        if current == endnode:
-            if new_cost < min_cost:
-                min_cost = new_cost
-            continue
+        # Mark the node as visited.
+        visited.add(node)
 
-        stack.extend([(neighbour, [*path, current], new_cost) for neighbour in graph[current]])
+        # For each unvisited neighbor of this node...
+        for neighbor, neighbor_dist in grid[node]:
+            if neighbor in visited:
+                continue
 
-    return min_cost
+            # Calculate the total distance from the source
+            # to this neighbor passing through this node.
+            newdist = dist + neighbor_dist
+
+            # If the new distance is lower than the minimum distance we have to
+            # reach this neighbor, then update its minimum distance and add it
+            # to the queue, as we found a "better" path to it.
+            if newdist < mindist[neighbor]:
+                mindist[neighbor] = newdist
+                heapq.heappush(queue, (newdist, neighbor))
+
+    # If we ever empty the queue without entering the node == destination check
+    # in the above loop, there is no path from source to destination!
+    return INFINITY
 
 
 def part1(inputFile: str):
-    risk_graph, endnode = readInput(inputFile)
-    paths = find_paths(risk_graph, endnode)
-    return result
+    graph, destination = readInput(inputFile)
+    cost = dijkstra(graph, destination)
+    return cost
 
 
 def part2(inputFile: str):
@@ -82,7 +105,7 @@ def test():
     filename = 'test_input.txt'
 
     solution_part1 = part1(filename)
-    assert solution_part1 == 1588
+    assert solution_part1 == 40
     print('Part 1 OK')
 
     #solution_part2 = part2(filename)
@@ -103,4 +126,4 @@ def main():
 
 if __name__ == '__main__':
     test()
-    # main()
+    main()
