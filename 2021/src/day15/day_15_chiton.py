@@ -45,13 +45,12 @@ def readInput(filename: str):
 
 def find_paths(graph, endnode):
 
-    start = (0, 0)
+    start = ((0, 0), 0)
     min_cost = float('inf')
     stack = [(start, [], 0)]
 
     while stack:
-        current, path, cost = stack.pop()
-        risk, neighbours = graph[current]
+        (current, risk), path, cost = stack.pop()
 
         if current in path:
             continue
@@ -62,7 +61,7 @@ def find_paths(graph, endnode):
                 min_cost = new_cost
             continue
 
-        stack.extend([(neighbour, [*path, current], new_cost) for neighbour in neighbours])
+        stack.extend([(neighbour, [*path, current], new_cost) for neighbour in graph[current]])
 
     return min_cost
 
