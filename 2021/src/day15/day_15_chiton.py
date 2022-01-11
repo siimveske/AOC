@@ -9,7 +9,8 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     risk_levels = []
-    risk_graph = {}
+    graph = defaultdict(list)
+
     with open(input_file_path, 'r') as f:
         for line in f:
             risk_levels.append([int(i) for i in line.strip()])
@@ -33,9 +34,13 @@ def readInput(filename: str):
             if (j - 1) >= 0:
                 neighbours.append((i, j - 1))
 
-            risk_graph[i, j] = (risk_levels[i][j], neighbours)
+            for n in neighbours:
+                row, col = n
+                graph[i, j].append((n, risk_levels[row][col]))
+                graph[row, col].append(((i, j), risk_levels[i][j]))
+                print()
 
-    return (risk_graph, (height - 1, width - 1))
+    return (graph, (height - 1, width - 1))
 
 
 def find_paths(graph, endnode):
@@ -48,13 +53,13 @@ def find_paths(graph, endnode):
         current, path, cost = stack.pop()
         risk, neighbours = graph[current]
 
+        if current in path:
+            continue
+
         new_cost = cost + risk
         if current == endnode:
             if new_cost < min_cost:
                 min_cost = new_cost
-            continue
-
-        if current in path:
             continue
 
         stack.extend([(neighbour, [*path, current], new_cost) for neighbour in neighbours])
