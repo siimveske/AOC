@@ -7,18 +7,8 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r') as f:
-        
-        acc = 0
-        calories = []
-        for line in f:
-            line = line.strip()
-            if line:
-                acc += int(line)
-            else:
-                calories.append(acc)
-                acc = 0
-        if acc:
-            calories.append(acc)
+        chunks = f.read().split('\n\n')
+        calories = [sum(map(int, chunk.split())) for chunk in chunks]
             
     return calories
 
