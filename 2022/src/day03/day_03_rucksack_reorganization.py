@@ -7,23 +7,36 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
     
     with open(input_file_path, 'r') as f:
-        instructions = [line.strip().split(' ') for line in f]
+        items = f.read().split()
 
-    return instructions
+    return items
 
 
 def part1(inputFile: str):
-    instructions = readInput(inputFile) 
-
+    items = readInput(inputFile)  
+    total = 0
+    for line in items:
+        midpoint = len(line) // 2
+        a = line[0:midpoint]
+        b = line[midpoint:]
+        intersection = set(a).intersection(set(b)).pop()
+        
+        if intersection.islower():
+            delta = 96
+        else:
+            delta = 38
+        total += ord(intersection)-delta
+    
+    return total
 
 def part2(inputFile: str):
-    instructions = readInput(inputFile)
+    items = readInput(inputFile)
 
 
 def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
-    assert part1(filename) == 15
+    assert part1(filename) == 157
     print('Part 1 OK')
     # assert part2(filename) == 12
     # print('Part 2 OK\n')
