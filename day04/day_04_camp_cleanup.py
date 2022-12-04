@@ -22,10 +22,10 @@ def part1(inputFile: str) -> int:
 
     overlap_count = 0
     for start1, stop1, start2, stop2 in sections:
-        # first section is inside the second secion
+        # first section is inside the second section
         if start1 >= start2 and stop1 <= stop2:
             overlap_count += 1
-        # second section is inside the first secion
+        # second section is inside the first section
         elif start2 >= start1 and stop2 <= stop1:
             overlap_count += 1
 
@@ -33,7 +33,18 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str) -> int:
-    items = readInput(inputFile)
+    sections = readInput(inputFile)
+
+    overlap_count = 0
+    for start1, stop1, start2, stop2 in sections:
+        start1_overlaps = start2 <= start1 <= stop2
+        stop1_overlaps = start2 <= stop1 <= stop2
+        start2_overlaps = start1 <= start2 <= stop1
+        stop2_overlaps = start1 <= stop2 <= stop1
+        if start1_overlaps or stop1_overlaps or start2_overlaps or stop2_overlaps:
+            overlap_count += 1
+
+    return overlap_count
 
 
 def test():
@@ -41,8 +52,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 2
     print('Part 1 OK')
-    #assert part2(filename) == 70
-    #print('Part 2 OK\n')
+    assert part2(filename) == 4
+    print('Part 2 OK\n')
 
 
 def main():
@@ -50,8 +61,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    #solution_part2 = part2(filename)
-    #print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
