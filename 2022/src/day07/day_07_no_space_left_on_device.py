@@ -36,20 +36,28 @@ def parse_tree(terminal_output: list):
     return tree
 
 
-def get_dir_size(tree: dict) -> int:
+def get_folder_size(tree: dict, folder: str) -> int:
     size = 0
-    stack = ['/']
+    stack = [folder]
     while stack:
         current_folder = stack.pop()
-        files = tree[current_folder][files]
-        folders = tree[current_folder][folders]
+        files = tree[current_folder]['files']
+        folders = tree[current_folder]['folders']
+        size += sum([f[0] for f in files])
+        stack += folders
     return size
 
 
 def part1(inputFile: str) -> int:
     terminal_output = readInput(inputFile)
     tree = parse_tree(terminal_output)
-    dir_sizes = get_dir_size(tree)
+    solution = 0
+    max_folder_size = 100000
+    for folder in tree.keys():
+        folder_size = get_folder_size(tree, folder)
+        if folder_size <= max_folder_size:
+            solution += folder_size
+    return solution
 
 
 def part2(inputFile: str) -> int:
@@ -59,7 +67,7 @@ def part2(inputFile: str) -> int:
 def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
-    assert part1(filename) == 7
+    assert part1(filename) == 95437
     print('Part 1 OK')
     #assert part2(filename) == 19
     #print('Part 2 OK\n')
