@@ -62,7 +62,24 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str) -> int:
-    data = readInput(inputFile)
+    terminal_output = readInput(inputFile)
+    tree = parse_tree(terminal_output)
+    used_space = get_folder_size(tree, '/')
+    total_disk_space = 70000000
+    space_available = total_disk_space - used_space
+    space_needed = 30000000
+    space_missing = space_needed - space_available
+
+    closest_size = float('inf')
+    for folder in tree.keys():
+        current_folder_size = get_folder_size(tree, folder)
+        if current_folder_size < space_missing:
+            continue
+        delta = current_folder_size - space_missing
+        if delta < closest_size:
+            closest_size = current_folder_size
+
+    return closest_size
 
 
 def test():
@@ -70,8 +87,8 @@ def test():
     filename = 'test_input.txt'
     assert part1(filename) == 95437
     print('Part 1 OK')
-    #assert part2(filename) == 19
-    #print('Part 2 OK\n')
+    assert part2(filename) == 24933642
+    print('Part 2 OK\n')
 
 
 def main():
@@ -79,8 +96,8 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
