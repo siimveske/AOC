@@ -7,13 +7,49 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r') as f:
-        data = f.read()
+        lines = [line.strip() for line in f]
 
-    return data
+    return lines
+
+
+def parse_tree(terminal_output: list):
+    tree = {}
+    stack = []
+    for line in terminal_output:
+        if line.startswith('$'):
+            if 'cd' in line:
+                if '..' in line:
+                    stack.pop()
+                else:
+                    folder = line.split(' ')[2]
+                    stack.append(folder)
+                    tree[folder] = {'files': [], 'folders': []}
+        else:
+            current_folder = stack[-1]
+            if line.startswith('dir'):
+                child_folder = line.split(' ')[1]
+                tree[current_folder]['folders'].append(child_folder)
+            else:
+                size, name = line.split(' ')
+                tree[current_folder]['files'].append((int(size), name))
+
+    return tree
+
+
+def get_dir_size(tree: dict) -> int:
+    size = 0
+    stack = ['/']
+    while stack:
+        current_folder = stack.pop()
+        files = tree[current_folder][files]
+        folders = tree[current_folder][folders]
+    return size
 
 
 def part1(inputFile: str) -> int:
-    data = readInput(inputFile)
+    terminal_output = readInput(inputFile)
+    tree = parse_tree(terminal_output)
+    dir_sizes = get_dir_size(tree)
 
 
 def part2(inputFile: str) -> int:
