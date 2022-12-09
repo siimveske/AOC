@@ -23,15 +23,16 @@ def parse_tree(terminal_output: list):
                 else:
                     folder = line.split(' ')[2]
                     stack.append(folder)
-                    tree[folder] = {'files': [], 'folders': []}
+                    path = ','.join(stack)
+                    tree[path] = {'files': [], 'folders': []}
         else:
-            current_folder = stack[-1]
+            path = ','.join(stack)
             if line.startswith('dir'):
                 child_folder = line.split(' ')[1]
-                tree[current_folder]['folders'].append(child_folder)
+                tree[path]['folders'].append(child_folder)
             else:
                 size, name = line.split(' ')
-                tree[current_folder]['files'].append((int(size), name))
+                tree[path]['files'].append((int(size), name))
 
     return tree
 
@@ -44,7 +45,7 @@ def get_folder_size(tree: dict, folder: str) -> int:
         files = tree[current_folder]['files']
         folders = tree[current_folder]['folders']
         size += sum([f[0] for f in files])
-        stack += folders
+        stack += [current_folder + ',' + f for f in folders]
     return size
 
 
