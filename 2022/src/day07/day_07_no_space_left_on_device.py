@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 
 def readInput(filename: str):
@@ -12,50 +13,51 @@ def readInput(filename: str):
     return lines
 
 
-def parse_tree(terminal_output: list):
-    tree = {}
+def parse_fs(terminal_output: list) -> dict:
+    filesystem = {}
     stack = []
     for line in terminal_output:
-        if line.startswith('$'):
-            if 'cd' in line:
-                if '..' in line:
-                    stack.pop()
-                else:
-                    folder = line.split(' ')[2]
-                    stack.append(folder)
-                    path = ','.join(stack)
-                    tree[path] = {'files': [], 'folders': []}
+        if line.startswith('$ ls'):
+            continue
+        if line.startswith('$ cd'):
+            if '..' in line:
+                stack.pop()
+            else:
+                folder = line.split(' ')[2]
+                stack.append(folder)
+                path = ','.join(stack)
+                filesystem[path] = {'files': [], 'folders': []}
         else:
             path = ','.join(stack)
             if line.startswith('dir'):
                 child_folder = line.split(' ')[1]
-                tree[path]['folders'].append(child_folder)
+                filesystem[path]['folders'].append(child_folder)
             else:
                 size, name = line.split(' ')
-                tree[path]['files'].append((int(size), name))
+                filesystem[path]['files'].append(int(size))
 
-    return tree
+    return filesystem
 
 
-def get_folder_size(tree: dict, folder: str) -> int:
+def get_folder_size(filesystem: dict, path: str) -> int:
     size = 0
-    stack = [folder]
+    stack = [path]
     while stack:
         current_folder = stack.pop()
-        files = tree[current_folder]['files']
-        folders = tree[current_folder]['folders']
-        size += sum([f[0] for f in files])
-        stack += [current_folder + ',' + f for f in folders]
+        files = filesystem[current_folder]['files']
+        folders = filesystem[current_folder]['folders']
+        size += sum(files)
+        stack += [f'{current_folder},{folder}' for folder in folders]
     return size
 
 
 def part1(inputFile: str) -> int:
     terminal_output = readInput(inputFile)
-    tree = parse_tree(terminal_output)
+    filesystem = parse_fs(terminal_output)
     solution = 0
     max_folder_size = 100000
-    for folder in tree.keys():
-        folder_size = get_folder_size(tree, folder)
+    for path in filesystem:
+        folder_size = get_folder_size(filesystem, path)
         if folder_size <= max_folder_size:
             solution += folder_size
     return solution
@@ -63,23 +65,20 @@ def part1(inputFile: str) -> int:
 
 def part2(inputFile: str) -> int:
     terminal_output = readInput(inputFile)
-    tree = parse_tree(terminal_output)
-    used_space = get_folder_size(tree, '/')
+    filesystem = parse_fs(terminal_output)
+    used_space = get_folder_size(filesystem, '/')
     total_disk_space = 70000000
     space_available = total_disk_space - used_space
     space_needed = 30000000
     space_missing = space_needed - space_available
 
-    closest_size = float('inf')
-    for folder in tree.keys():
-        current_folder_size = get_folder_size(tree, folder)
-        if current_folder_size < space_missing:
-            continue
-        delta = current_folder_size - space_missing
-        if delta < closest_size:
-            closest_size = current_folder_size
+    min_size_to_free = float('inf')
+    for path in filesystem:
+        current_folder_size = get_folder_size(filesystem, path)
+        if space_missing <= current_folder_size < min_size_to_free:
+            min_size_to_free = current_folder_size
 
-    return closest_size
+    return min_size_to_free
 
 
 def test():
