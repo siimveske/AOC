@@ -21,6 +21,11 @@ def explore(grid: list, row: int, col: int) -> bool:
     cols = len(grid[0])
     tree_height = grid[row][col]
 
+    if tree_height == 0:
+        return False
+
+    if row == 74 and col == 97:
+        print()
     # Test if tree is visible from UP
     idx = row
     while idx > 0:
@@ -32,28 +37,26 @@ def explore(grid: list, row: int, col: int) -> bool:
 
     # Test if tree is visible from RIGHT
     idx = col
-    try:
-        while True:
-            if grid[row][idx + 1] >= tree_height:
-                break
-            idx += 1
-    except IndexError:
+    while idx < (cols - 1):
+        if grid[row][idx + 1] >= tree_height:
+            break
+        idx += 1
+    if idx == (cols - 1):
         return True
 
     # Test if tree is visible from BOTTOM
     idx = row
-    try:
-        while True:
-            if grid[idx + 1][col] >= tree_height:
-                break
-            idx += 1
-    except IndexError:
+    while idx < (rows - 1):
+        if grid[idx + 1][col] >= tree_height:
+            break
+        idx += 1
+    if idx == (rows - 1):
         return True
 
     # Test if tree is visible from LEFT
     idx = col
     while idx > 0:
-        if grid[row][col - 1] >= tree_height:
+        if grid[row][idx - 1] >= tree_height:
             break
         idx -= 1
     if idx == 0:
@@ -72,6 +75,7 @@ def part1(inputFile: str) -> int:
     for row in range(1, len(grid) - 1):
         for col in range(1, len(grid[0]) - 1):
             if explore(grid, row, col):
+                print(f"{row+1},{col+1}")
                 can_be_seen += 1
     return can_be_seen
 
@@ -93,8 +97,8 @@ def main():
     print('---- MAIN ----')
     filename = 'input.txt'
     solution_part1 = part1(filename)
+    assert solution_part1 == 1695
     print(f'Solution for Part 1: {solution_part1}')
-    # You guessed 4569
     #solution_part2 = part2(filename)
     #print(f'Solution for Part 2: {solution_part2}\n')
 
