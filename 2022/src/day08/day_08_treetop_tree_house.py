@@ -7,14 +7,73 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    grid = []
     with open(input_file_path, 'r') as f:
-        lines = [line.strip() for line in f]
+        for line in f:
+            trees = [int(tree) for tree in line.strip()]
+            grid.append(trees)
+    return grid
 
-    return lines
+
+def explore(grid: list, row: int, col: int) -> bool:
+
+    rows = len(grid)
+    cols = len(grid[0])
+    tree_height = grid[row][col]
+
+    # Test if tree is visible from UP
+    idx = row
+    while idx > 0:
+        if grid[idx - 1][col] >= tree_height:
+            break
+        idx -= 1
+    if idx == 0:
+        return True
+
+    # Test if tree is visible from RIGHT
+    idx = col
+    try:
+        while True:
+            if grid[row][idx + 1] >= tree_height:
+                break
+            idx += 1
+    except IndexError:
+        return True
+
+    # Test if tree is visible from BOTTOM
+    idx = row
+    try:
+        while True:
+            if grid[idx + 1][col] >= tree_height:
+                break
+            idx += 1
+    except IndexError:
+        return True
+
+    # Test if tree is visible from LEFT
+    idx = col
+    while idx > 0:
+        if grid[row][col - 1] >= tree_height:
+            break
+        idx -= 1
+    if idx == 0:
+        return True
+
+    return False
 
 
 def part1(inputFile: str) -> int:
-    terminal_output = readInput(inputFile)
+    grid = readInput(inputFile)
+
+    # All of the trees around the edge of the grid are visible
+    can_be_seen = 2 * len(grid)
+    can_be_seen += 2 * (len(grid[0]) - 2)
+
+    for row in range(1, len(grid) - 1):
+        for col in range(1, len(grid[0]) - 1):
+            if explore(grid, row, col):
+                can_be_seen += 1
+    return can_be_seen
 
 
 def part2(inputFile: str) -> int:
@@ -24,7 +83,7 @@ def part2(inputFile: str) -> int:
 def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
-    assert part1(filename) == 95437
+    assert part1(filename) == 21
     print('Part 1 OK')
     #assert part2(filename) == 24933642
     #print('Part 2 OK\n')
@@ -35,6 +94,7 @@ def main():
     filename = 'input.txt'
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
+    # You guessed 4569
     #solution_part2 = part2(filename)
     #print(f'Solution for Part 2: {solution_part2}\n')
 
