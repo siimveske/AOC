@@ -6,12 +6,16 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    commands = []
     with open(input_file_path, 'r') as f:
-        return f.readlines()
+        for line in f:
+            direction, value = line.split()
+            commands.append((direction, int(value)))
+    return commands
 
 
 def part1(inputFile: str) -> int:
-    grid = readInput(inputFile)
+    commands = readInput(inputFile)
 
 
 def part2(inputFile: str) -> int:
