@@ -16,97 +16,43 @@ def readInput(filename: str):
 
 def is_visible(grid: list, row: int, col: int) -> bool:
 
-    rows = len(grid)
-    cols = len(grid[0])
-    tree_height = grid[row][col]
+    tree = grid[row][col]
+    visible_from_east = (tree > t for t in grid[row][col + 1:])
+    visible_from_west = (tree > t for t in grid[row][:col])
+    visible_from_south = (tree > grid[r][col] for r in range(row + 1, len(grid)))
+    visible_from_north = (tree > grid[r][col] for r in range(row - 1, -1, -1))
 
-    # Test if tree is visible from UP
-    idx = row
-    while idx > 0:
-        if grid[idx - 1][col] >= tree_height:
-            break
-        idx -= 1
-    if idx == 0:
-        return True
-
-    # Test if tree is visible from RIGHT
-    idx = col
-    while idx < (cols - 1):
-        if grid[row][idx + 1] >= tree_height:
-            break
-        idx += 1
-    if idx == (cols - 1):
-        return True
-
-    # Test if tree is visible from BOTTOM
-    idx = row
-    while idx < (rows - 1):
-        if grid[idx + 1][col] >= tree_height:
-            break
-        idx += 1
-    if idx == (rows - 1):
-        return True
-
-    # Test if tree is visible from LEFT
-    idx = col
-    while idx > 0:
-        if grid[row][idx - 1] >= tree_height:
-            break
-        idx -= 1
-    if idx == 0:
-        return True
-
-    return False
+    return all(visible_from_east) or all(visible_from_west) or all(visible_from_south) or all(visible_from_north)
 
 
 def get_scenic_score(grid: list, row: int, col: int) -> int:
 
     rows = len(grid)
     cols = len(grid[0])
-    scenic_score = 0
-    tree_height = grid[row][col]
+    tree = grid[row][col]
 
-    # Test how many trees are visible from UP
-    idx = row
-    up_score = 0
-    while idx > 0:
-        if grid[idx - 1][col] >= tree_height:
-            up_score += 1
+    for east in range(col + 1, cols):
+        if grid[row][east] >= tree:
             break
-        up_score += 1
-        idx -= 1
 
-    # Test how many trees are visible from BOTTOM
-    idx = row
-    down_score = 0
-    while idx < (rows - 1):
-        if grid[idx + 1][col] >= tree_height:
-            down_score += 1
+    for west in range(col - 1, -1, -1):
+        if grid[row][west] >= tree:
             break
-        down_score += 1
-        idx += 1
 
-    # Test how many trees are visible from LEFT
-    idx = col
-    left_score = 0
-    while idx > 0:
-        if grid[row][idx - 1] >= tree_height:
-            left_score += 1
+    for south in range(row + 1, rows):
+        if grid[south][col] >= tree:
             break
-        left_score += 1
-        idx -= 1
 
-    # Test how many trees are visible from RIGHT
-    idx = col
-    right_score = 0
-    while idx < (cols - 1):
-        if grid[row][idx + 1] >= tree_height:
-            right_score += 1
+    for north in range(row - 1, -1, -1):
+        if grid[north][col] >= tree:
             break
-        right_score += 1
-        idx += 1
 
-    scenic_score = up_score * down_score * left_score * right_score
+    east_score = east - col
+    west_score = col - west
+    south_score = south - row
+    nort_score = row - north
+
+    scenic_score = east_score * west_score * south_score * nort_score
     return scenic_score
 
 
@@ -114,22 +60,23 @@ def part1(inputFile: str) -> int:
     grid = readInput(inputFile)
 
     # All of the trees around the edge of the grid are visible
-    can_be_seen = 2 * len(grid)
-    can_be_seen += 2 * (len(grid[0]) - 2)
+    visible = 2 * len(grid)
+    visible += 2 * (len(grid[0]) - 2)
 
     for row in range(1, len(grid) - 1):
         for col in range(1, len(grid[0]) - 1):
             if is_visible(grid, row, col):
-                can_be_seen += 1
-    return can_be_seen
+                visible += 1
+    return visible
 
 
 def part2(inputFile: str) -> int:
     grid = readInput(inputFile)
-
+    height, width = len(grid), len(grid[0])
+    maxr, maxc = height - 1, width - 1
     scenic_score = 0
-    for row in range(len(grid)):
-        for col in range(len(grid[0])):
+    for row in range(1, maxr):
+        for col in range(1, maxc):
             score = get_scenic_score(grid, row, col)
             scenic_score = max(score, scenic_score)
     return scenic_score
