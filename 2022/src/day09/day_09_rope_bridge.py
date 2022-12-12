@@ -16,6 +16,28 @@ def readInput(filename: str):
 
 def part1(inputFile: str) -> int:
     commands = readInput(inputFile)
+    directions = {
+        'U': (0, 1),
+        'D': (0, -1),
+        'L': (-1, 0),
+        'R': (1, 0)}
+    visited = set([(0, 0)])
+    head = (0, 0)
+    tail = (0, 0)
+
+    for cmd, val in commands:
+        for i in range(val):
+            head_x, head_y = head
+            tail_x, tail_y = tail
+            delta_x, delta_y = directions[cmd]
+            new_head_x = head_x + delta_x
+            new_head_y = head_y + delta_y
+            if abs(new_head_x - tail_x) > 1 or abs(new_head_y - tail_y) > 1:
+                tail = (head_x, head_y)
+                visited.add(tail)
+            head = (new_head_x, new_head_y)
+
+    return len(visited)
 
 
 def part2(inputFile: str) -> int:
@@ -38,7 +60,7 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    # assert solution_part1 == 1695
+    assert solution_part1 == 5907
     print(f'Solution for Part 1: {solution_part1}')
 
     # solution_part2 = part2(filename)
