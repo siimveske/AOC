@@ -1,7 +1,4 @@
 import os
-"""
-https://github.com/mebeim/aoc/blob/master/2022/README.md#day-9---rope-bridge
-"""
 
 
 def readInput(filename: str):
@@ -50,8 +47,33 @@ def part1(inputFile: str) -> int:
     return sum(signals)
 
 
-def part2(inputFile: str) -> int:
+def part2(inputFile: str):
     commands = readInput(inputFile)
+
+    cmd_idx = 0
+    pause = 0
+    register = 1
+    val = 0
+    for i in range(1, 241):
+        sprite = range(register, register + 3)
+        if i in sprite:
+            print('#', end='')
+        else:
+            print('.', end='')
+        if i % 40 == 0:
+            print('')
+        if pause > 0:
+            pause -= 1
+            register += val
+            val = 0
+            continue
+
+        cmd = commands[cmd_idx][0]
+        val = commands[cmd_idx][1]
+        if cmd == 'addx':
+            pause = 1
+
+        cmd_idx += 1
 
 
 def test():
@@ -61,8 +83,8 @@ def test():
     assert part1(filename) == 13140
     print('Part 1 OK')
 
-    #assert part2(filename) == 1
-    #print('Part 2 OK\n')
+    assert part2(filename) == 1
+    print('Part 2 OK\n')
 
 
 def main():
@@ -70,12 +92,12 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    #assert solution_part1 == 5907
+    assert solution_part1 == 12640
     print(f'Solution for Part 1: {solution_part1}')
 
-    #solution_part2 = part2(filename)
+    solution_part2 = part2(filename)
     #assert solution_part2 == 2303
-    #print(f'Solution for Part 2: {solution_part2}\n')
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
