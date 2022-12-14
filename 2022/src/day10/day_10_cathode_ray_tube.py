@@ -90,7 +90,7 @@ def test():
     assert part1(filename) == 13140
     print('Part 1 OK')
 
-    assert part2(filename) == 1
+    #assert part2(filename) == 1
     print('Part 2 OK\n')
 
 
@@ -103,7 +103,7 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
 
     solution_part2 = part2(filename)
-    #assert solution_part2 == 2303
+    #assert solution_part2 == 2303 # EHBZLRJR
     print(f'Solution for Part 2: {solution_part2}\n')
 
 
