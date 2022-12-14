@@ -52,19 +52,22 @@ def part2(inputFile: str):
 
     cmd_idx = 0
     pause = 0
-    register = 1
+    X = 1
     val = 0
-    for i in range(1, 241):
-        sprite = range(register, register + 3)
-        if i in sprite:
-            print('#', end='')
+
+    solution = []
+    for i in range(1, 240):
+        sprite = [X, X + 1, X + 2]
+        if i % 40 in sprite:
+            solution.append('#')
         else:
-            print('.', end='')
+            solution.append('.')
         if i % 40 == 0:
-            print('')
+            solution.append('\n')
+
         if pause > 0:
             pause -= 1
-            register += val
+            X += val
             val = 0
             continue
 
@@ -74,6 +77,10 @@ def part2(inputFile: str):
             pause = 1
 
         cmd_idx += 1
+
+    result = ''.join(solution)
+    print(result)
+    return ''
 
 
 def test():
