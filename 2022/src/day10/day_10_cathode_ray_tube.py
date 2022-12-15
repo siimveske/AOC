@@ -1,4 +1,7 @@
 import os
+'''
+https://github.com/aaftre/AdventofCode/tree/master/2022/Day10
+'''
 
 
 def readInput(filename: str):
@@ -6,81 +9,65 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    commands = []
     with open(input_file_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line == 'noop':
-                commands.append(('noop', 0))
-            else:
-                cmd, val = line.split()
-                commands.append((cmd, int(val)))
+        commands = [line.split() for line in f.readlines()]
     return commands
 
 
 def part1(inputFile: str) -> int:
     commands = readInput(inputFile)
-    checkpoints = [20, 60, 100, 140, 180, 220]
-    signals = []
 
-    cmd_idx = 0
-    pause = 0
-    register = 1
-    val = 0
-    for i in range(1, 221):
-        if i in checkpoints:
-            signal = i * register
-            signals.append(signal)
-        if pause > 0:
-            pause -= 1
-            register += val
-            val = 0
-            continue
+    x = 1
+    clk = 0
+    signal = list()
 
-        cmd = commands[cmd_idx][0]
-        val = commands[cmd_idx][1]
-        if cmd == 'addx':
-            pause = 1
+    def incclk():
+        nonlocal x, clk, signal
 
-        cmd_idx += 1
+        clk += 1
 
-    return sum(signals)
+        if clk == 20 or (clk - 20) % 40 == 0:
+            signal.append(clk * x)
+
+    for cmd in commands:
+        if cmd[0] == 'noop':
+            incclk()
+        elif cmd[0] == 'addx':
+            incclk()
+            incclk()
+            x += int(cmd[1])
+
+    return sum(signal)
 
 
 def part2(inputFile: str):
     commands = readInput(inputFile)
 
-    cmd_idx = 0
-    pause = 0
-    X = 1
-    val = 0
+    x = 1
+    clk = 0
+    msg = list()
 
-    solution = []
-    for i in range(1, 240):
-        sprite = [X, X + 1, X + 2]
-        if i % 40 in sprite:
-            solution.append('#')
+    def incclk():
+        nonlocal x, clk
+
+        if (clk + 1) % 40 == 0:
+            msg.append('\n')
+        elif clk % 40 == x or clk % 40 == x - 1 or clk % 40 == x + 1:
+            msg.append('▓')
         else:
-            solution.append('.')
-        if i % 40 == 0:
-            solution.append('\n')
+            msg.append('░')
 
-        if pause > 0:
-            pause -= 1
-            X += val
-            val = 0
-            continue
+        clk += 1
 
-        cmd = commands[cmd_idx][0]
-        val = commands[cmd_idx][1]
-        if cmd == 'addx':
-            pause = 1
+    for cmd in commands:
+        if cmd[0] == 'noop':
+            incclk()
+        elif cmd[0] == 'addx':
+            incclk()
+            incclk()
+            x += int(cmd[1])
 
-        cmd_idx += 1
-
-    result = ''.join(solution)
-    print(result)
-    return ''
+    return ''.join(msg)
 
 
 def test():
@@ -103,8 +90,8 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
 
     solution_part2 = part2(filename)
-    #assert solution_part2 == 2303 # EHBZLRJR
-    print(f'Solution for Part 2: {solution_part2}\n')
+    #assert solution_part2 == EHBZLRJR
+    print(f'Solution for Part 2: \n{solution_part2}')
 
 
 if __name__ == '__main__':
