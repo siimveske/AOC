@@ -1,5 +1,6 @@
 import os
 from collections import deque
+from math import lcm
 
 
 def readInput(filename: str):
@@ -66,7 +67,29 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str):
-    commands = readInput(inputFile)
+    monkeys = readInput(inputFile)
+
+    # https://github.com/mebeim/aoc/blob/master/2022/README.md#day-11---monkey-in-the-middle
+    limit = [monkey['divisor'] for monkey in monkeys]
+    limit = lcm(*limit)
+
+    for i in range(10000):
+        for monkey in monkeys:
+            while monkey['items']:
+                monkey['cnt'] += 1
+                worry_lvl = monkey['items'].popleft()
+                operation = monkey['operation'].replace('old', str(worry_lvl))
+                new_worry_lvl = eval(operation)
+                new_worry_lvl = new_worry_lvl % limit
+                if new_worry_lvl % monkey['divisor'] == 0:
+                    monkeys[monkey['yes']]['items'].append(new_worry_lvl)
+                else:
+                    monkeys[monkey['no']]['items'].append(new_worry_lvl)
+
+    sorted_monkeys = sorted(monkeys, key=lambda monkey: monkey['cnt'], reverse=True)
+    monkey_business_lvl = sorted_monkeys[0]['cnt'] * sorted_monkeys[1]['cnt']
+
+    return monkey_business_lvl
 
 
 def test():
@@ -76,8 +99,8 @@ def test():
     assert part1(filename) == 10605
     print('Part 1 OK')
 
-    # assert part2(filename) == 1
-    # print('Part 2 OK\n')
+    assert part2(filename) == 2713310158
+    print('Part 2 OK\n')
 
 
 def main():
@@ -88,9 +111,9 @@ def main():
     assert solution_part1 == 57348
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # assert solution_part2 == EHBZLRJR
-    # print(f'Solution for Part 2: \n{solution_part2}')
+    solution_part2 = part2(filename)
+    assert solution_part2 == 14106266886
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
