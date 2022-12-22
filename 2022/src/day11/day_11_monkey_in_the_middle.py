@@ -1,4 +1,5 @@
 import os
+from collections import deque
 
 
 def readInput(filename: str):
@@ -17,9 +18,9 @@ def readInput(filename: str):
 
         creature['idx'] = idx
 
-        starting_items = props[1].split(':')[1].split(',')
-        starting_items = [int(i.strip()) for i in starting_items]
-        creature['starting_items'] = starting_items
+        items = props[1].split(':')[1].split(',')
+        items = [int(i.strip()) for i in items]
+        creature['items'] = deque(items)
 
         operation = props[2].split('=')[1].strip()
         creature['operation'] = operation
@@ -36,6 +37,8 @@ def readInput(filename: str):
         no = int(no)
         creature['no'] = no
 
+        creature['cnt'] = 0
+
         parsed_monkeys.append(creature)
 
     return parsed_monkeys
@@ -43,6 +46,23 @@ def readInput(filename: str):
 
 def part1(inputFile: str) -> int:
     monkeys = readInput(inputFile)
+    for i in range(20):
+        for monkey in monkeys:
+            while monkey['items']:
+                monkey['cnt'] += 1
+                worry_lvl = monkey['items'].popleft()
+                operation = monkey['operation'].replace('old', str(worry_lvl))
+                new_worry_lvl = eval(operation)
+                new_worry_lvl = new_worry_lvl // 3
+                if new_worry_lvl % monkey['divisor'] == 0:
+                    monkeys[monkey['yes']]['items'].append(new_worry_lvl)
+                else:
+                    monkeys[monkey['no']]['items'].append(new_worry_lvl)
+
+    sorted_monkeys = sorted(monkeys, key=lambda monkey: monkey['cnt'], reverse=True)
+    monkey_business_lvl = sorted_monkeys[0]['cnt'] * sorted_monkeys[1]['cnt']
+
+    return monkey_business_lvl
 
 
 def part2(inputFile: str):
@@ -53,7 +73,7 @@ def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
 
-    assert part1(filename) == 13140
+    assert part1(filename) == 10605
     print('Part 1 OK')
 
     # assert part2(filename) == 1
@@ -65,7 +85,7 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    assert solution_part1 == 12640
+    assert solution_part1 == 57348
     print(f'Solution for Part 1: {solution_part1}')
 
     # solution_part2 = part2(filename)
