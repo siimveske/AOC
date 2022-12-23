@@ -36,7 +36,7 @@ def explore(grid: list, starting_row: int, starting_col: int) -> int:
             current_height = ord('z')
         else:
             current_height = ord(grid[row][col])
-        if abs(current_height - height) > 1:
+        if current_height - height > 1:
             continue
 
         if grid[row][col] == "E":
@@ -88,7 +88,7 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    # assert solution_part1 == 57348
+    assert solution_part1 == 528
     print(f'Solution for Part 1: {solution_part1}')
 
     # solution_part2 = part2(filename)
