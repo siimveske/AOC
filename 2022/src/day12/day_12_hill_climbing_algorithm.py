@@ -66,7 +66,7 @@ def explore(grid: list, starting_row: int, starting_col: int) -> int:
             visited.add(neighbour)
             queue.append((nrow, ncol, distance + 1))
 
-    return -1
+    return float('inf')
 
 
 def get_starting_point(grid: list) -> tuple:
@@ -78,6 +78,18 @@ def get_starting_point(grid: list) -> tuple:
                 return (row, col)
 
 
+def get_starting_points(grid: list) -> list:
+    rows = len(grid)
+    cols = len(grid[0])
+    starting_points = []
+    for row in range(rows):
+        for col in range(cols):
+            if grid[row][col] == 'S' or grid[row][col] == 'a':
+                starting_points.append((row, col))
+
+    return starting_points
+
+
 def part1(inputFile: str) -> int:
     grid = readInput(inputFile)
     row, col = get_starting_point(grid)
@@ -86,7 +98,13 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str):
-    monkeys = readInput(inputFile)
+    grid = readInput(inputFile)
+    starting_points = get_starting_points(grid)
+    min_distance = float('inf')
+    for row, col in starting_points:
+        distance = explore(grid, row, col)
+        min_distance = min(min_distance, distance)
+    return min_distance
 
 
 def test():
@@ -96,8 +114,8 @@ def test():
     assert part1(filename) == 31
     print('Part 1 OK')
 
-    # assert part2(filename) == 2713310158
-    # print('Part 2 OK\n')
+    assert part2(filename) == 29
+    print('Part 2 OK\n')
 
 
 def main():
@@ -108,9 +126,9 @@ def main():
     assert solution_part1 == 528
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
+    solution_part2 = part2(filename)
     # assert solution_part2 == 14106266886
-    # print(f'Solution for Part 2: {solution_part2}')
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
