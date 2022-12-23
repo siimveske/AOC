@@ -15,39 +15,56 @@ def readInput(filename: str):
     return grid
 
 
-def explore(grid: list, starting_row: int, starting_col: int) -> int:
-    visited = set()
-    queue = deque([(starting_row, starting_col, 0, ord('a'))])
+def get_height(grid: list, row: int, col: int) -> int:
+    if grid[row][col] == 'S':
+        height = ord('a')
+    elif grid[row][col] == 'E':
+        height = ord('z')
+    else:
+        height = ord(grid[row][col])
+    return height
 
-    while queue:
-        row, col, distance, height = queue.popleft()
 
-        row_inbounds = 0 <= row < len(grid)
-        col_inbounds = 0 <= col < len(grid[0])
+def get_neighbours(grid: list, row: int, col: int, visited: set) -> list:
+    neighbours = []
+    rows = len(grid)
+    cols = len(grid[0])
+    height = get_height(grid, row, col)
+    up_down_left_right = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
 
-        if (row, col) in visited:
+    for neighbour in up_down_left_right:
+        if neighbour in visited:
             continue
+
+        nrow, ncol = neighbour
+        row_inbounds = 0 <= nrow < rows
+        col_inbounds = 0 <= ncol < cols
         if not row_inbounds or not col_inbounds:
             continue
 
-        if grid[row][col] == 'S':
-            current_height = ord('a')
-        elif grid[row][col] == 'E':
-            current_height = ord('z')
-        else:
-            current_height = ord(grid[row][col])
-        if current_height - height > 1:
+        neighbour_height = get_height(grid, nrow, ncol)
+        if neighbour_height - height > 1:
             continue
 
-        if grid[row][col] == "E":
+        neighbours.append(neighbour)
+
+    return neighbours
+
+
+def explore(grid: list, starting_row: int, starting_col: int) -> int:
+    visited = set()
+    queue = deque([(starting_row, starting_col, 0)])
+
+    while queue:
+        row, col, distance = queue.popleft()
+
+        if grid[row][col] == 'E':
             return distance
 
-        visited.add((row, col))
-
-        queue.append((row + 1, col, distance + 1, current_height))
-        queue.append((row - 1, col, distance + 1, current_height))
-        queue.append((row, col + 1, distance + 1, current_height))
-        queue.append((row, col - 1, distance + 1, current_height))
+        for neighbour in get_neighbours(grid, row, col, visited):
+            nrow, ncol = neighbour
+            visited.add(neighbour)
+            queue.append((nrow, ncol, distance + 1))
 
     return -1
 
