@@ -127,7 +127,7 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
 
     solution_part2 = part2(filename)
-    # assert solution_part2 == 14106266886
+    assert solution_part2 == 522
     print(f'Solution for Part 2: {solution_part2}')
 
 
