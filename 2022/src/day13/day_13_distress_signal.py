@@ -1,4 +1,5 @@
 import os
+from itertools import zip_longest
 
 
 def readInput(filename: str):
@@ -6,16 +7,52 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    grid = []
+    packet = []
+    packets = []
     with open(input_file_path, 'r') as f:
         for line in f:
-            row = [character for character in line.strip()]
-            grid.append(row)
-    return grid
+            line = line.strip()
+            if line:
+                packet.append(eval(line))
+            else:
+                packets.append(packet)
+                packet = []
+        packets.append(packet)
+    return packets
+
+
+def check(packet):
+    a, b = packet
+    if type(a) == list and type(b) == list:
+        for left, right in zip_longest(a, b, fillvalue=None):
+            if left in [[], None] and right:
+                return True
+            if left and right in [[], None]:
+                return False
+
+            if type(left) == int and type(right) == int:
+                if left < right:
+                    return True
+                elif left > right:
+                    return False
+            else:
+                if type(left) == int:
+                    left = [left]
+                if type(right) == int:
+                    right = [right]
+                if not check([left, right]):
+                    return False
+
+    return True
 
 
 def part1(inputFile: str) -> int:
-    grid = readInput(inputFile)
+    packets = readInput(inputFile)
+    correct_packages = []
+    for idx, packet in enumerate(packets):
+        if check(packet):
+            correct_packages.append(idx + 1)
+    return sum(correct_packages)
 
 
 def part2(inputFile: str):
@@ -26,7 +63,7 @@ def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
 
-    assert part1(filename) == 31
+    assert part1(filename) == 13
     print('Part 1 OK')
 
     # assert part2(filename) == 29
@@ -38,7 +75,8 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    assert solution_part1 == 528
+    #assert solution_part1 == 13
+    # 2651 is too low
     print(f'Solution for Part 1: {solution_part1}')
 
     # solution_part2 = part2(filename)
