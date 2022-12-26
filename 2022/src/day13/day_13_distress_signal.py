@@ -13,9 +13,8 @@ def readInput(filename: str):
             packets.append(list(map(eval, packet.splitlines())))
     return packets
 
+
 # https://github.com/mebeim/aoc/blob/master/2022/README.md#day-13---distress-signal
-
-
 def compare(left, right):
     left_is_int = type(left) is int
     right_is_int = type(right) is int
