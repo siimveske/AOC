@@ -16,26 +16,25 @@ def readInput(filename: str):
 
 def check(packet):
     a, b = packet
-    if type(a) == list and type(b) == list:
-        for left, right in zip_longest(a, b, fillvalue=None):
-            if not left and right:
-                return -1
-            if left and not right:
-                return 1
+    for left, right in zip_longest(a, b, fillvalue=None):
+        if left is None and right is not None:
+            return -1
+        if left is not None and right is None:
+            return 1
 
-            if type(left) == int and type(right) == int:
-                if left < right:
-                    return -1
-                elif left > right:
-                    return 1
-            else:
-                if type(left) == int:
-                    left = [left]
-                if type(right) == int:
-                    right = [right]
-                res = check([left, right])
-                if res != 0:
-                    return res
+        if type(left) == int and type(right) == int:
+            if left < right:
+                return -1
+            elif left > right:
+                return 1
+        else:
+            if type(left) == int:
+                left = [left]
+            if type(right) == int:
+                right = [right]
+            res = check([left, right])
+            if res != 0:
+                return res
 
     return 0
 
@@ -69,8 +68,7 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename)
-    #assert solution_part1 == 13
-    # 2651 is too low
+    assert solution_part1 == 5555
     print(f'Solution for Part 1: {solution_part1}')
 
     # solution_part2 = part2(filename)
