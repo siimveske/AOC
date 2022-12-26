@@ -1,5 +1,4 @@
 import os
-from itertools import zip_longest
 from functools import cmp_to_key
 
 
@@ -14,63 +13,42 @@ def readInput(filename: str):
             packets.append(list(map(eval, packet.splitlines())))
     return packets
 
+# https://github.com/mebeim/aoc/blob/master/2022/README.md#day-13---distress-signal
 
-def check(packet):
-    a, b = packet
-    for left, right in zip_longest(a, b, fillvalue=None):
-        if left is None and right is not None:
-            return -1
-        if left is not None and right is None:
-            return 1
 
-        if type(left) == int and type(right) == int:
-            if left < right:
-                return -1
-            elif left > right:
-                return 1
+def compare(left, right):
+    left_is_int = type(left) is int
+    right_is_int = type(right) is int
+
+    # Both integers.
+    if left_is_int and right_is_int:
+        return left - right
+
+    # One is an integer, wrap it into a list and re-check.
+    if left_is_int != right_is_int:
+        if left_is_int:
+            return compare([left], right)
         else:
-            if type(left) == int:
-                left = [left]
-            if type(right) == int:
-                right = [right]
-            res = check([left, right])
-            if res != 0:
-                return res
+            return compare(left, [right])
 
-    return 0
+    # Both lists, check their items pairwise, stop at the first conclusive result.
+    for x, y in zip(left, right):
+        res = compare(x, y)
+        if res != 0:
+            return res
 
-
-def compare(a, b):
-    for left, right in zip_longest(a, b, fillvalue=None):
-        if left is None and right is not None:
-            return -1
-        if left is not None and right is None:
-            return 1
-
-        if type(left) == int and type(right) == int:
-            if left < right:
-                return -1
-            elif left > right:
-                return 1
-        else:
-            if type(left) == int:
-                left = [left]
-            if type(right) == int:
-                right = [right]
-            res = check([left, right])
-            if res != 0:
-                return res
-
-    return 0
+    # We ran out of items before coming to a conclusion. Now what matters is
+    # which list was longer (according to rule number 2).
+    return len(left) - len(right)
 
 
 def part1(inputFile: str) -> int:
     packets = readInput(inputFile)
-    correct_packages = []
-    for idx, packet in enumerate(packets, 1):
-        if check(packet) == -1:
-            correct_packages.append(idx)
-    return sum(correct_packages)
+    answer = 0
+    for idx, packet in enumerate(packets, start=1):
+        if compare(*packet) < 0:
+            answer += idx
+    return answer
 
 
 def part2(inputFile: str):
