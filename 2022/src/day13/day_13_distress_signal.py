@@ -18,32 +18,33 @@ def check(packet):
     a, b = packet
     if type(a) == list and type(b) == list:
         for left, right in zip_longest(a, b, fillvalue=None):
-            if left == [] and right:
-                return True
-            if left and right == []:
-                return False
+            if not left and right:
+                return -1
+            if left and not right:
+                return 1
 
             if type(left) == int and type(right) == int:
                 if left < right:
-                    return True
+                    return -1
                 elif left > right:
-                    return False
+                    return 1
             else:
                 if type(left) == int:
                     left = [left]
                 if type(right) == int:
                     right = [right]
-                if not check([left, right]):
-                    return False
+                res = check([left, right])
+                if res != 0:
+                    return res
 
-    return True
+    return 0
 
 
 def part1(inputFile: str) -> int:
     packets = readInput(inputFile)
     correct_packages = []
     for idx, packet in enumerate(packets, 1):
-        if check(packet):
+        if check(packet) == -1:
             correct_packages.append(idx)
     return sum(correct_packages)
 
