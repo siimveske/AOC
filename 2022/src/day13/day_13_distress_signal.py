@@ -7,17 +7,10 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    packet = []
     packets = []
     with open(input_file_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                packet.append(eval(line))
-            else:
-                packets.append(packet)
-                packet = []
-        packets.append(packet)
+        for packet in f.read().split('\n\n'):
+            packets.append(list(map(eval, packet.splitlines())))
     return packets
 
 
@@ -25,9 +18,9 @@ def check(packet):
     a, b = packet
     if type(a) == list and type(b) == list:
         for left, right in zip_longest(a, b, fillvalue=None):
-            if left in [[], None] and right:
+            if left == [] and right:
                 return True
-            if left and right in [[], None]:
+            if left and right == []:
                 return False
 
             if type(left) == int and type(right) == int:
@@ -49,9 +42,9 @@ def check(packet):
 def part1(inputFile: str) -> int:
     packets = readInput(inputFile)
     correct_packages = []
-    for idx, packet in enumerate(packets):
+    for idx, packet in enumerate(packets, 1):
         if check(packet):
-            correct_packages.append(idx + 1)
+            correct_packages.append(idx)
     return sum(correct_packages)
 
 
