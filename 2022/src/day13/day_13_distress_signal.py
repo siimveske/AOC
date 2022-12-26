@@ -1,5 +1,6 @@
 import os
 from itertools import zip_longest
+from functools import cmp_to_key
 
 
 def readInput(filename: str):
@@ -39,6 +40,30 @@ def check(packet):
     return 0
 
 
+def compare(a, b):
+    for left, right in zip_longest(a, b, fillvalue=None):
+        if left is None and right is not None:
+            return -1
+        if left is not None and right is None:
+            return 1
+
+        if type(left) == int and type(right) == int:
+            if left < right:
+                return -1
+            elif left > right:
+                return 1
+        else:
+            if type(left) == int:
+                left = [left]
+            if type(right) == int:
+                right = [right]
+            res = check([left, right])
+            if res != 0:
+                return res
+
+    return 0
+
+
 def part1(inputFile: str) -> int:
     packets = readInput(inputFile)
     correct_packages = []
@@ -49,7 +74,19 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str):
-    grid = readInput(inputFile)
+    pairs = readInput(inputFile)
+    packets = []
+    divider_packets = [[[2]], [[6]]]
+    for packet in pairs:
+        packets += packet
+    packets += divider_packets
+    sorted_packages = sorted(packets, key=cmp_to_key(compare))
+
+    result = 1
+    for idx, pkg in enumerate(sorted_packages, start=1):
+        if pkg in divider_packets:
+            result *= idx
+    return result
 
 
 def test():
@@ -59,8 +96,8 @@ def test():
     assert part1(filename) == 13
     print('Part 1 OK')
 
-    # assert part2(filename) == 29
-    # print('Part 2 OK\n')
+    assert part2(filename) == 140
+    print('Part 2 OK\n')
 
 
 def main():
@@ -71,9 +108,9 @@ def main():
     assert solution_part1 == 5555
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # # assert solution_part2 == 14106266886
-    # print(f'Solution for Part 2: {solution_part2}')
+    solution_part2 = part2(filename)
+    assert solution_part2 == 22852
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
