@@ -62,6 +62,31 @@ def simulate(cave: tuple) -> bool:
             return True
 
 
+def simulate2(cave: tuple) -> bool:
+    x, y = 500, 0
+    rocks, min_x, max_x, min_y, max_y = cave
+    max_y += 2
+    while True:
+        if (499, 1) in rocks and (500, 1) in rocks and (501, 1) in rocks:
+            return False
+
+        down = (x, y + 1)
+        left = (x - 1, y + 1)
+        right = (x + 1, y + 1)
+        if down not in rocks and down[1] < max_y:
+            x, y = down
+            continue
+        elif left not in rocks and down[1] < max_y:
+            x, y = left
+            continue
+        elif right not in rocks and down[1] < max_y:
+            x, y = right
+            continue
+        else:
+            rocks.add((x, y))
+            return True
+
+
 def part1(inputFile: str) -> int:
     cave = readInput(inputFile)
     cnt = 0
@@ -71,7 +96,11 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str):
-    pairs = readInput(inputFile)
+    cave = readInput(inputFile)
+    cnt = 1
+    while simulate2(cave):
+        cnt += 1
+    return cnt
 
 
 def test():
@@ -81,8 +110,8 @@ def test():
     assert part1(filename) == 24
     print('Part 1 OK')
 
-    # assert part2(filename) == 140
-    # print('Part 2 OK\n')
+    assert part2(filename) == 93
+    print('Part 2 OK\n')
 
 
 def main():
@@ -93,9 +122,9 @@ def main():
     assert solution_part1 == 610
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # assert solution_part2 == 22852
-    # print(f'Solution for Part 2: {solution_part2}')
+    solution_part2 = part2(filename)
+    assert solution_part2 == 27194
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
