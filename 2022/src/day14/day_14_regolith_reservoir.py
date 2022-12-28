@@ -7,9 +7,6 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     rocks = set()
-    min_x = float('inf')
-    max_x = float('-inf')
-    min_y = float('inf')
     max_y = float('-inf')
 
     with open(input_file_path, 'r') as f:
@@ -25,29 +22,24 @@ def readInput(filename: str):
                 if x1 == x2:  # vertical segment
                     for y in range(min(y1, y2), max(y1, y2) + 1):
                         rocks.add((x1, y))
-                        min_y = min(min_y, y)
                         max_y = max(max_y, y)
                 else:  # horizontal segment
                     for x in range(min(x1, x2), max(x1, x2) + 1):
                         rocks.add((x, y1))
-                        min_x = min(min_x, x)
-                        max_x = max(max_x, x)
 
-    return (rocks, min_x, max_x, min_y, max_y)
+    return (rocks, max_y)
 
 
 def simulate(cave: tuple) -> bool:
     x, y = 500, 0
-    rocks, min_x, max_x, min_y, max_y = cave
-    while True:
-        if y >= max_y:
-            return False
-        if x < min_x or x > max_x:
-            return False
+    rocks, max_y = cave
+
+    while y < max_y:
 
         down = (x, y + 1)
         left = (x - 1, y + 1)
         right = (x + 1, y + 1)
+
         if down not in rocks:
             x, y = down
             continue
@@ -58,21 +50,24 @@ def simulate(cave: tuple) -> bool:
             x, y = right
             continue
         else:
+            # This unit of sand cannot fall anymore, so it settles.
             rocks.add((x, y))
             return True
+
+    # This unit will keep falling down the infinitely deep cave without settling
+    return False
 
 
 def simulate2(cave: tuple) -> bool:
     x, y = 500, 0
-    rocks, min_x, max_x, min_y, max_y = cave
+    rocks, max_y = cave
     max_y += 2
-    while True:
-        if (499, 1) in rocks and (500, 1) in rocks and (501, 1) in rocks:
-            return False
+    while y < max_y:
 
         down = (x, y + 1)
         left = (x - 1, y + 1)
         right = (x + 1, y + 1)
+
         if down not in rocks and down[1] < max_y:
             x, y = down
             continue
@@ -84,7 +79,11 @@ def simulate2(cave: tuple) -> bool:
             continue
         else:
             rocks.add((x, y))
+            if (x, y) == (500, 0):
+                return False
             return True
+
+    return False
 
 
 def part1(inputFile: str) -> int:
