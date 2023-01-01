@@ -28,17 +28,6 @@ class Point():
         return sum((abs(diff.x), abs(diff.y)))
 
 
-def process_sensors(data) -> dict[Point, Point]:
-    # Find four digits, preceeded by "not digit"
-    pattern = re.compile(r"[\D]+x=(-?\d+)[\D]+y=(-?\d+)[\D]+x=(-?\d+)[\D]+y=(-?\d+)")
-    sensor_to_beacon: dict[Point, Point] = {}
-    for line in data:
-        sx, sy, bx, by = map(int, pattern.findall(line)[0])
-        sensor_to_beacon[Point(sx, sy)] = Point(bx, by)
-
-    return sensor_to_beacon
-
-
 class SensorGrid():
     """ Stores a grid of Sensors, and each sensor's nearest beacon. """
 
@@ -151,9 +140,16 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    # Find four digits, preceeded by "not digit"
+    pattern = re.compile(r"[\D]+x=(-?\d+)[\D]+y=(-?\d+)[\D]+x=(-?\d+)[\D]+y=(-?\d+)")
+    sensor_to_beacon: dict[Point, Point] = {}
+
     with open(input_file_path, 'r') as f:
-        data = process_sensors(f)
-    return data
+        for line in f:
+            sx, sy, bx, by = map(int, pattern.findall(line)[0])
+            sensor_to_beacon[Point(sx, sy)] = Point(bx, by)
+
+    return sensor_to_beacon
 
 
 def part1(inputFile: str, TARGET_ROW: int) -> int:
