@@ -102,6 +102,32 @@ class SensorGrid():
 
         return stack
 
+    def test_points_outside_perimeter(self, DISTRESS_X_BOUNDS: list[int, int], DISTRESS_Y_BOUNDS: list[int, int]) -> Point:
+        """ The signal beacon must be one outside of the perimeter of existing sensor boundaries. """
+        for sensor_point, dist_to_nearest in self.sensor_range.items():
+            for dx in range(dist_to_nearest + 2):  # max dx is dist_to_nearest + 1
+                dy = (dist_to_nearest + 1) - dx   # To always be on perimeter, dx+dy must be dist_to_nearest + 1
+
+                for sign_x, sign_y in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:  # Add our dx and dy in all directions
+                    x = sensor_point.x + (dx * sign_x)
+                    y = sensor_point.y + (dy * sign_y)
+
+                    # Check within the bounds defined; if not, try next dx and dy
+                    if not (DISTRESS_X_BOUNDS[0] <= x <= DISTRESS_X_BOUNDS[1] and DISTRESS_Y_BOUNDS[0] <= y <= DISTRESS_Y_BOUNDS[1]):
+                        continue
+
+                    coverage = self.compress_intervals_for_row(y)  # get all disallowed intervals
+                    # look for a gap between any intervals
+                    if len(coverage) > 1:
+                        for i in range(1, len(coverage) + 1):
+                            if coverage[i][0] > coverage[0][1] + 1:
+                                x = coverage[i][0] - 1
+                                return Point(x, y)
+
+    def tuning_frequency(self, point: Point) -> int:
+        TUNING_FREQ_MULTIPLIER = 4000000
+        return point.x * TUNING_FREQ_MULTIPLIER + point.y
+
     def __str__(self) -> str:
         rows = []
         for y in range(self.min_y, self.max_y + 1):
@@ -142,8 +168,12 @@ def part1(inputFile: str, TARGET_ROW: int) -> int:
     return solution
 
 
-def part2(inputFile: str):
-    cave = readInput(inputFile)
+def part2(inputFile: str, DISTRESS_X_BOUNDS: list[int, int], DISTRESS_Y_BOUNDS: list[int, int]):
+    data = readInput(inputFile)
+    grid = SensorGrid(data)
+    beacon_location = grid.test_points_outside_perimeter(DISTRESS_X_BOUNDS, DISTRESS_Y_BOUNDS)
+    solution = grid.tuning_frequency(beacon_location)
+    return solution
 
 
 def test():
@@ -153,8 +183,10 @@ def test():
     assert part1(filename, TARGET_ROW=10) == 26
     print('Part 1 OK')
 
-    # assert part2(filename) == 93
-    # print('Part 2 OK\n')
+    DISTRESS_X_BOUNDS = (0, 20)
+    DISTRESS_Y_BOUNDS = (0, 20)
+    assert part2(filename, DISTRESS_X_BOUNDS, DISTRESS_Y_BOUNDS) == 56000011
+    print('Part 2 OK\n')
 
 
 def main():
@@ -162,12 +194,14 @@ def main():
     filename = 'input.txt'
 
     solution_part1 = part1(filename, TARGET_ROW=2000000)
-    # assert solution_part1 == 26
+    assert solution_part1 == 4737443
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # assert solution_part2 == 27194
-    # print(f'Solution for Part 2: {solution_part2}')
+    DISTRESS_X_BOUNDS = (0, 4000000)
+    DISTRESS_Y_BOUNDS = (0, 4000000)
+    solution_part2 = part2(filename, DISTRESS_X_BOUNDS, DISTRESS_Y_BOUNDS)
+    assert solution_part2 == 11482462818989
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
