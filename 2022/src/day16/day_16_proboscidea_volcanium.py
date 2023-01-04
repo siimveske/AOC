@@ -1,7 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass
 import os
-import re
 
 
 def readInput(filename: str):
@@ -9,16 +7,21 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    # Find four digits, preceeded by "not digit"
-    pattern = re.compile(r"[\D]+x=(-?\d+)[\D]+y=(-?\d+)[\D]+x=(-?\d+)[\D]+y=(-?\d+)")
-    sensor_to_beacon: dict[Point, Point] = {}
-
+    data = {}
     with open(input_file_path, 'r') as f:
         for line in f:
-            sx, sy, bx, by = map(int, pattern.findall(line)[0])
-            sensor_to_beacon[Point(sx, sy)] = Point(bx, by)
+            valve, neighbours = line.strip().split(';')
+            valve_code = valve[6:8]
+            if valve_code == 'HH':
+                print()
+            valve_flow_rate = int(valve[23:])
 
-    return sensor_to_beacon
+            neighbours = neighbours.strip()
+            neighbours = neighbours.split(' ')[4:]
+            neighbours = [n[0:2] for n in neighbours]
+
+            data[valve_code] = (valve_flow_rate, neighbours)
+    return data
 
 
 def part1(inputFile: str) -> int:
