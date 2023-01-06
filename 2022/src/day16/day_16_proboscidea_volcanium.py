@@ -3,6 +3,7 @@ from collections import defaultdict
 from itertools import combinations, product
 from math import inf as INFINITY
 import os
+import re
 
 '''https://github.com/mebeim/aoc/blob/master/2022/README.md#day-16---proboscidea-volcanium'''
 
@@ -13,21 +14,16 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     graph = {}
-    rates = {}
+    flow_rates = {}
+
     with open(input_file_path, 'r') as f:
         for line in f:
-            valve, neighbours = line.strip().split(';')
-            valve_id = valve[6:8]               # name of this valve
-            valve_flow_rate = int(valve[23:])   # pressure release rate (per minute)
+            res = re.search(r"Valve (..) has flow rate=(\d+); tunnels? leads? to valves? (.+)", line)
+            name = res.group(1)                     # name of this valve
+            flow_rates[name] = int(res.group(2))    # pressure release rate (per minute)
+            graph[name] = res.group(3).split(", ")  # valves connected to this valve
 
-            neighbours = neighbours.strip()
-            neighbours = neighbours.split(' ')[4:]
-            neighbours = [n[0:2] for n in neighbours]    # valves connected to this valve
-
-            graph[valve_id] = neighbours
-            rates[valve_id] = valve_flow_rate
-
-    return (graph, rates)
+    return graph, flow_rates
 
 
 def floyd_warshall(graph: dict[str, list[str]]) -> dict[str, dict[str, int]]:
@@ -84,10 +80,10 @@ def get_score(rates: dict[str, int], solution_valves: dict[str, int]) -> int:
 def part1(inputFile: str) -> int:
     graph, rates = readInput(inputFile)
     distances = floyd_warshall(graph)
-    valves = {key for key, val in rates.items() if val > 0}
+    valuable_valves = {key for key, val in rates.items() if val > 0}
 
     max_pressure = 0
-    for solution in get_solutions(distances, valves):
+    for solution in get_solutions(distances, valuable_valves):
         max_pressure = max(max_pressure, get_score(rates, solution))
     return max_pressure
 
@@ -96,9 +92,9 @@ def part2(inputFile: str) -> int:
     graph, rates = readInput(inputFile)
     distances = floyd_warshall(graph)
 
-    valves = {key for key, val in rates.items() if val > 0}
+    valuable_valves = {key for key, val in rates.items() if val > 0}
     maxscore = defaultdict(int)
-    for solution in get_solutions(distances, valves, 26):
+    for solution in get_solutions(distances, valuable_valves, 26):
         key = frozenset(solution)
         score = get_score(rates, solution)
 
