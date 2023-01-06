@@ -1,6 +1,6 @@
 from __future__ import annotations
 from collections import defaultdict
-from itertools import product
+from itertools import combinations, product
 from math import inf as INFINITY
 import os
 
@@ -17,29 +17,31 @@ def readInput(filename: str):
     with open(input_file_path, 'r') as f:
         for line in f:
             valve, neighbours = line.strip().split(';')
-            valve_code = valve[6:8]
-            valve_flow_rate = int(valve[23:])
+            valve_id = valve[6:8]               # name of this valve
+            valve_flow_rate = int(valve[23:])   # pressure release rate (per minute)
 
             neighbours = neighbours.strip()
             neighbours = neighbours.split(' ')[4:]
-            neighbours = [n[0:2] for n in neighbours]
+            neighbours = [n[0:2] for n in neighbours]    # valves connected to this valve
 
-            graph[valve_code] = neighbours
-            rates[valve_code] = valve_flow_rate
+            graph[valve_id] = neighbours
+            rates[valve_id] = valve_flow_rate
+
     return (graph, rates)
 
 
-def floyd_warshall(g):
+def floyd_warshall(graph: dict[str, list[str]]) -> dict[str, dict[str, int]]:
+    '''Calculate the minimum distance between any possible pair of nodes of a given graph'''
     distance = defaultdict(lambda: defaultdict(lambda: INFINITY))
 
-    for a, bs in g.items():
-        distance[a][a] = 0
+    for node, neighbours in graph.items():
+        distance[node][node] = 0
 
-        for b in bs:
-            distance[a][b] = 1
-            distance[b][b] = 0
+        for neighbour in neighbours:
+            distance[node][neighbour] = 1
+            distance[neighbour][neighbour] = 0
 
-    for a, b, c in product(g, g, g):
+    for a, b, c in product(graph, graph, graph):
         bc, ba, ac = distance[b][c], distance[b][a], distance[a][c]
 
         if ba + ac < bc:
@@ -48,21 +50,33 @@ def floyd_warshall(g):
     return distance
 
 
-def get_solutions(distances, valves, time=30, current_valve='AA', chosen_valves={}):
-    for nxt_valve in valves:
-        new_time = time - distances[current_valve][nxt_valve] - 1
+def get_solutions(distances: dict[str, dict[str, int]], closed_valves: set[str], time=30, current_valve='AA', open_valves={}) -> set[dict[str, int]]:
+    res = [open_valves]
+
+    # For all the valves we can currently choose
+    for next_valve in closed_valves:
+        # Choosing this valve will take distances[current_valve][nxt_valve] to reach it + 1m to open it
+        new_time = time - (distances[current_valve][next_valve] + 1)
+
+        # We can't reach any other valve in less than 2m, as it would take minimum
+        # 1m to reach it plus 1m to open it, and therefore it'd be stay open for 0m.
         if new_time < 2:
             continue
 
-        new_chosen = chosen_valves | {nxt_valve: new_time}
-        yield from get_solutions(distances, valves - {nxt_valve}, new_time, nxt_valve, new_chosen)
+        # Choose this valve, it will stay open exactly for new_time (i.e. the time
+        # we have now minus the time it takes to reach and open it).
+        new_chosen = open_valves | {next_valve: new_time}
 
-    yield chosen_valves
+        # The new valves to choose from will not include this one
+        still_closed_valves = closed_valves - {next_valve}
+        res += get_solutions(distances, still_closed_valves, new_time, next_valve, new_chosen)
+    return res
 
 
-def score(rates, valves):
+def get_score(rates: dict[str, int], solution_valves: dict[str, int]) -> int:
+    '''Calculate total pressure release of the solution'''
     result = 0
-    for valve, duration in valves.items():
+    for valve, duration in solution_valves.items():
         result += rates[valve] * duration
     return result
 
@@ -70,17 +84,33 @@ def score(rates, valves):
 def part1(inputFile: str) -> int:
     graph, rates = readInput(inputFile)
     distances = floyd_warshall(graph)
-    valves = frozenset(filter(rates.get, graph))
+    valves = {key for key, val in rates.items() if val > 0}
 
     max_pressure = 0
     for solution in get_solutions(distances, valves):
-        max_pressure = max(max_pressure, score(rates, solution))
+        max_pressure = max(max_pressure, get_score(rates, solution))
     return max_pressure
 
 
-def part2(inputFile: str):
-    data = readInput(inputFile)
-    return 0
+def part2(inputFile: str) -> int:
+    graph, rates = readInput(inputFile)
+    distances = floyd_warshall(graph)
+
+    valves = {key for key, val in rates.items() if val > 0}
+    maxscore = defaultdict(int)
+    for solution in get_solutions(distances, valves, 26):
+        key = frozenset(solution)
+        score = get_score(rates, solution)
+
+        if score > maxscore[key]:
+            maxscore[key] = score
+
+    best = 0
+    for (s1, score1), (s2, score2) in combinations(maxscore.items(), 2):
+        if len(s1 & s2) == 0:
+            best = max(best, score1 + score2)
+
+    return best
 
 
 def test():
@@ -102,9 +132,9 @@ def main():
     assert solution_part1 == 2320
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # assert solution_part2 == 11482462818989
-    # print(f'Solution for Part 2: {solution_part2}')
+    solution_part2 = part2(filename)
+    assert solution_part2 == 2967
+    print(f'Solution for Part 2: {solution_part2}')
 
 
 if __name__ == '__main__':
