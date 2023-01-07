@@ -5,8 +5,6 @@ from math import inf as INFINITY
 import os
 import re
 
-'''https://github.com/mebeim/aoc/blob/master/2022/README.md#day-16---proboscidea-volcanium'''
-
 
 def readInput(filename: str):
 
