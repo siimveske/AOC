@@ -18,6 +18,10 @@ def readInput(filename: str):
     return blueprints
 
 
+def best_case_scenario(initial_amount, robots, t):
+    return initial_amount + robots * (t + 1) + t * (t + 1) // 2
+
+
 def search(blueprint):
     (rore_cost,      # Cost in ore to build an ore-mining robot.
      rclay_cost,     # Cost in ore to build a clay-mining robot.
@@ -57,6 +61,21 @@ def search(blueprint):
         # number of geodes we were able to mine.
         if time == 0:
             best = max(best, newgeo)
+            continue
+
+        # If we can't mine more geodes in the best-case scenario, bail out.
+        if best_case_scenario(newgeo, rgeo, time) < best:
+            continue
+
+        # If we can't mine enough obsidian to build new geode robots even in the
+        # best-case scenario, we already know how many geodes we'll be able to get.
+        if best_case_scenario(newobs, robs, time) < rgeo_cost_obs:
+            best = max(best, newgeo + rgeo * time)
+            continue
+
+        # Likewise for ore.
+        if best_case_scenario(newore, rore, time) < rgeo_cost_ore:
+            best = max(best, newgeo + rgeo * time)
             continue
 
         # Following are the possible actions (transitions) to take...
