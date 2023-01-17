@@ -61,8 +61,11 @@ def search(blueprint):
 
         # Following are the possible actions (transitions) to take...
 
-        # We can always just spend one minute only mining without building any robot.
-        q.append((time, newore, newclay, newobs, newgeo, rore, rclay, robs, rgeo))
+        # Does it make sense to wait for a resource? I.E. do I have less than
+        # the max needed and do I also have robots to produce it?
+        if (robs and obs < max_obs_needed) or (rclay and clay < max_clay_needed) or ore < max_ore_needed:
+            # If so, we can also try just spending one minute only mining without building any robot.
+            q.append((time, newore, newclay, newobs, newgeo, rore, rclay, robs, rgeo))
 
         # If we have enough materials for a geode-mining robot, we could also build that.
         if obs >= rgeo_cost_obs and ore >= rgeo_cost_ore:
