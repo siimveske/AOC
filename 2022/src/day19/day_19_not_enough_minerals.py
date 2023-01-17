@@ -22,7 +22,7 @@ def best_case_scenario(initial_amount, robots, t):
     return initial_amount + robots * (t + 1) + t * (t + 1) // 2
 
 
-def search(blueprint):
+def search(blueprint, time=24):
     (rore_cost,      # Cost in ore to build an ore-mining robot.
      rclay_cost,     # Cost in ore to build a clay-mining robot.
      robs_cost_ore,  # Cost in ore to build an obsidian-mining robot.
@@ -35,7 +35,6 @@ def search(blueprint):
     max_clay_needed = robs_cost_clay
     max_obs_needed = rgeo_cost_obs
 
-    time = 24
     best = 0     # Best number of geodes we are able to collect.
     visited = set()  # Visited states.
 
@@ -169,7 +168,11 @@ def part1(inputFile: str):
 
 
 def part2(inputFile: str):
-    cubes = readInput(inputFile)
+    blueprints = readInput(inputFile)
+    total = 1
+    for _, *blueprint in blueprints[:3]:
+        total *= search(blueprint, 32)
+    return total
 
 
 def test():
@@ -179,8 +182,8 @@ def test():
     assert part1(filename) == 33
     print('Part 1 OK')
 
-    # assert part2(filename) == 58
-    # print('Part 2 OK\n')
+    assert part2(filename) == 3472
+    print('Part 2 OK')
 
 
 def main():
@@ -191,9 +194,9 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
     assert solution_part1 == 1382
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part1 == 2610
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+    assert solution_part2 == 31740
 
 
 if __name__ == '__main__':
