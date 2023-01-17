@@ -27,6 +27,10 @@ def search(blueprint):
      rgeo_cost_obs   # Cost in obsidian to build a geode-mining robot.
      ) = blueprint
 
+    max_ore_needed = max(rore_cost, rclay_cost, robs_cost_ore, rgeo_cost_ore)
+    max_clay_needed = robs_cost_clay
+    max_obs_needed = rgeo_cost_obs
+
     time = 24
     best = 0     # Best number of geodes we are able to collect.
     visited = set()  # Visited states.
@@ -73,36 +77,42 @@ def search(blueprint):
 
         # If we have enough materials for an obsidian-mining robot, we could also build that.
         if clay >= robs_cost_clay and ore >= robs_cost_ore:
-            q.append((
-                time,
-                newore - robs_cost_ore,
-                newclay - robs_cost_clay,
-                newobs,
-                newgeo,
-                rore, rclay, robs + 1, rgeo
-            ))
+            # Avoid building more obsidian robots than the max obsidian per minute needed.
+            if obs < max_obs_needed:
+                q.append((
+                    time,
+                    newore - robs_cost_ore,
+                    newclay - robs_cost_clay,
+                    newobs,
+                    newgeo,
+                    rore, rclay, robs + 1, rgeo
+                ))
 
         # If we have enough materials for a clay-mining robot, we could also build that.
         if ore >= rclay_cost:
-            q.append((
-                time,
-                newore - rclay_cost,
-                newclay,
-                newobs,
-                newgeo,
-                rore, rclay + 1, robs, rgeo
-            ))
+            # Avoid building more clay robots than the max clay per minute needed.
+            if rclay < max_clay_needed:
+                q.append((
+                    time,
+                    newore - rclay_cost,
+                    newclay,
+                    newobs,
+                    newgeo,
+                    rore, rclay + 1, robs, rgeo
+                ))
 
         # If we have enough materials for an ore-mining robot, we could also build that.
         if ore >= rore_cost:
-            q.append((
-                time,
-                newore - rore_cost,
-                newclay,
-                newobs,
-                newgeo,
-                rore + 1, rclay, robs, rgeo
-            ))
+            # Avoid building more ore robots than the max ore per minute needed.
+            if rore < max_ore_needed:
+                q.append((
+                    time,
+                    newore - rore_cost,
+                    newclay,
+                    newobs,
+                    newgeo,
+                    rore + 1, rclay, robs, rgeo
+                ))
 
     return best
 
@@ -139,7 +149,7 @@ def main():
 
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # assert solution_part1 == 4580
+    assert solution_part1 == 1382
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
