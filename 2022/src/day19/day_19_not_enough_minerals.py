@@ -41,14 +41,20 @@ def search(blueprint):
 
     # The "frontier" of our search, containing states to explore next.
     # In the initial state we only have 1 ore-mining robot.
-    q = deque([(time, 0, 0, 0, 0, 1, 0, 0, 0)])
+    q = deque([(time, 0, 0, 0, 0, 1, 0, 0, 0, [])])
+    ORE, CLAY, OBS, GEO = range(4)
 
     while q:
-        time, ore, clay, obs, geo, rore, rclay, robs, rgeo = state = q.pop()
+        tmp = q.pop()
+
+        # This last list we added is not part of the state.
+        state = tmp[:-1]
         if state in visited:
             continue
 
         visited.add(state)
+
+        time, ore, clay, obs, geo, rore, rclay, robs, rgeo, did_not_build = tmp
 
         # Each robot we have mines 1 resource of its type, taking 1 minute.
         newore = ore + rore
@@ -80,74 +86,86 @@ def search(blueprint):
 
         # Following are the possible actions (transitions) to take...
 
-        # Does it make sense to wait for a resource? I.E. do I have less than
-        # the max needed and do I also have robots to produce it?
-        if (robs and obs < max_obs_needed) or (rclay and clay < max_clay_needed) or ore < max_ore_needed:
-            # If so, we can also try just spending one minute only mining without building any robot.
-            q.append((time, newore, newclay, newobs, newgeo, rore, rclay, robs, rgeo))
-
+        can_build = []
         # If we have enough materials for a geode-mining robot, we could also build that.
         if obs >= rgeo_cost_obs and ore >= rgeo_cost_ore:
-            q.append((
-                time,
-                newore - rgeo_cost_ore,
-                newclay,
-                newobs - rgeo_cost_obs,
-                newgeo,
-                rore, rclay, robs, rgeo + 1
-            ))
+            # Did we have the chance to build this robot type in the previous iteration
+            # but decided to not build anything instead? If so, we just wasted precious
+            # time, it's pointless to do it now that we are late, the result is inevitably
+            # going to be worse.
+            if GEO not in did_not_build:
+                # Remember that we could have built a geode robot.
+                can_build.append(GEO)
+                # Pass along an empyy list, we built a robot so we don't have a list
+                # of robots that we "could have built" but didn't.
+                q.append((
+                    time,
+                    newore - rgeo_cost_ore,
+                    newclay,
+                    newobs - rgeo_cost_obs,
+                    newgeo,
+                    rore, rclay, robs, rgeo + 1, []
+                ))
 
         # If we have enough materials for an obsidian-mining robot, we could also build that.
-        if clay >= robs_cost_clay and ore >= robs_cost_ore:
-            # Avoid building more obsidian robots than the max obsidian per minute needed.
-            if obs < max_obs_needed:
+        # Avoid building more obsidian robots than the max obsidian per minute needed.
+        if robs < max_obs_needed and clay >= robs_cost_clay and ore >= robs_cost_ore:
+            if OBS not in did_not_build:
+                can_build.append(OBS)
                 q.append((
                     time,
                     newore - robs_cost_ore,
                     newclay - robs_cost_clay,
                     newobs,
                     newgeo,
-                    rore, rclay, robs + 1, rgeo
+                    rore, rclay, robs + 1, rgeo, []
                 ))
 
         # If we have enough materials for a clay-mining robot, we could also build that.
-        if ore >= rclay_cost:
-            # Avoid building more clay robots than the max clay per minute needed.
-            if rclay < max_clay_needed:
+        # Avoid building more clay robots than the max clay per minute needed.
+        if rclay < max_clay_needed and ore >= rclay_cost:
+            # Likewise.
+            if CLAY not in did_not_build:
+                can_build.append(CLAY)
                 q.append((
                     time,
                     newore - rclay_cost,
                     newclay,
                     newobs,
                     newgeo,
-                    rore, rclay + 1, robs, rgeo
+                    rore, rclay + 1, robs, rgeo, []
                 ))
 
         # If we have enough materials for an ore-mining robot, we could also build that.
-        if ore >= rore_cost:
-            # Avoid building more ore robots than the max ore per minute needed.
-            if rore < max_ore_needed:
+        # Avoid building more ore robots than the max ore per minute needed.
+        if rore < max_ore_needed and ore >= rore_cost:
+            # Likewise.
+            if ORE not in did_not_build:
+                can_build.append(ORE)
                 q.append((
                     time,
                     newore - rore_cost,
                     newclay,
                     newobs,
                     newgeo,
-                    rore + 1, rclay, robs, rgeo
+                    rore + 1, rclay, robs, rgeo, []
                 ))
+
+        # If we can also "wait" without building, pass along the list of robots
+        # we couldhave built, but decided to not build instead.
+        if (robs and obs < max_obs_needed) or (rclay and clay < max_clay_needed) or ore < max_ore_needed:
+            # If so, we can also try just spending one minute only mining without building any robot.
+            q.append((time, newore, newclay, newobs, newgeo, rore, rclay, robs, rgeo, can_build))
 
     return best
 
 
 def part1(inputFile: str):
     blueprints = readInput(inputFile)
-    result = 0
-    for blueprint in blueprints:
-        idx = blueprint[0]
-        data = blueprint[1:]
-        best = search(data)
-        result += (idx * best)
-    return result
+    total = 0
+    for idx, *blueprint in blueprints:
+        total += idx * search(blueprint)
+    return total
 
 
 def part2(inputFile: str):
