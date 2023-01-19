@@ -18,15 +18,16 @@ def readInput(filename: str):
     return coordinates
 
 
-def mix(coordinates):
-    numbers = coordinates[:]
+def mix(coordinates, times=1):
+    numbers = list(coordinates)
     numbers_length = len(coordinates)
 
-    for coordinate in coordinates:
-        idx = numbers.index(coordinate)
-        item = numbers.pop(idx)
-        new_idx = (idx + item[1]) % len(numbers)
-        numbers.insert(new_idx, item)
+    for _ in range(times):
+        for coordinate in coordinates:
+            idx = numbers.index(coordinate)
+            item = numbers.pop(idx)
+            new_idx = (idx + item[1]) % len(numbers)
+            numbers.insert(new_idx, item)
 
     for zero_idx, coordinate in enumerate(numbers):
         _, val = coordinate
@@ -46,7 +47,10 @@ def part1(inputFile: str):
 
 
 def part2(inputFile: str):
-    blueprints = readInput(inputFile)
+    coordinates = readInput(inputFile)
+    decryption_key = 811589153
+    coordinates = [(idx, val * decryption_key) for idx, val in coordinates]
+    return mix(coordinates, times=10)
 
 
 def test():
@@ -56,8 +60,8 @@ def test():
     assert part1(filename) == 3
     print('Part 1 OK')
 
-    # assert part2(filename) == 3472
-    # print('Part 2 OK')
+    assert part2(filename) == 1623178306
+    print('Part 2 OK')
 
 
 def main():
@@ -66,11 +70,11 @@ def main():
 
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # assert solution_part1 == 1382
+    assert solution_part1 == 3346
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 31740
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+    assert solution_part2 == 4265712588168
 
 
 if __name__ == '__main__':
