@@ -1,6 +1,4 @@
-from collections import deque
 import os
-import re
 
 
 def readInput(filename: str):
@@ -9,12 +7,7 @@ def readInput(filename: str):
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r') as f:
-        idx = 0
-        coordinates = []
-        for number in f:
-            coordinates.append((idx, int(number)))
-            idx += 1
-
+        coordinates = [*enumerate(int(i) for i in f)]
     return coordinates
 
 
