@@ -1,4 +1,12 @@
+from operator import add, mul, sub, floordiv
 import os
+
+OPMAP = {
+    '+': add,
+    '*': mul,
+    '-': sub,
+    '/': floordiv
+}
 
 
 def readInput(filename: str):
@@ -6,13 +14,29 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    Tree = {}
     with open(input_file_path, 'r') as f:
-        coordinates = [*enumerate(int(i) for i in f)]
-    return coordinates
+        for line in f:
+            a, b = line.strip().split(': ')
+            Tree[a] = int(b) if b.isdigit() else b.split()
+    return Tree
+
+
+def calc(tree, node):
+    value = tree[node]
+    if isinstance(value, int):
+        return value
+
+    l, op, r = value
+    lvalue = calc(tree, l)
+    rvalue = calc(tree, r)
+    return OPMAP[op](lvalue, rvalue)
 
 
 def part1(inputFile: str):
-    coordinates = readInput(inputFile)
+    tree = readInput(inputFile)
+    result = calc(tree, 'root')
+    return result
 
 
 def part2(inputFile: str):
