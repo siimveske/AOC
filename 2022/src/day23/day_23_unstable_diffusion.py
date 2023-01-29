@@ -26,12 +26,12 @@ def readInput(filename: str):
     elves = set()
 
     with open(input_file_path, 'r') as f:
-        for r, line in enumerate(f):
-            for c, character in enumerate(line):
-                if character == '#':
-                    elves.add(Location(r, c))
-                    MIN_ROW, MIN_COL = min(MIN_ROW, r), min(MIN_COL, c)
-                    MAX_ROW, MAX_COL = max(MAX_ROW, r), max(MAX_COL, c)
+        for y, row in enumerate(f):
+            for x, val in enumerate(row):
+                if val == '#':
+                    elves.add(Location(y, x))
+                    MIN_ROW, MIN_COL = min(MIN_ROW, y), min(MIN_COL, x)
+                    MAX_ROW, MAX_COL = max(MAX_ROW, y), max(MAX_COL, x)
 
     return (elves, (MIN_ROW, MAX_ROW, MIN_COL, MAX_COL))
 
@@ -48,35 +48,38 @@ def round(elves: set[Location], bbox: tuple):
     proposals: dict[Location, list] = defaultdict(lambda:[])
 
     for elf in elves:
-        occupied: list = []
+        neighbours: list = []
         for direction in DIRECTIONS:
             is_occupied = any(elf+delta in elves for delta in direction)
-            occupied.append(is_occupied)
+            neighbours.append(is_occupied)
 
         # We do nothing if no other elf is present or
         # No free location is present
-        if True not in occupied or False not in occupied:
+        if True not in neighbours or False not in neighbours:
             continue
 
-        first_valid_dir = occupied.index(False)
+        first_valid_dir = neighbours.index(False)
         new_location: Location = elf + DIRECTIONS[first_valid_dir][1]
         proposals[new_location].append(elf)
 
+    movement = False
     for new_location, elf_list in proposals.items():
         if len(elf_list) == 1:
             elves.remove(elf_list[0])
             elves.add(new_location)
             MIN_ROW, MIN_COL = min(MIN_ROW, new_location.row), min(MIN_COL, new_location.col)
             MAX_ROW, MAX_COL = max(MAX_ROW, new_location.row), max(MAX_COL, new_location.col)
+            movement = True
 
-    DIRECTIONS.append(DIRECTIONS.popleft()) # move first item to the end of list
-    return (elves, (MIN_ROW, MAX_ROW, MIN_COL, MAX_COL))
+    DIRECTIONS.rotate(-1) # move first item to the end of list
+
+    return (elves, (MIN_ROW, MAX_ROW, MIN_COL, MAX_COL), movement)
 
 def part1(inputFile: str):
     elves, bbox = readInput(inputFile)
 
     for _ in range(10):
-        elves, bbox = round(elves, bbox)
+        elves, bbox, _ = round(elves, bbox)
 
     MIN_ROW, MAX_ROW, MIN_COL, MAX_COL = bbox
     area = (MAX_ROW - MIN_ROW + 1) * (MAX_COL - MIN_COL + 1)
@@ -84,8 +87,15 @@ def part1(inputFile: str):
     return empty_tiles
 
 def part2(inputFile: str):
-    readInput(inputFile)
+    elves, bbox = readInput(inputFile)
 
+    cnt = 1
+    while True:
+        elves, bbox, movement = round(elves, bbox)
+        if movement:
+            cnt += 1
+        else:
+            return cnt
 
 def test():
     print('---- TEST ----')
@@ -94,8 +104,8 @@ def test():
     assert part1(filename) == 110
     print('Part 1 OK')
 
-    # assert part2(filename) == 5031
-    # print('Part 2 OK')
+    assert part2(filename) == 20
+    print('Part 2 OK')
 
 
 def main():
@@ -106,9 +116,9 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
     assert solution_part1 == 3766
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 144012
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+    assert solution_part2 == 954
 
 
 if __name__ == '__main__':
