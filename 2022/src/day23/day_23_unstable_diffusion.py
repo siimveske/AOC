@@ -1,19 +1,110 @@
 from __future__ import annotations
-from collections import defaultdict, deque
+from collections import deque, defaultdict
 from dataclasses import dataclass
+from enum import Enum
 import os
 
-'''Inspired by: https://github.com/gjanee/advent-of-code-2022/blob/e51e9ccf14399ed451d24bd231b20c2a6fbd0e0c/23.py'''
+'''Inspired by: https://aoc.just2good.co.uk/2022/23'''
 
 
 @dataclass(frozen=True)
-class Location:
-    '''Contains Row and Column of Elf'''
-    row: int
-    col: int
+class Point():
 
-    def __add__(self, other: Location) -> Location:
-        return Location(self.row + other.row, self.col + other.col)
+    x: int
+    y: int
+
+    def all_neighbours(self) -> set[Point]:
+        return {(self + vector.value) for vector in list(Vector)}
+
+    def get_neighbours(self, directions: list[Vector]) -> set[Point]:
+        return {(self + vector.value) for vector in list(directions)}
+
+    def __add__(self, other) -> Point:
+        return Point(self.x + other.x, self.y + other.y)
+
+
+class Vector(Enum):
+    """ Enumeration of 8 directions """
+    N = Point(0, -1)
+    NE = Point(1, -1)
+    E = Point(1, 0)
+    SE = Point(1, 1)
+    S = Point(0, 1)
+    SW = Point(-1, 1)
+    W = Point(-1, 0)
+    NW = Point(-1, -1)
+
+
+class Grid():
+    """ Stores a set of all elf positions. """
+
+    def __init__(self, grid: list[str]) -> None:
+        self._grid = grid
+        self._elves: set[Point] = set()
+        self._initialise_elves()
+
+        self._directions = deque([  # use a deque so we can rotate
+            ([Vector.N, Vector.NE, Vector.NW], Vector.N),
+            ([Vector.S, Vector.SE, Vector.SW], Vector.S),
+            ([Vector.W, Vector.NW, Vector.SW], Vector.W),
+            ([Vector.E, Vector.NE, Vector.SE], Vector.E)
+        ])
+
+    def _initialise_elves(self):
+        """ From input, store all current elves - marked with '#' - as a set.
+        Then define the bounds. """
+        for y, row in enumerate(self._grid):
+            for x, val in enumerate(row):
+                if val == "#":
+                    self._elves.add(Point(x, y))
+
+    def _set_bounds(self):
+        self._min_x = min(point.x for point in self._elves)
+        self._max_x = max(point.x for point in self._elves)
+        self._min_y = min(point.y for point in self._elves)
+        self._max_y = max(point.y for point in self._elves)
+
+    def iterate(self) -> int:
+        """ Perform a single iteration by following the rules.
+        Returns: the number of elves that moved. """
+        proposals: dict = {}  # E.g. {elf point: proposed point}
+        for elf_locn in self._elves:  # for every existing elf location
+
+            # check if this elf has any immediate neighbours
+            if elf_locn.all_neighbours().isdisjoint(self._elves):
+                continue  # no neighbours are elves; this elf does nothing
+
+            for direction_checks, proposed_direction in self._directions:
+                if elf_locn.get_neighbours(direction_checks).isdisjoint(self._elves):
+                    proposals[elf_locn] = elf_locn + proposed_direction.value
+                    break  # exit at the first matching direction
+
+        # turn into {proposed locn: [elf1_locn, elf2_locn, ...], ...}
+        elves_per_proposal = defaultdict(list)
+        for elf_locn, proposal in proposals.items():
+            elves_per_proposal[proposal] += [elf_locn]
+
+        # Only move elves that have made a unique proposal
+        for add, rem in elves_per_proposal.items():
+            if len(rem) == 1:
+                self._elves.add(add)
+                self._elves.remove(rem[0])
+
+        self._rotate_direction()
+
+        return len(elves_per_proposal)
+
+    def _rotate_direction(self):
+        """ Rotate our directions.  I.e. direction n+1 becomes direction n, etc. """
+        self._directions.rotate(-1)
+
+    def score(self) -> int:
+        """ Count empty squares within the bounds """
+        self._set_bounds()
+        total_tiles = (self._max_x + 1 - self._min_x) * (self._max_y + 1 - self._min_y)
+        elf_count = len(self._elves)
+
+        return total_tiles - elf_count
 
 
 def readInput(filename: str):
@@ -21,81 +112,34 @@ def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    MIN_ROW = MIN_COL = float('inf')
-    MAX_ROW = MAX_COL = float('-inf')
-    elves = set()
-
     with open(input_file_path, 'r') as f:
-        for y, row in enumerate(f):
-            for x, val in enumerate(row):
-                if val == '#':
-                    elves.add(Location(y, x))
-                    MIN_ROW, MIN_COL = min(MIN_ROW, y), min(MIN_COL, x)
-                    MAX_ROW, MAX_COL = max(MAX_ROW, y), max(MAX_COL, x)
+        data = f.read().splitlines()
 
-    return (elves, (MIN_ROW, MAX_ROW, MIN_COL, MAX_COL))
+    return data
 
-
-NORTH = [Location(-1, -1), Location(-1,  0), Location(-1,  1)]
-SOUTH = [Location( 1, -1), Location( 1,  0), Location( 1,  1)]
-WEST  = [Location(-1, -1), Location( 0, -1), Location( 1, -1)]
-EAST  = [Location(-1,  1), Location( 0,  1), Location( 1,  1)]
-DIRECTIONS = deque([NORTH, SOUTH, WEST, EAST])
-
-
-def round(elves: set[Location], bbox: tuple):
-    MIN_ROW, MAX_ROW, MIN_COL, MAX_COL = bbox
-    proposals: dict[Location, list] = defaultdict(lambda:[])
-
-    for elf in elves:
-        neighbours: list = []
-        for direction in DIRECTIONS:
-            is_occupied = any(elf+delta in elves for delta in direction)
-            neighbours.append(is_occupied)
-
-        # We do nothing if no other elf is present or
-        # No free location is present
-        if True not in neighbours or False not in neighbours:
-            continue
-
-        first_valid_dir = neighbours.index(False)
-        new_location: Location = elf + DIRECTIONS[first_valid_dir][1]
-        proposals[new_location].append(elf)
-
-    movement = False
-    for new_location, elf_list in proposals.items():
-        if len(elf_list) == 1:
-            elves.remove(elf_list[0])
-            elves.add(new_location)
-            MIN_ROW, MIN_COL = min(MIN_ROW, new_location.row), min(MIN_COL, new_location.col)
-            MAX_ROW, MAX_COL = max(MAX_ROW, new_location.row), max(MAX_COL, new_location.col)
-            movement = True
-
-    DIRECTIONS.rotate(-1) # move first item to the end of list
-
-    return (elves, (MIN_ROW, MAX_ROW, MIN_COL, MAX_COL), movement)
 
 def part1(inputFile: str):
-    elves, bbox = readInput(inputFile)
+    data = readInput(inputFile)
+    grid = Grid(data)
 
+    current_round = 1
     for _ in range(10):
-        elves, bbox, _ = round(elves, bbox)
+        grid.iterate()
+        current_round += 1
 
-    MIN_ROW, MAX_ROW, MIN_COL, MAX_COL = bbox
-    area = (MAX_ROW - MIN_ROW + 1) * (MAX_COL - MIN_COL + 1)
-    empty_tiles = area - len(elves)
-    return empty_tiles
+    return grid.score()
+
 
 def part2(inputFile: str):
-    elves, bbox = readInput(inputFile)
+    data = readInput(inputFile)
+    grid = Grid(data)
 
-    cnt = 1
-    while True:
-        elves, bbox, movement = round(elves, bbox)
-        if movement:
-            cnt += 1
-        else:
-            return cnt
+    current_round = 1
+    while grid.iterate() > 0:
+        current_round += 1
+
+    return current_round
+
 
 def test():
     print('---- TEST ----')
