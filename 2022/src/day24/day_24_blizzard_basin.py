@@ -1,10 +1,9 @@
 from __future__ import annotations
-from collections import deque, defaultdict
 from dataclasses import dataclass
 from enum import Enum
 import os
 
-'''Inspired by: https://aoc.just2good.co.uk/2022/23'''
+'''Inspired by: https://github.com/mebeim/aoc/tree/master/2022#day-24---blizzard-basin'''
 
 
 @dataclass(frozen=True)
@@ -58,8 +57,8 @@ class Grid():
         self._max_y = len(self._data) - 2
 
     def _set_start_stop(self):
-        self._start = Point(0, -1)
-        self._end = Point(self._max_x - 1, self._max_y)
+        self.START = Point(0, -1)
+        self.STOP = Point(self._max_x - 1, self._max_y)
 
     def update_blizzards(self):
         new_grid = {}
@@ -87,8 +86,10 @@ class Grid():
 
         neighbors = set()
         # Check if we can move to final position
+        if location.x == self._min_x and location.y == self._min_y:
+            neighbors.add(self.START)
         if location.x == self._max_x - 1 and location.y == self._max_y - 1:
-            neighbors.add(self._end)
+            neighbors.add(self.STOP)
 
         # For each of the 4 cardinal directions
         for vector in list(Vector):
@@ -104,12 +105,12 @@ class Grid():
         return neighbors
 
 
-    def bfs(self):
-        positions = {self._start}
+    def bfs(self, start: Point, end: Point):
+        positions = {start}
         time = 0
 
         # While the destination is not reached.
-        while self._end not in positions:
+        while end not in positions:
             # Advance time and evolve blizzards moving them around.
             time += 1
             self.update_blizzards()
@@ -140,7 +141,9 @@ def readInput(filename: str):
 def part1(inputFile: str):
     data = readInput(inputFile)
     grid = Grid(data)
-    time = grid.bfs()
+
+    time = grid.bfs(grid.START, grid.STOP)
+
     return time
 
 
@@ -148,11 +151,12 @@ def part2(inputFile: str):
     data = readInput(inputFile)
     grid = Grid(data)
 
-    current_round = 1
-    while grid.iterate() > 0:
-        current_round += 1
+    time1 = grid.bfs(grid.START, grid.STOP)
+    time2 = grid.bfs(grid.STOP, grid.START)
+    time3 = grid.bfs(grid.START, grid.STOP)
+    total_time = time1 + time2 + time3
 
-    return current_round
+    return total_time
 
 
 def test():
@@ -162,8 +166,8 @@ def test():
     assert part1(filename) == 18
     print('Part 1 OK')
 
-    # assert part2(filename) == 20
-    # print('Part 2 OK')
+    assert part2(filename) == 54
+    print('Part 2 OK')
 
 
 def main():
@@ -174,9 +178,9 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
     assert solution_part1 == 314
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 954
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+    assert solution_part2 == 896
 
 
 if __name__ == '__main__':
