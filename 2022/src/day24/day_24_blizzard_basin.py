@@ -82,21 +82,27 @@ class Grid():
 
         self._grid = new_grid
 
+
     def get_neighbors(self, location: Point) -> Point:
+
+        neighbors = set()
         # Check if we can move to final position
         if location.x == self._max_x - 1 and location.y == self._max_y - 1:
-            yield set(self._end)
+            neighbors.add(self._end)
 
         # For each of the 4 cardinal directions
         for vector in list(Vector):
-            x, y = location + vector.value
+            neighbor: Point = location + vector.value
             # Check if we are in bounds and if there is NO blizzard here.
-            if self._min_x <= x < self._max_x and self._min_y <= y < self._max_y and Point(x, y) not in self._grid:
-                yield set(Point(x,y))
+            if self._min_x <= neighbor.x < self._max_x and self._min_y <= neighbor.y < self._max_y and neighbor not in self._grid:
+                neighbors.add(neighbor)
 
         # We can stand still if no blizzard hits us
         if location not in self._grid:
-            yield set(location)
+            neighbors.add(location)
+
+        return neighbors
+
 
     def bfs(self):
         positions = {self._start}
@@ -153,11 +159,11 @@ def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
 
-    assert part1(filename) == 110
+    assert part1(filename) == 18
     print('Part 1 OK')
 
-    assert part2(filename) == 20
-    print('Part 2 OK')
+    # assert part2(filename) == 20
+    # print('Part 2 OK')
 
 
 def main():
@@ -166,11 +172,11 @@ def main():
 
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    assert solution_part1 == 3766
+    assert solution_part1 == 314
 
-    solution_part2 = part2(filename)
-    print(f'Solution for Part 2: {solution_part2}\n')
-    assert solution_part2 == 954
+    # solution_part2 = part2(filename)
+    # print(f'Solution for Part 2: {solution_part2}\n')
+    # assert solution_part2 == 954
 
 
 if __name__ == '__main__':
