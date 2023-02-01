@@ -13,12 +13,6 @@ class Point():
     x: int
     y: int
 
-    def all_neighbours(self) -> set[Point]:
-        return {(self + vector.value) for vector in list(Vector)}
-
-    def get_neighbours(self, directions: list[Vector]) -> set[Point]:
-        return {(self + vector.value) for vector in list(directions)}
-
     def __add__(self, other) -> Point:
         return Point(self.x + other.x, self.y + other.y)
 
@@ -26,86 +20,105 @@ class Point():
 class Vector(Enum):
     """ Enumeration of 8 directions """
     N = Point(0, -1)
-    NE = Point(1, -1)
     E = Point(1, 0)
-    SE = Point(1, 1)
     S = Point(0, 1)
-    SW = Point(-1, 1)
     W = Point(-1, 0)
-    NW = Point(-1, -1)
 
 
 class Grid():
-    """ Stores a set of all elf positions. """
+    """ Stores a dict of all blizzard locations """
 
-    def __init__(self, grid: list[str]) -> None:
-        self._grid = grid
-        self._elves: set[Point] = set()
-        self._initialise_elves()
+    def __init__(self, data: list[str]) -> None:
+        self._directions = {
+            '^': Vector.N,
+            '>': Vector.E,
+            'v': Vector.S,
+            '<': Vector.W
+        }
 
-        self._directions = deque([  # use a deque so we can rotate
-            ([Vector.N, Vector.NE, Vector.NW], Vector.N),
-            ([Vector.S, Vector.SE, Vector.SW], Vector.S),
-            ([Vector.W, Vector.NW, Vector.SW], Vector.W),
-            ([Vector.E, Vector.NE, Vector.SE], Vector.E)
-        ])
+        self._data = data
+        self._grid = self._init_grid()
+        self._set_bounds()
+        self._set_start_stop()
 
-    def _initialise_elves(self):
+    def _init_grid(self) -> dict[Point, Point]:
         """ From input, store all current elves - marked with '#' - as a set.
         Then define the bounds. """
-        for y, row in enumerate(self._grid):
-            for x, val in enumerate(row):
-                if val == "#":
-                    self._elves.add(Point(x, y))
+        grid = dict()
+        for y, row in enumerate(self._data[1:-1]):
+            for x, val in enumerate(row[1:-1]):
+                if val in self._directions:
+                    grid[Point(x,y)] = [self._directions[val].value]
+        return grid
 
     def _set_bounds(self):
-        self._min_x = min(point.x for point in self._elves)
-        self._max_x = max(point.x for point in self._elves)
-        self._min_y = min(point.y for point in self._elves)
-        self._max_y = max(point.y for point in self._elves)
+        self._min_x = 0
+        self._min_y = 0
+        self._max_x = len(self._data[0]) - 2
+        self._max_y = len(self._data) - 2
 
-    def iterate(self) -> int:
-        """ Perform a single iteration by following the rules.
-        Returns: the number of elves that moved. """
-        proposals: dict = {}  # E.g. {elf point: proposed point}
-        for elf_locn in self._elves:  # for every existing elf location
+    def _set_start_stop(self):
+        self._start = Point(0, -1)
+        self._end = Point(self._max_x - 1, self._max_y)
 
-            # check if this elf has any immediate neighbours
-            if elf_locn.all_neighbours().isdisjoint(self._elves):
-                continue  # no neighbours are elves; this elf does nothing
+    def update_blizzards(self):
+        new_grid = {}
 
-            for direction_checks, proposed_direction in self._directions:
-                if elf_locn.get_neighbours(direction_checks).isdisjoint(self._elves):
-                    proposals[elf_locn] = elf_locn + proposed_direction.value
-                    break  # exit at the first matching direction
+        for location, directions in self._grid.items():
+            for direction in directions:
+                dx = direction.x
+                dy = direction.y
+                new_x = (location.x + dx) % self._max_x
+                new_y = (location.y + dy) % self._max_y
 
-        # turn into {proposed locn: [elf1_locn, elf2_locn, ...], ...}
-        elves_per_proposal = defaultdict(list)
-        for elf_locn, proposal in proposals.items():
-            elves_per_proposal[proposal] += [elf_locn]
+                key = Point(new_x, new_y)
+                val = Point(dx, dy)
 
-        # Only move elves that have made a unique proposal
-        for add, rem in elves_per_proposal.items():
-            if len(rem) == 1:
-                self._elves.add(add)
-                self._elves.remove(rem[0])
+                if key in new_grid:
+                    new_grid[key].append(val)
+                else:
+                    new_grid[key] = [val]
 
-        self._rotate_direction()
 
-        return len(elves_per_proposal)
+        self._grid = new_grid
 
-    def _rotate_direction(self):
-        """ Rotate our directions.  I.e. direction n+1 becomes direction n, etc. """
-        self._directions.rotate(-1)
+    def get_neighbors(self, location: Point) -> Point:
+        # Check if we can move to final position
+        if location.x == self._max_x - 1 and location.y == self._max_y - 1:
+            yield set(self._end)
 
-    def score(self) -> int:
-        """ Count empty squares within the bounds """
-        self._set_bounds()
-        total_tiles = (self._max_x + 1 - self._min_x) * (self._max_y + 1 - self._min_y)
-        elf_count = len(self._elves)
+        # For each of the 4 cardinal directions
+        for vector in list(Vector):
+            x, y = location + vector.value
+            # Check if we are in bounds and if there is NO blizzard here.
+            if self._min_x <= x < self._max_x and self._min_y <= y < self._max_y and Point(x, y) not in self._grid:
+                yield set(Point(x,y))
 
-        return total_tiles - elf_count
+        # We can stand still if no blizzard hits us
+        if location not in self._grid:
+            yield set(location)
 
+    def bfs(self):
+        positions = {self._start}
+        time = 0
+
+        # While the destination is not reached.
+        while self._end not in positions:
+            # Advance time and evolve blizzards moving them around.
+            time += 1
+            self.update_blizzards()
+
+            # For each possible position we are tracking, calculate the next valid
+            # positions, and add them to a new set.
+            new_positions = set()
+            for pos in positions:
+                neighs = self.get_neighbors(pos)
+                new_positions.update(neighs)
+
+            # Track these new positions in the next iteration.
+            positions = new_positions
+
+        return time
 
 def readInput(filename: str):
 
@@ -121,13 +134,8 @@ def readInput(filename: str):
 def part1(inputFile: str):
     data = readInput(inputFile)
     grid = Grid(data)
-
-    current_round = 1
-    for _ in range(10):
-        grid.iterate()
-        current_round += 1
-
-    return grid.score()
+    time = grid.bfs()
+    return time
 
 
 def part2(inputFile: str):
