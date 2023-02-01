@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import Enum
 import os
 
 '''Inspired by: https://github.com/mebeim/aoc/tree/master/2022#day-24---blizzard-basin'''
@@ -16,23 +15,15 @@ class Point():
         return Point(self.x + other.x, self.y + other.y)
 
 
-class Vector(Enum):
-    """ Enumeration of 8 directions """
-    N = Point(0, -1)
-    E = Point(1, 0)
-    S = Point(0, 1)
-    W = Point(-1, 0)
-
-
 class Grid():
     """ Stores a dict of all blizzard locations """
 
     def __init__(self, data: list[str]) -> None:
         self._directions = {
-            '^': Vector.N,
-            '>': Vector.E,
-            'v': Vector.S,
-            '<': Vector.W
+            '^': Point(0, -1),
+            '>': Point(1, 0),
+            'v': Point(0, 1),
+            '<': Point(-1, 0)
         }
 
         self._data = data
@@ -59,6 +50,9 @@ class Grid():
     def _set_start_stop(self):
         self.START = Point(0, -1)
         self.STOP = Point(self._max_x - 1, self._max_y)
+
+    def directions(self) -> list[Point]:
+        return self._directions.values()
 
     def update_blizzards(self):
         new_grid = {}
@@ -92,8 +86,8 @@ class Grid():
             neighbors.add(self.STOP)
 
         # For each of the 4 cardinal directions
-        for vector in list(Vector):
-            neighbor: Point = location + vector.value
+        for direction in self.directions():
+            neighbor: Point = location + direction
             # Check if we are in bounds and if there is NO blizzard here.
             if self._min_x <= neighbor.x < self._max_x and self._min_y <= neighbor.y < self._max_y and neighbor not in self._grid:
                 neighbors.add(neighbor)
