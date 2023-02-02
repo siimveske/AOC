@@ -1,7 +1,16 @@
 '''https://github.com/greb/aoc2022/blob/master/days/day25.py'''
+import os
 
-def parse(inp):
-    return inp.splitlines()
+
+def parse(filename: str):
+
+    script_location = os.path.dirname(os.path.realpath(__file__))
+    input_file_path = os.path.join(script_location, filename)
+
+    with open(input_file_path, 'r') as f:
+        data = f.read().splitlines()
+
+    return data
 
 
 def decode(n):
@@ -44,3 +53,7 @@ def encode(n):
 def part1(numbers):
     s = sum(map(decode, numbers))
     return encode(s)
+
+
+data = parse('input.txt')
+print(part1(data))
