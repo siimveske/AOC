@@ -12,13 +12,15 @@ def readInput(filename: str):
     return data
 
 
-def climb(data: str) -> int:
+def climb(data: str, part2=False) -> int:
     floor = 0
     op = {
         '(': 1,
         ')':-1 }
-    for char in data:
+    for idx, char in enumerate(data, 1):
         floor += op[char]
+        if part2 and floor == -1:
+            return idx
 
     return floor
 
@@ -30,6 +32,7 @@ def part1(inputFile: str):
 
 def part2(inputFile: str):
     data = readInput(inputFile)
+    return climb(data, part2=True)
 
 
 def test():
@@ -47,8 +50,10 @@ def test():
 
     print('Part 1 OK')
 
-    # assert part2(filename) == 45000
-    # print('Part 2 OK\n')
+    assert climb(')', True) == 1
+    assert climb('()())', True) == 5
+
+    print('Part 2 OK\n')
 
 
 def main():
@@ -58,8 +63,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
