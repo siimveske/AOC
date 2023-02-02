@@ -10,12 +10,12 @@ def readInput(filename: str):
         return f.read().splitlines()
 
 
-def parse(data: str) -> tuple[int, int, int]:
+def parse(data: str) -> list[int]:
     l, w, h = data.split('x')
-    return (int(l), int(w), int(h))
+    return [int(l), int(w), int(h)]
 
 
-def area(dimensions: tuple[int, int, int]) -> int:
+def area(dimensions: list[int, int, int]) -> int:
     l, w, h = dimensions
     area1 = l * w
     area2 = w * h
@@ -27,6 +27,13 @@ def area(dimensions: tuple[int, int, int]) -> int:
     return total_area + extra
 
 
+def ribbon(dimensions: list[int, int, int]) -> int:
+    a, b, c = sorted(dimensions)
+    distance = a + a + b + b
+    volume = a * b * c
+    return distance + volume
+
+
 def part1(inputFile: str) -> int:
     data = readInput(inputFile)
     total_area = 0
@@ -36,8 +43,13 @@ def part1(inputFile: str) -> int:
     return total_area
 
 
-def part2(inputFile: str):
-    instructions = readInput(inputFile)
+def part2(inputFile: str) -> int:
+    data = readInput(inputFile)
+    total = 0
+    for line in data:
+        dimensions = parse(line)
+        total += ribbon(dimensions)
+    return total
 
 
 def test():
@@ -47,8 +59,9 @@ def test():
     assert area(parse('1x1x10')) == 43
     print('Part 1 OK')
 
-    # assert part2(filename) == 12
-    # print('Part 2 OK\n')
+    assert ribbon(parse('2x3x4')) == 34
+    assert ribbon(parse('1x1x10')) == 14
+    print('Part 2 OK\n')
 
 
 def main():
@@ -58,8 +71,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
