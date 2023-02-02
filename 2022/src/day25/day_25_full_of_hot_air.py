@@ -56,10 +56,6 @@ def part1(inputFile: str):
     snafu = encode(total)
     return snafu
 
-def part2(inputFile: str):
-    data = readInput(inputFile)
-
-
 def test():
     print('---- TEST ----')
     filename = 'test_input.txt'
@@ -73,12 +69,7 @@ def main():
 
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    # assert solution_part1 == 314
-
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 896
-
+    assert solution_part1 == '2-0-020-1==1021=--01'
 
 if __name__ == '__main__':
     test()
