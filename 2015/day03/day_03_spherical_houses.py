@@ -39,11 +39,26 @@ DIRMAP = {
 
 def travel(directions: str) -> dict[Point, int]:
     location = Point(0, 0)
-    memo = defaultdict(int)
-    memo[location] = 1
+    memo = set([location])
     for d in directions:
         location = location + DIRMAP[d]
-        memo[location] += 1
+        memo.add(location)
+    return memo
+
+
+def travel2(directions: str) -> dict[Point, int]:
+    loc1 = Point(0, 0)
+    loc2 = Point(0, 0)
+    memo = set([loc1])
+
+    for idx, d in enumerate(directions):
+        if idx % 2 == 0:
+            loc1 = loc1 + DIRMAP[d]
+            memo.add(loc1)
+        else:
+            loc2 = loc2 + DIRMAP[d]
+            memo.add(loc2)
+
     return memo
 
 
@@ -55,7 +70,10 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str) -> int:
-    pass
+    data = readInput(inputFile)
+    memo = travel2(data)
+    houses_with_one_present = len(memo)
+    return houses_with_one_present
 
 
 def test():
@@ -66,8 +84,10 @@ def test():
     assert len(travel('^v^v^v^v^v')) == 2
     print('Part 1 OK')
 
-    # assert part2(filename) == 70
-    # print('Part 2 OK\n')
+    assert len(travel2('^v')) == 3
+    assert len(travel2('^>v<')) == 3
+    assert len(travel2('^v^v^v^v^v')) == 11
+    print('Part 2 OK\n')
 
 
 def main():
@@ -77,8 +97,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
