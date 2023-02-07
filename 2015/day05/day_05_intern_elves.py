@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+from typing import Callable
 
 
 def readInput(filename: str):
@@ -36,7 +37,24 @@ def is_nice(text: str) -> bool:
     return (vowel_cnt >= 3) and has_doubble_letter
 
 
-def count_nice(strings: list) -> int:
+def is_nice2(text:str) -> bool:
+    has_repeating_letter = False
+    for i in range(len(text) - 2):
+        if text[i] == text[i + 2]:
+            has_repeating_letter = True
+            break
+    if has_repeating_letter == False:
+        return False
+
+    for i in range(len(text) - 2):
+        pair = text[i:i + 2]
+        if pair in text[i + 2:]:
+            return True
+
+    return False
+
+
+def count_nice(strings: list, is_nice: Callable[str, bool]) -> int:
     cnt = 0
     for string in strings:
         if is_nice(string):
@@ -46,22 +64,30 @@ def count_nice(strings: list) -> int:
 
 def part1(inputFile: str) -> int:
     strings = readInput(inputFile)
-    return count_nice(strings)
+    return count_nice(strings, is_nice)
 
 
 def part2(inputFile: str) -> int:
-    pass
+    strings = readInput(inputFile)
+    return count_nice(strings, is_nice2)
 
 
 def test():
     print('---- TEST ----')
 
-    assert is_nice('ugknbfddgicrmopn') == True
     assert is_nice('aaa') == True
+    assert is_nice('ugknbfddgicrmopn') == True
     assert is_nice('jchzalrnumimnmhp') == False
     assert is_nice('haegwjzuvuyypxyu') == False
     assert is_nice('dvszwmarrgswjxmb') == False
-    print('OK')
+    print('Part 1 OK')
+
+    assert is_nice2('qjhvhtzxzqqjkmpb') == True
+    assert is_nice2('xxyxx') == True
+    assert is_nice2('uurcxstgmygtbstg') == False
+    assert is_nice2('ieodomkazucvgmuy') == False
+
+    print('Part 2 OK\n')
 
 
 def main():
@@ -71,8 +97,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
 
 if __name__ == '__main__':
