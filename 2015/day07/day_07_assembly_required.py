@@ -73,7 +73,10 @@ def part1(inputFile: str) -> int:
 
 
 def part2(inputFile: str) -> int:
-    pass
+    tree = readInput(inputFile)
+    tree['b'] = 46065  # part 1 solution
+    result = walk(tree, 'a', {})
+    return result
 
 
 def test():
@@ -90,12 +93,7 @@ def test():
     assert walk(tree, 'i', memo) == 65079
     assert walk(tree, 'x', memo) == 123
     assert walk(tree, 'y', memo) == 456
-    print('Part 1 OK')
-
-    # assert part2('turn on 0,0 through 0,0') == 1
-    # assert part2('toggle 0,0 through 999,999') == 2_000_000
-    #
-    # print('Part 2 OK\n')
+    print('OK\n')
 
 
 def main():
@@ -106,9 +104,9 @@ def main():
     print(f'Solution for Part 1: {solution_part1}')
     assert solution_part1 == 46065
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 15343601
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+    assert solution_part2 == 14134
 
 
 if __name__ == '__main__':
