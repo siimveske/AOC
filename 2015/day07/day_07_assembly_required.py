@@ -1,6 +1,5 @@
 from __future__ import annotations
 import os
-from collections import defaultdict
 
 
 def readInput(filename: str):
@@ -12,24 +11,65 @@ def readInput(filename: str):
     with open(input_file_path, 'r') as f:
         for line in f:
             line = line.strip()
-            src, dst = line.split(' -> ')
-            if src.isdecimal():
-                src = int(src)
-            tree[dst] = src
-
+            expression, dst = line.split(' -> ')
+            if expression.isdecimal():
+                expression = int(expression)
+                tree[dst] = expression
+            else:
+                args = []
+                items = expression.split(' ')
+                for item in items:
+                    if item.isdecimal():
+                        args.append(int(item))
+                    else:
+                        args.append(item)
+                tree[dst] = args
     return tree
 
 
+def walk(tree, node: str, memo: dict) -> int:
+
+    if node in memo:
+        return memo[node]
+
+    cmd = tree.get(node)
+    if type(cmd) == int:  # a -> 100
+        memo[node] = cmd
+        return memo[node]
+
+    if len(cmd) == 1:
+        cmd = cmd[0]
+        memo[node] = walk(tree, cmd, memo)  # a -> b
+        return memo[node]
+
+    if 'NOT' in cmd:
+        _, arg = cmd
+        # https://github.com/morgoth1145/advent-of-code/blob/main/2015/07/solution.py
+        memo[node] = 0xFFFF ^ walk(tree, arg, memo)  # NOT a
+        return memo[node]
+
+    left, op, right = cmd
+    if type(left) != int:
+        left = walk(tree, left, memo)
+    if type(right) != int:
+        right = walk(tree, right, memo)
+
+    if op == 'AND':
+        memo[node] = left & right  # a AND b
+    elif op == 'OR':
+        memo[node] = left | right  # a OR b
+    elif op == 'LSHIFT':
+        memo[node] = left << right  # a LSHIFT b
+    elif op == 'RSHIFT':
+        memo[node] = left >> right  # a RSHIFT b
+
+    return memo[node]
+
+
 def part1(inputFile: str) -> int:
-    commands = readInput(inputFile)
-    circuit = dict()
-    for line in commands:
-        if 'AND' in line:
-            parts = line.split(' ')
-            a = parts[0]
-            b = parts[2]
-            dst = parts[4]
-            circuit[dst] = a
+    tree = readInput(inputFile)
+    result = walk(tree, 'a', {})
+    return result
 
 
 def part2(inputFile: str) -> int:
@@ -38,8 +78,18 @@ def part2(inputFile: str) -> int:
 
 def test():
     print('---- TEST ----')
+
     filename = 'test_input.txt'
-    assert part1(filename) == 1_000_000
+    tree = readInput(filename)
+    memo = {}
+    assert walk(tree, 'd', memo) == 72
+    assert walk(tree, 'e', memo) == 507
+    assert walk(tree, 'f', memo) == 492
+    assert walk(tree, 'g', memo) == 114
+    assert walk(tree, 'h', memo) == 65412
+    assert walk(tree, 'i', memo) == 65079
+    assert walk(tree, 'x', memo) == 123
+    assert walk(tree, 'y', memo) == 456
     print('Part 1 OK')
 
     # assert part2('turn on 0,0 through 0,0') == 1
@@ -54,7 +104,7 @@ def main():
 
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
-    assert solution_part1 == 400410
+    assert solution_part1 == 46065
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
@@ -63,4 +113,4 @@ def main():
 
 if __name__ == '__main__':
     test()
-    # main()
+    main()
