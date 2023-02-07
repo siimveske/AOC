@@ -24,21 +24,18 @@ def parse_line(line: str) -> list:
         line = line.replace('turn on', 'on')
         line = line.replace('turn off', 'off')
         line = line.replace(' through ', ',')
-        parts = line.split(' ')
-        x1, y1, x2, y2 = list(map(int, parts[1].split(',')))
-        return (parts[0], (x1, y1, x2, y2))
+        cmd, args = line.split(' ')
+        x1, y1, x2, y2 = list(map(int, args.split(',')))
+
+        return (cmd, (x1, y1, x2, y2))
 
 
 def toggle_lights(commands: list) -> dict[tuple(int, int), int]:
     lights = defaultdict(int)
     for cmd, args in commands:
         x1, y1, x2, y2 = args
-        x_min = min(x1, x2)
-        x_max = max(x1, x2) + 1
-        y_min = min(y1, y2)
-        y_max = max(y1, y2) + 1
-        for row in range(y_min, y_max):
-            for col in range(x_min, x_max):
+        for row in range(y1, y2 + 1):
+            for col in range(x1, x2 + 1):
                 key = (row, col)
                 if cmd == 'on':
                     lights[key] = True
@@ -53,12 +50,8 @@ def toggle_lights2(commands: list) -> dict[tuple(int, int), int]:
     lights = defaultdict(int)
     for cmd, args in commands:
         x1, y1, x2, y2 = args
-        x_min = min(x1, x2)
-        x_max = max(x1, x2) + 1
-        y_min = min(y1, y2)
-        y_max = max(y1, y2) + 1
-        for row in range(y_min, y_max):
-            for col in range(x_min, x_max):
+        for row in range(y1, y2 + 1):
+            for col in range(x1, x2 + 1):
                 key = (row, col)
                 if cmd == 'on':
                     lights[key] += 1
