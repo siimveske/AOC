@@ -29,8 +29,6 @@ def encode(text: str) -> str:
     for c in text:
         if c == '"':
             result.append(r'\"')
-        elif c == "'":
-            result.append(r"\'")
         elif c == "\\":
             result.append(r"\\")
         else:
