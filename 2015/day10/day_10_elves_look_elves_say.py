@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import os
-from collections import defaultdict
-import itertools
+import functools
 
 
 def readInput(filename: str):
@@ -13,47 +12,47 @@ def readInput(filename: str):
         return f.read()
 
 
-def process(data: str) -> str:
-    cnt = 1
-    current = None
+@functools.cache
+def next_number(number: str) -> str:
+    """Generate next Look-and-Say Sequence number
+    url: https://youtu.be/_1Wp4Bww8Rs"""
     result = []
-    for i in range(1, len(data)):
-        current = data[i]
-        prev = data[i - 1]
-        if current != prev:
-            result.append(str(cnt))
-            result.append(str(prev))
-            cnt = 1
-        else:
+    i = 0
+    while i < len(number):
+        cnt = 1
+        while i + 1 < len(number) and number[i] == number[i + 1]:
+            i += 1
             cnt += 1
-    else:
         result.append(str(cnt))
-        result.append(str(current))
+        result.append(number[i])
+        i += 1
     return "".join(result)
 
 
+def nth_number(number: str, iterations: int):
+    for _ in range(iterations):
+        number = next_number(number)
+    return number
+
+
 def part1(inputFile: str) -> int:
-    data = readInput(inputFile)
-    for _ in range(40):
-        data = process(data)
-    return len(data)
+    number = readInput(inputFile)
+    result = nth_number(number, 40)
+    return len(result)
 
 
 def part2(inputFile: str) -> int:
-    pass
+    number = readInput(inputFile)
+    result = nth_number(number, 50)
+    return len(result)
 
 
 def test():
     print("---- TEST ----")
-
-    filename = "test_input.txt"
-    # assert part1(filename) == "11"
-    assert process("11") == "21"
-    assert process("21") == "1211"
-    assert process("1211") == "111221"
-    assert process("111221") == "312211"
-    # assert part2(filename) == 982
-
+    assert next_number("11") == "21"
+    assert next_number("21") == "1211"
+    assert next_number("1211") == "111221"
+    assert next_number("111221") == "312211"
     print("OK\n")
 
 
@@ -63,11 +62,11 @@ def main():
 
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
-    # assert solution_part1 == 141
+    assert solution_part1 == 329356
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 736
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 4666278
 
 
 if __name__ == "__main__":
