@@ -4,7 +4,7 @@ import os
 import functools
 
 
-def readInput(filename: str):
+def readInput(filename: str) -> str:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -29,7 +29,7 @@ def next_number(number: str) -> str:
     return "".join(result)
 
 
-def nth_number(number: str, iterations: int):
+def nth_number(number: str, iterations: int) -> str:
     for _ in range(iterations):
         number = next_number(number)
     return number
