@@ -1,93 +1,42 @@
 from __future__ import annotations
-import heapq
 
+"""
+inspired by: https://www.reddit.com/r/adventofcode/comments/3w192e/comment/cxsyg1w/?utm_source=share&utm_medium=web2x&context=3
+"""
 import os
-from collections import defaultdict, deque
+from collections import defaultdict
 import itertools
-from math import inf as INFINITY
 
 
 def readInput(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    graph = defaultdict(list)
+    graph = defaultdict(dict)
     with open(input_file_path, "r") as f:
         for line in f:
-            parts = line.strip().split(" ")
-            city_a = parts[0]
-            city_b = parts[2]
-            distance = int(parts[4])
-            graph[city_a].append((city_b, distance))
-            graph[city_b].append((city_a, distance))
+            src, _, dst, _, dist = line.strip().split(" ")
+            graph[src][dst] = int(dist)
+            graph[dst][src] = int(dist)
     return graph
 
 
-# def floyd_warshall(
-#     graph: dict[str, list[tuple(str, int)]]
-# ) -> dict[str, dict[str, int]]:
-#     """Calculate the minimum distance between any possible pair of nodes of a given graph"""
-#     distance = defaultdict(lambda: defaultdict(lambda: INFINITY))
-
-#     for node, neighbours in graph.items():
-#         distance[node][node] = 0
-
-#         for neighbour, dist in neighbours:
-#             distance[node][neighbour] = dist
-#             distance[neighbour][neighbour] = 0
-
-#     for a, b, c in itertools.product(graph, graph, graph):
-#         bc, ba, ac = distance[b][c], distance[b][a], distance[a][c]
-
-#         if ba + ac < bc:
-#             distance[b][c] = ba + ac
-
-#     return distance
-
-
-def shortest_path(graph, path, distance):
-    if len(path) == len(graph):
-        return distance
-
-    min_path = float("inf")
-    for neighbour, ndistance in graph[path[-1]]:
-        if neighbour not in path:
-            result = shortest_path(graph, path + [neighbour], distance + ndistance)
-            min_path = min(min_path, result)
-    return min_path
-
-
-def longest_path(graph, path, distance):
-    if len(path) == len(graph):
-        return distance
-
-    max_path = float("-inf")
-    for neighbour, ndistance in graph[path[-1]]:
-        if neighbour not in path:
-            result = longest_path(graph, path + [neighbour], distance + ndistance)
-            max_path = max(max_path, result)
-    return max_path
+def get_min_max_distance(graph: dict[str, dict[str, int]]) -> tuple[int, int]:
+    distances = []
+    cities = graph.keys()
+    for perm in itertools.permutations(cities):
+        distances.append(sum(map(lambda x, y: graph[x][y], perm[:-1], perm[1:])))
+    return (min(distances), max(distances))
 
 
 def part1(inputFile: str) -> int:
     graph = readInput(inputFile)
-
-    min_dist = float("inf")
-    for node in graph:
-        dist = shortest_path(graph, [node], 0)
-        min_dist = min(min_dist, dist)
-    return min_dist
+    return get_min_max_distance(graph)[0]
 
 
 def part2(inputFile: str) -> int:
     graph = readInput(inputFile)
-
-    max_dist = float("-inf")
-    for node in graph:
-        dist = longest_path(graph, [node], 0)
-        max_dist = max(max_dist, dist)
-    return max_dist
-    pass
+    return get_min_max_distance(graph)[1]
 
 
 def test():
