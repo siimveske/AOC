@@ -25,25 +25,15 @@ def validate(string: str) -> bool:
     return is_valid
 
 
-def add_one(letter: chr):
-    old_value = ord(letter)
-    new_value = old_value + 1
-    carry = False
-    if new_value > ord("z"):
-        new_value = ord("a")
-        carry = True
-
-    return (chr(new_value), carry)
-
-
 def next_pwd(pwd: list):
     characters = [c for c in pwd]
-    carry = True
-    for i in reversed(range(len(characters))):
-        if not carry:
+    for i in range(len(pwd) - 1, -1, -1):
+        new_value = ord(characters[i]) + 1
+        if new_value > ord("z"):
+            characters[i] = "a"
+        else:
+            characters[i] = chr(new_value)
             break
-        new_value, carry = add_one(characters[i])
-        characters[i] = new_value
 
     return "".join(characters)
 
