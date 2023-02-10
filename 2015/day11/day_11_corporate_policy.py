@@ -36,29 +36,31 @@ def add_one(letter: chr):
     return (chr(new_value), carry)
 
 
-def next_pwd(string: list):
-    for i in reversed(range(len(string))):
-        new_value, carry = add_one(string[i])
-        string[i] = new_value
-        if carry is False:
+def next_pwd(pwd: list):
+    characters = [c for c in pwd]
+    carry = True
+    for i in reversed(range(len(characters))):
+        if not carry:
             break
+        new_value, carry = add_one(characters[i])
+        characters[i] = new_value
+
+    return "".join(characters)
 
 
 def next_valid_pwd(pwd: list):
     while validate(pwd) is False:
-        next_pwd(pwd)
-    return "".join(pwd)
+        pwd = next_pwd(pwd)
+    return pwd
 
 
 def part1(pwd: str) -> int:
-    pwd = [i for i in pwd]
     result = next_valid_pwd(pwd)
     return result
 
 
 def part2(pwd: str) -> int:
-    pwd = [i for i in pwd]
-    next_pwd(pwd)
+    pwd = next_pwd(pwd)
     result = next_valid_pwd(pwd)
     return result
 
