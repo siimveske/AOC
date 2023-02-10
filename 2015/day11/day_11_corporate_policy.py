@@ -25,12 +25,42 @@ def validate(string: str) -> bool:
     return is_valid
 
 
-def part1(string: str) -> int:
-    result = validate(string)
+def add_one(letter: chr):
+    old_value = ord(letter)
+    new_value = old_value + 1
+    carry = False
+    if new_value > ord("z"):
+        new_value = ord("a")
+        carry = True
+
+    return (chr(new_value), carry)
 
 
-def part2(inputFile: str) -> int:
-    pass
+def next_pwd(string: list):
+    for i in reversed(range(len(string))):
+        new_value, carry = add_one(string[i])
+        string[i] = new_value
+        if carry is False:
+            break
+
+
+def next_valid_pwd(pwd: list):
+    while validate(pwd) is False:
+        next_pwd(pwd)
+    return "".join(pwd)
+
+
+def part1(pwd: str) -> int:
+    pwd = [i for i in pwd]
+    result = next_valid_pwd(pwd)
+    return result
+
+
+def part2(pwd: str) -> int:
+    pwd = [i for i in pwd]
+    next_pwd(pwd)
+    result = next_valid_pwd(pwd)
+    return result
 
 
 def test():
@@ -38,21 +68,23 @@ def test():
     assert validate("hijklmmn") == False
     assert validate("abbceffg") == False
     assert validate("abbcegjk") == False
+    assert part1("abcdefgh") == "abcdffaa"
+    assert part1("ghijklmn") == "ghjaabcc"
     print("OK\n")
 
 
 def main():
     print("---- MAIN ----")
 
-    solution_part1 = part1()
+    solution_part1 = part1("hxbxwxba")
     print(f"Solution for Part 1: {solution_part1}")
-    # assert solution_part1 == 329356
+    assert solution_part1 == "hxbxxyzz"
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 4666278
+    solution_part2 = part2(solution_part1)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == "hxcaabcc"
 
 
 if __name__ == "__main__":
     test()
-    # main()
+    main()
