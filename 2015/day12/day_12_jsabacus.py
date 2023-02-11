@@ -16,29 +16,19 @@ def readInput(filename: str) -> str:
 
 def part1(data: str) -> int:
     numbers = re.findall(r"-?\d+", data)
-    result = sum(int(i) for i in numbers)
+    result = sum(map(int, numbers))
     return result
 
 
 def travel(data: Iterable):
     result = 0
-    if type(data) == list:
-        for i in data:
-            if type(i) == int:
-                result += i
-            elif type(i) in [dict, list]:
-                result += travel(i)
-
+    if type(data) == int:
+        result = data
+    elif type(data) == list:
+        result = sum(map(travel, data))
     elif type(data) == dict:
-        for val in data.values():
-            if val == "red":
-                return 0
-            elif type(val) == int:
-                result += val
-            elif type(val) in [dict, list]:
-                result += travel(val)
-    else:
-        raise Exception(f"Unknown data type: {data}")
+        if "red" not in data.values():
+            result = sum(map(travel, data.values()))
     return result
 
 
