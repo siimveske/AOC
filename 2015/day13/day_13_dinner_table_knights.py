@@ -28,28 +28,23 @@ def readInput(filename: str):
 
 def sum_happiness(seating_arrangement: list, happiness_by_person: dict) -> int:
     happiness = 0
-
     for i, current_person in enumerate(seating_arrangement):
-        if i < len(seating_arrangement) - 1:
-            current_next_person = seating_arrangement[i + 1]
-        else:
-            current_next_person = seating_arrangement[0]
-
+        current_next_person = seating_arrangement[(i + 1) % len(seating_arrangement)]
         happiness += happiness_by_person[current_person][current_next_person]
         happiness += happiness_by_person[current_next_person][current_person]
-
     return happiness
 
 
 def calculate_hapiness(graph, start, perms):
-    happiness = {}
+    max_happiness = 0
     for perm in perms:
         # this allows us to remove reverse permutations
         if perm <= perm[::-1]:
-            perm = list(perm)  # convert perm from tuple to list, to make it mutable
-            perm.insert(0, start)  # such that we can insert the head of the table
-            happiness[tuple(perm)] = sum_happiness(perm, graph)
-    return happiness
+            # convert perm from tuple to list, to make it mutable and insert the head of the table
+            # such that we can insert the head of the table
+            perm = [start] + list(perm)
+            max_happiness = max(max_happiness, sum_happiness(perm, graph))
+    return max_happiness
 
 
 def part1(inputFile: str) -> int:
@@ -58,9 +53,8 @@ def part1(inputFile: str) -> int:
     start = people.pop()
     perms = list(permutations(people))
 
-    happiness = calculate_hapiness(graph, start, perms)
-
-    return max(happiness.values())
+    max_happiness = calculate_hapiness(graph, start, perms)
+    return max_happiness
 
 
 def part2(inputFile: str) -> int:
@@ -72,9 +66,8 @@ def part2(inputFile: str) -> int:
     people.add("Me")
     perms = list(permutations(people))
 
-    happiness = calculate_hapiness(graph, start, perms)
-
-    return max(happiness.values())
+    max_happiness = calculate_hapiness(graph, start, perms)
+    return max_happiness
 
 
 def add_me_to_graph(graph: dict):
