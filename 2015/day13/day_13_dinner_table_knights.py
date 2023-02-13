@@ -26,24 +26,7 @@ def readInput(filename: str):
     return graph
 
 
-def part1(inputFile: str) -> int:
-    graph = readInput(inputFile)
-    people = set(graph.keys())
-    start = people.pop()
-    perms = list(permutations(people))
-
-    happiness = {}
-    for perm in perms:
-        # this allows us to remove reverse permutations
-        if perm <= perm[::-1]:
-            perm = list(perm)  # convert perm from tuple to list, to make it mutable
-            perm.insert(0, start)  # such that we can insert the head of the table
-            happiness[tuple(perm)] = get_happiness(perm, graph)
-
-    return max(happiness.values())
-
-
-def get_happiness(seating_arrangement: list, happiness_by_person: dict) -> int:
+def sum_happiness(seating_arrangement: list, happiness_by_person: dict) -> int:
     happiness = 0
 
     for i, current_person in enumerate(seating_arrangement):
@@ -58,8 +41,47 @@ def get_happiness(seating_arrangement: list, happiness_by_person: dict) -> int:
     return happiness
 
 
+def calculate_hapiness(graph, start, perms):
+    happiness = {}
+    for perm in perms:
+        # this allows us to remove reverse permutations
+        if perm <= perm[::-1]:
+            perm = list(perm)  # convert perm from tuple to list, to make it mutable
+            perm.insert(0, start)  # such that we can insert the head of the table
+            happiness[tuple(perm)] = sum_happiness(perm, graph)
+    return happiness
+
+
+def part1(inputFile: str) -> int:
+    graph = readInput(inputFile)
+    people = set(graph.keys())
+    start = people.pop()
+    perms = list(permutations(people))
+
+    happiness = calculate_hapiness(graph, start, perms)
+
+    return max(happiness.values())
+
+
 def part2(inputFile: str) -> int:
-    pass
+    graph = readInput(inputFile)
+    people = set(graph.keys())
+    start = next(iter(people))
+    add_me_to_graph(graph)
+    people.remove(start)
+    people.add("Me")
+    perms = list(permutations(people))
+
+    happiness = calculate_hapiness(graph, start, perms)
+
+    return max(happiness.values())
+
+
+def add_me_to_graph(graph: dict):
+    people = set(graph.keys())
+    for person in people:
+        graph[person]["Me"] = 0
+        graph["Me"][person] = 0
 
 
 def test():
@@ -67,7 +89,6 @@ def test():
 
     filename = "test_input.txt"
     assert part1(filename) == 330
-    # assert part2(filename) == 19
 
     print("OK\n")
 
@@ -80,9 +101,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 618
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    # assert solution_part2 == 2117
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 601
 
 
 if __name__ == "__main__":
