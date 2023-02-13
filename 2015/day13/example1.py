@@ -30,6 +30,8 @@ Part 2:
     Add myself to the dict for every other person in the set.
     Add me to the set.
     Repeat Part 1.
+github:
+https://github.com/derailed-dash/Advent-of-Code/blob/master/src/AoC_2015/d13_seating_arrangement_with_circular_set_and_perms/happy_seating.py
 """
 import os
 import time
