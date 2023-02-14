@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from collections import defaultdict
 
 
@@ -9,25 +10,24 @@ def readInput(filename: str) -> list:
     input_file_path = os.path.join(script_location, filename)
 
     reindeers = []
+    reindeer_pattern = re.compile(
+        r"^(\w+) can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds."
+    )
     with open(input_file_path, "r") as f:
         for line in f:
-            parts = line.split()
-            name = parts[0]
-            speed = int(parts[3])
-            duration = int(parts[6])
-            pause = int(parts[-2])
-            reindeers.append((name, speed, duration, pause))
+            name, speed, duration, rest = reindeer_pattern.findall(line)[0]
+            reindeers.append((name, int(speed), int(duration), int(rest)))
     return reindeers
 
 
 def calculate_distances(reindeers, travel_time) -> dict:
     distances = dict()
-    for name, speed, duration, pause in reindeers:
-        period = duration + pause
-        d = travel_time // period
-        m = travel_time % period
-        extra = min(duration, m)
-        movement_time = d * duration + extra
+    for name, speed, duration, rest in reindeers:
+        cycle = duration + rest
+        total_cycles = travel_time // cycle
+        remainder = travel_time % cycle
+        extra = min(duration, remainder)
+        movement_time = total_cycles * duration + extra
         distance = speed * movement_time
         distances[name] = distance
     return distances
