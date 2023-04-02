@@ -5,7 +5,7 @@ import os
 import re
 
 
-def readInput(filename: str) -> list[tuple]:
+def readInput(filename: str) -> list[tuple[int]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -20,11 +20,11 @@ def readInput(filename: str) -> list[tuple]:
     return ingredients
 
 
-def calc_score(amounts, property):
+def calc_score(amounts: tuple, property: tuple) -> int:
     return sum(amount * property for amount, property in zip(amounts, property))
 
 
-def calc_scores(amounts, properties):
+def calc_scores(amounts: tuple, properties: tuple) -> int:
     return math.prod(
         max(0, calc_score(amounts, property)) for property in properties[:-1]
     )
