@@ -5,7 +5,7 @@ import os
 import re
 
 
-def readInput(filename: str) -> tuple:
+def readInput(filename: str) -> list[tuple]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -16,7 +16,7 @@ def readInput(filename: str) -> tuple:
             items = tuple(map(int, re.findall(numbers, line)))
             ingredients.append(items)
 
-    ingredients = tuple(zip(*ingredients))  # swap rows to cols
+    ingredients = list(zip(*ingredients))  # swap rows to cols
     return ingredients
 
 
@@ -29,29 +29,33 @@ def calc_scores(amounts, properties):
         max(0, calc_score(amounts, property)) for property in properties[:-1]
     )
 
+def combinations(n: int, total: int) -> list[tuple[int]]:
+    '''generate all possible combinations of n numbers that sum to total'''
+    if n == 1:
+        yield (total,)
+    else:
+        for i in range(total + 1):
+            for c in combinations(n - 1, total - i):
+                yield (i,) + c
 
-def combinations() -> tuple[int, int, int, int]:
-    TOTAL = 100
-    for a in range(TOTAL):
-        for b in range(TOTAL - a):
-            for c in range(TOTAL - a - b):
-                d = TOTAL - a - b - c
-                yield (a, b, c, d)
-
-
-def part1(properties: tuple) -> int:
+def part1(properties: list) -> int:
     result = 0
-    for combination in combinations():
+    num_of_teaspoons = 100
+    num_of_ingredients = len(properties[0])
+    for combination in combinations(num_of_ingredients, num_of_teaspoons):
         score = calc_scores(combination, properties)
         result = max(result, score)
     return result
 
 
-def part2(properties: tuple) -> int:
+def part2(properties: list) -> int:
     result = 0
-    for combination in combinations():
+    num_of_teaspoons = 100
+    max_calories = 500
+    num_of_ingredients = len(properties[0])
+    for combination in combinations(num_of_ingredients, num_of_teaspoons):
         score = calc_scores(combination, properties)
-        if score > result and calc_score(combination, properties[-1]) == 500:
+        if score > result and calc_score(combination, properties[-1]) == max_calories:
             result = score
     return result
 
