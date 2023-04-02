@@ -3,10 +3,9 @@ from __future__ import annotations
 import math
 import os
 import re
-from collections import defaultdict
 
 
-def readInput(filename: str) -> list:
+def readInput(filename: str) -> tuple:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -40,18 +39,21 @@ def combinations() -> tuple[int, int, int, int]:
                 yield (a, b, c, d)
 
 
-def part1(properties: list) -> int:
-    pt1 = pt2 = 0
+def part1(properties: tuple) -> int:
+    result = 0
     for combination in combinations():
         score = calc_scores(combination, properties)
-        pt1 = max(pt1, score)
-        if score > pt2 and calc_score(combination, properties[-1]) == 500:
-            pt2 = score
-    return pt1, pt2
+        result = max(result, score)
+    return result
 
 
-def part2(data: list) -> int:
-    pass
+def part2(properties: tuple) -> int:
+    result = 0
+    for combination in combinations():
+        score = calc_scores(combination, properties)
+        if score > result and calc_score(combination, properties[-1]) == 500:
+            result = score
+    return result
 
 
 def test():
@@ -60,8 +62,8 @@ def test():
     filename = "test_input.txt"
     data = readInput(filename)
 
-    part1(data)
-    # part2(data)
+    assert part1(data) == 62842880
+    assert part2(data) == 57600000
 
     print("OK\n")
 
@@ -73,11 +75,11 @@ def main():
 
     solution_part1 = part1(data)
     print(f"Solution for Part 1: {solution_part1}")
-    # assert solution_part1 == 2660
+    assert solution_part1 == 222870
 
-    # solution_part2 = part2(data)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 1256
+    solution_part2 = part2(data)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 117936
 
 
 if __name__ == "__main__":

@@ -1,6 +1,9 @@
 import re
 from math import prod
 
+"""
+src: https://github.com/narimiran/advent_of_code_2015/blob/master/python/day15.py
+"""
 
 TOTAL = 100
 numbers = re.compile("-?\d+")
