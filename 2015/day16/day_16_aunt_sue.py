@@ -28,21 +28,13 @@ ticker_tape = {
 
 
 def part1(people: dict) -> int:
-    solution = None
     for idx, stuff in people.items():
-        found = True
-        for k, v in stuff.items():
-            if ticker_tape[k] != v:
-                found = False
-                break
-        if found:
-            solution = idx
-            break
-    return solution
+        if all(ticker_tape[k] == v for k, v in stuff.items()):
+            return idx
+    return None
 
 
-
-def part2(people: list) -> int:
+def part2(people: dict) -> int:
     solution = None
     for idx, stuff in people.items():
         found = True
@@ -60,7 +52,6 @@ def part2(people: list) -> int:
             solution = idx
             break
     return solution
-
 
 def main():
     print("---- MAIN ----")
