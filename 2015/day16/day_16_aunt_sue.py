@@ -1,5 +1,5 @@
 import os
-
+import re
 
 def readInput(filename: str) -> dict[int: dict[int: str]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
@@ -7,16 +7,9 @@ def readInput(filename: str) -> dict[int: dict[int: str]]:
 
     people = {}
     with open(input_file_path, "r") as f:
-        for line in f:
-            line = line.strip()
-            person, items = line.split(': ', 1)
-            person_id = int(person.split(' ')[1])
-            parsed_items = {}
-            for item in items.split(', '):
-                k, v = item.split(': ')
-                parsed_items[k] = int(v)
-            people[person_id] = parsed_items
-            print()
+        for idx, line in enumerate(f, 1):
+            items = {k: int(v) for k, v in re.findall(r'(\w+): (\d+)', line)}
+            people[idx] = items
     return people
 
 
