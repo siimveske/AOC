@@ -35,23 +35,25 @@ def part1(people: dict) -> int:
 
 
 def part2(people: dict) -> int:
-    solution = None
     for idx, stuff in people.items():
         found = True
         for k, v in stuff.items():
-            if k in ['cats', 'trees'] and not (v > ticker_tape[k]):
-                found = False
-                break
-            if k in ['pomeranians','goldfish'] and not(v < ticker_tape[k]):
-                found = False
-                break
-            if k not in ['pomeranians','goldfish','cats','trees'] and ticker_tape[k] != v:
-                found = False
-                break
+            if k in ['cats', 'trees']:
+                if v <= ticker_tape[k]:
+                    found = False
+                    break
+            elif k in ['pomeranians', 'goldfish']:
+                if v >= ticker_tape[k]:
+                    found = False
+                    break
+            elif k not in ['pomeranians', 'goldfish', 'cats', 'trees']:
+                if ticker_tape[k] != v:
+                    found = False
+                    break
         if found:
-            solution = idx
-            break
-    return solution
+            return idx
+    return None
+
 
 def main():
     print("---- MAIN ----")
