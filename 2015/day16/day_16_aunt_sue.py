@@ -1,6 +1,4 @@
-import math
 import os
-import re
 
 
 def readInput(filename: str) -> dict[int: dict[int: str]]:
@@ -52,23 +50,38 @@ def part1(people: dict) -> int:
 
 
 def part2(people: list) -> int:
-    pass
+    solution = None
+    for idx, stuff in people.items():
+        found = True
+        for k, v in stuff.items():
+            if k in ['cats', 'trees'] and not (v > ticker_tape[k]):
+                found = False
+                break
+            if k in ['pomeranians','goldfish'] and not(v < ticker_tape[k]):
+                found = False
+                break
+            if k not in ['pomeranians','goldfish','cats','trees'] and ticker_tape[k] != v:
+                found = False
+                break
+        if found:
+            solution = idx
+            break
+    return solution
 
 
 def main():
     print("---- MAIN ----")
     filename = "input.txt"
-    people = readInput(filename)
+    data = readInput(filename)
 
-    solution_part1 = part1(people)
+    solution_part1 = part1(data)
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 103
 
-    # solution_part2 = part2(data)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 117936
+    solution_part2 = part2(data)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 405
 
 
 if __name__ == "__main__":
-    #test()
     main()
