@@ -8,8 +8,9 @@ def readInput(filename: str) -> list:
     with open(input_file_path, "r") as f:
         return [int(i) for i in f]
 
-def part1(containers: list, target=150) -> int:
+def part1(containers: list) -> int:
     count = 0
+    target=150
     for i in range(1, len(containers)+1):
         for c in combinations(containers, i):
             if sum(c) == target:
@@ -18,7 +19,20 @@ def part1(containers: list, target=150) -> int:
 
 
 def part2(containers: dict) -> int:
-    pass
+    min_number_of_containers = float('inf')
+    different_ways = 0
+    target=150
+    for i in range(1, len(containers)+1):
+        for c in combinations(containers, i):
+            if sum(c) == target:
+                if len(c) > min_number_of_containers:
+                    continue
+                if len(c) == min_number_of_containers:
+                    different_ways += 1
+                else:
+                    different_ways = 1
+                    min_number_of_containers = len(c)
+    return different_ways
 
 
 def main():
@@ -30,9 +44,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 1638
 
-    # solution_part2 = part2(data)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 405
+    solution_part2 = part2(data)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 17
 
 
 if __name__ == "__main__":
