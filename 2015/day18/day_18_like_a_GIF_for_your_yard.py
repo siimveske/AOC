@@ -68,6 +68,7 @@ def part1(grid: list[list[int]]) -> int:
 
 
 def part2(grid: list[list[int]]) -> int:
+    grid[0][0] = grid[0][99] = grid[99][0] = grid[99][99] = 1 # initialize four corners
     grid = evolve(grid, part2_solver)
     result = 0
     for row in grid:
@@ -86,7 +87,7 @@ def main():
 
     solution_part2 = part2(data)
     print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 17
+    assert solution_part2 == 924
 
 
 if __name__ == "__main__":
