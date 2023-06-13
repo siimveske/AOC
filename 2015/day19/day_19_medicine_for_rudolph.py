@@ -1,7 +1,7 @@
 import os
 
 
-def readInput(filename: str) -> tuple[list, str]:
+def readInput(filename: str) -> list[list, str]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -10,9 +10,7 @@ def readInput(filename: str) -> tuple[list, str]:
     with open(input_file_path, "r") as f:
         raw_mapping, molecule = f.read().split('\n\n')
         molecule = molecule.strip()
-        for line in raw_mapping.splitlines():
-            k, v = line.split(" => ")
-            mappings.append((k, v))
+        mappings = [line.split(" => ") for line in raw_mapping.splitlines()]
 
     return (mappings, molecule)
 
@@ -23,7 +21,7 @@ def find_all_substrings(string: str, substring: str) -> list[int]:
             yield i
 
 
-def part1(data: tuple[list, str]) -> int:
+def part1(data: list[list, str]) -> int:
     mappings, molecule = data
     molecules = set()
     for src_to_dst in mappings:
@@ -34,7 +32,7 @@ def part1(data: tuple[list, str]) -> int:
 
 
 # https://github.com/ChrisPenner/Advent-Of-Code-Polyglot/blob/master/2015/python/19/part2.py
-def search_and_replace(medicine: str, replacements: tuple) -> int:
+def search_and_replace(medicine: str, replacements: list) -> int:
     if medicine == "e":
         return 0
 
@@ -43,7 +41,7 @@ def search_and_replace(medicine: str, replacements: tuple) -> int:
         for rule in replacements if rule[1] in medicine
     )
 
-def part2(data: tuple[list, str]) -> int:
+def part2(data: list[list, str]) -> int:
     mappings, medicine  = data
 
     # sort by largest replacement
