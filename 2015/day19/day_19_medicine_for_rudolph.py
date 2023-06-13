@@ -34,21 +34,21 @@ def part1(data: tuple[list, str]) -> int:
 
 
 # https://github.com/ChrisPenner/Advent-Of-Code-Polyglot/blob/master/2015/python/19/part2.py
-def search_and_replace(string: str, rules: tuple) -> int:
-    if string == "e":
+def search_and_replace(medicine: str, replacements: tuple) -> int:
+    if medicine == "e":
         return 0
 
     return 1 + next(
-        search_and_replace(string.replace(rule[1], rule[0], 1), rules)
-        for rule in rules if rule[1] in string
+        search_and_replace(medicine.replace(rule[1], rule[0], 1), replacements)
+        for rule in replacements if rule[1] in medicine
     )
 
 def part2(data: tuple[list, str]) -> int:
-    mappings, molecule = data
+    mappings, medicine  = data
 
     # sort by largest replacement
-    sorted_rules = sorted(mappings, reverse=True, key=lambda rule: len(rule[1]))
-    result = search_and_replace(molecule, sorted_rules)
+    replacements = sorted(mappings, reverse=True, key=lambda rule: len(rule[1]))
+    result = search_and_replace(medicine , replacements)
     return result
 
 
