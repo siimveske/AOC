@@ -33,8 +33,23 @@ def part1(data: tuple[list, str]) -> int:
     return len(molecules)
 
 
-def part2(grid: list[list[int]]) -> int:
-    pass
+# https://github.com/ChrisPenner/Advent-Of-Code-Polyglot/blob/master/2015/python/19/part2.py
+def search_and_replace(string: str, rules: tuple) -> int:
+    if string == "e":
+        return 0
+
+    return 1 + next(
+        search_and_replace(string.replace(rule[1], rule[0], 1), rules)
+        for rule in rules if rule[1] in string
+    )
+
+def part2(data: tuple[list, str]) -> int:
+    mappings, molecule = data
+
+    # sort by largest replacement
+    sorted_rules = sorted(mappings, reverse=True, key=lambda rule: len(rule[1]))
+    result = search_and_replace(molecule, sorted_rules)
+    return result
 
 
 def main():
@@ -46,9 +61,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 535
 
-    # solution_part2 = part2(data)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 924
+    solution_part2 = part2(data)
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 212
 
 
 if __name__ == "__main__":
