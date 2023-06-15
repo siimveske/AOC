@@ -1,44 +1,41 @@
-from functools import reduce
 
+LIMIT = 29000000
 
-# https://stackoverflow.com/questions/6800193/what-is-the-most-efficient-way-of-finding-all-the-factors-of-a-number-in-python
-def factors(house:int) -> set[int]:
-    return set(
-        reduce(list.__add__,([i, house // i] for i in range(1, int(house**0.5) + 1) if house % i == 0))
-    )
+# https://www.reddit.com/r/adventofcode/comments/3xjpp2/comment/cy5buyt/?utm_source=share&utm_medium=web2x&context=3
+def sum_of_presents(house: int) -> set[int]:
+    result = 0
+    limit = int(house**0.5) + 1
+    for elf in range(1, limit):
+        if house % elf == 0:
+            result += elf
+            result += house / elf
 
-def score(n:int):
-    f = factors(n)
-    return sum([i*10 for i in f])
+    return result*10
 
-
-def factors2(house:int) -> set[int]:
-    elves = set(reduce(list.__add__,([i, house // i] for i in range(1, int(house**0.5) + 1) if house % i == 0)))
-    result = []
-    for elf in elves:
-        if house > elf*50:
+def sum_of_presents2(house: int) -> set[int]:
+    result = 0
+    limit = int(house**0.5) + 1
+    for elf in range(1, limit):
+        if house % elf != 0:
             continue
-        result.append(elf)
-    return result
+        if elf <= 50:
+            result += house/elf
+        if house / elf <= 50:
+            result += elf
 
-def score2(house:int):
-    f = factors2(house)
-    return sum([i*11 for i in f])
+    return result*11
 
 
 def part1() -> int:
-
-    house_number = 1000
-    limit = 29000000
-    while score(house_number) < limit:
+    house_number = 1
+    while sum_of_presents(house_number) < LIMIT:
         house_number += 1
     return house_number
 
 
 def part2() -> int:
     house_number = 1
-    limit = 29000000
-    while score2(house_number) < limit:
+    while sum_of_presents2(house_number) < LIMIT:
         house_number += 1
     return house_number
 
