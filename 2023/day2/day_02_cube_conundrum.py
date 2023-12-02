@@ -1,8 +1,9 @@
+import math
 import os
-from typing import Dict, List, Any
+from collections import defaultdict
 
 
-def read_input(filename: str) -> dict[int, list[dict[Any, int]]]:
+def read_input(filename: str) -> dict[int, list[dict[str, int]]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -39,9 +40,18 @@ def part1(input_file: str) -> int:
     return total
 
 
-
 def part2(input_file: str) -> int:
-    pass
+    games: dict = read_input(input_file)
+    total = 0
+    for game_id, game_data in games.items():
+        limits = defaultdict(int)
+        for subset in game_data:
+            for color, amount in subset.items():
+                limits[color] = max(limits[color], amount)
+        power = math.prod(limits.values())
+        total += power
+
+    return total
 
 
 def test():
@@ -51,9 +61,8 @@ def test():
     assert part1(filename) == 8
     print('Part 1 OK')
 
-    # filename = 'test_input2.txt'
-    # assert part2(filename) == 281
-    # print('Part 2 OK')
+    assert part2(filename) == 2286
+    print('Part 2 OK')
 
 
 def main():
@@ -63,11 +72,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 55172
-    # assert solution_part2 == 54925
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+
+    assert solution_part1 == 2105
+    assert solution_part2 == 72422
 
 
 if __name__ == '__main__':
