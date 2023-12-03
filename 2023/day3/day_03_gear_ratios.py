@@ -1,54 +1,42 @@
 import os
+import re
 
 
-def read_input(filename: str):
+def read_input(filename: str) -> list:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     engine_schematic = []
     with open(input_file_path, 'r') as f:
         for line in f:
-            row = [c for c in line.strip()]
-            engine_schematic.append(row)
+            line = line.strip()
+            engine_schematic.append(line)
 
     return engine_schematic
 
 
 def part1(input_file: str) -> int:
-    engine_schematic: list[list] = read_input(input_file)
+    engine_schematic = read_input(input_file)
     rows = len(engine_schematic)
     cols = len(engine_schematic[0])
 
     numbers = {}
-    for row in range(rows):
-        digits = []
-        start = 0
-        for col in range(cols):
-            item = engine_schematic[row][col]
-            if item.isdigit():
-                if not digits:
-                    start = col
-                digits.append(item)
-            else:
-                if digits:
-                    value = int(''.join(digits))
-                    location = (row, start, col-1)
-                    numbers[location] = value
-                    digits = []
-        if digits:
-            value = int(''.join(digits))
-            location = (row, start, col - 1)
+    p = re.compile(r'\d+')
+    for idx, row in enumerate(engine_schematic):
+        for match in p.finditer(row):
+            value = int(match.group())
+            start, end = match.span()
+            location = (idx, start, end - 1)
             numbers[location] = value
-            digits = []
 
     sum_of_part_numbers = 0
     for cords, number in numbers.items():
         row, start, stop = cords
         done = False
-        for r in range(row-1, row+2):
+        for r in range(row - 1, row + 2):
             if done:
                 break
-            for c in range(start-1, stop+2):
+            for c in range(start - 1, stop + 2):
                 if 0 <= r < rows and 0 <= c < cols:
                     item = engine_schematic[r][c]
                     if not item.isdigit() and item != '.':
@@ -57,7 +45,6 @@ def part1(input_file: str) -> int:
                         break
 
     return sum_of_part_numbers
-
 
 
 def part2(input_file: str) -> int:
