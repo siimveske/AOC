@@ -42,16 +42,16 @@ def part1(input_file: str) -> int:
 
 def part2(input_file: str) -> int:
     games: dict = read_input(input_file)
-    total = 0
+    sum_of_power = 0
     for game_id, game_data in games.items():
-        limits = defaultdict(int)
+        cubes = defaultdict(int)
         for subset in game_data:
             for color, amount in subset.items():
-                limits[color] = max(limits[color], amount)
-        power = math.prod(limits.values())
-        total += power
+                cubes[color] = max(cubes[color], amount)
+        power = math.prod(cubes.values())
+        sum_of_power += power
 
-    return total
+    return sum_of_power
 
 
 def test():
