@@ -35,6 +35,11 @@ def part1(input_file: str) -> int:
                     location = (row, start, col-1)
                     numbers[location] = value
                     digits = []
+        if digits:
+            value = int(''.join(digits))
+            location = (row, start, col - 1)
+            numbers[location] = value
+            digits = []
 
     sum_of_part_numbers = 0
     for cords, number in numbers.items():
@@ -79,8 +84,8 @@ def main():
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 2105
+
+    assert solution_part1 == 549908
     # assert solution_part2 == 72422
 
 
