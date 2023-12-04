@@ -8,11 +8,8 @@ def read_input(filename: str) -> list:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    engine_schematic = []
     with open(input_file_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            engine_schematic.append(line)
+        engine_schematic = f.read().splitlines()
 
     return engine_schematic
 
@@ -80,14 +77,13 @@ def part2(input_file: str) -> int:
 
     sum_of_gear_ratios = 0
     for r, c in stars:
-        candidates = [numbers[i] for i in range(r - 1, r + 2) if i in numbers]
+        candidates = [item for row in range(r - 1, r + 2) if row in numbers for item in numbers[row]]
         neighbours = get_neighbours(r, c)
         gear_set = set()
         for neighbour in neighbours:
-            for i in candidates:
-                for j in i:
-                    if neighbour in j[0]:
-                        gear_set.add(j[1])
+            for number in candidates:
+                if neighbour in number[0]:
+                    gear_set.add(number[1])
         if len(gear_set) == 2:
             sum_of_gear_ratios += math.prod(gear_set)
 
