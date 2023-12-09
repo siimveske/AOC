@@ -9,8 +9,8 @@ def read_input(filename: str) -> tuple[list[int], list[int]]:
     p = re.compile(r'\d+')
     with open(input_file_path, 'r') as f:
         lines = f.readlines()
-        time = [int(number) for number in p.findall(lines[0])]
-        dist = [int(number) for number in p.findall(lines[1])]
+        time = list(map(int, p.findall(lines[0])))
+        dist = list(map(int, p.findall(lines[1])))
 
     return time, dist
 
@@ -32,7 +32,18 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    pass
+    times, distances = read_input(input_file)
+    time = int(''.join(map(str, times)))
+    record_distance = int(''.join(map(str, distances)))
+
+    number_of_ways_to_win = 0
+    for time_to_hold in range(1, time):
+        speed = time_to_hold
+        travel_time = time - time_to_hold
+        distance = travel_time * speed
+        if distance > record_distance:
+            number_of_ways_to_win += 1
+    return number_of_ways_to_win
 
 
 def test():
@@ -42,8 +53,8 @@ def test():
     assert part1(filename) == 288
     print('Part 1 OK')
 
-    # assert part2(filename) == 46
-    # print('Part 2 OK')
+    assert part2(filename) == 71503
+    print('Part 2 OK')
 
 
 def main():
@@ -53,11 +64,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 196167384
-    # assert solution_part2 == 125742456
+    assert solution_part1 == 840336
+    assert solution_part2 == 41382569
 
 
 if __name__ == '__main__':
