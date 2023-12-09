@@ -1,5 +1,7 @@
+import math
 import os
 import re
+from collections import deque
 
 
 def read_input(filename: str) -> list:
@@ -13,33 +15,14 @@ def read_input(filename: str) -> list:
         seeds = [int(number) for number in p.findall(sections[0])]
         almanac.append(seeds)
 
-        seed_to_soil = [list(map(int, p.findall(line))) for line in sections[1].split('\n')[1:]]
-        seed_to_soil.sort(key=lambda x: x[1])
-        almanac.append(seed_to_soil)
-
-        soil_to_fertilizer = [list(map(int, p.findall(line))) for line in sections[2].split('\n')[1:]]
-        soil_to_fertilizer.sort(key=lambda x: x[1])
-        almanac.append(soil_to_fertilizer)
-
-        fertilizer_to_water = [list(map(int, p.findall(line))) for line in sections[3].split('\n')[1:]]
-        fertilizer_to_water.sort(key=lambda x: x[1])
-        almanac.append(fertilizer_to_water)
-
-        water_to_light = [list(map(int, p.findall(line))) for line in sections[4].split('\n')[1:]]
-        water_to_light.sort(key=lambda x: x[1])
-        almanac.append(water_to_light)
-
-        light_to_temperature = [list(map(int, p.findall(line))) for line in sections[5].split('\n')[1:]]
-        light_to_temperature.sort(key=lambda x: x[1])
-        almanac.append(light_to_temperature)
-
-        temperature_to_humidity = [list(map(int, p.findall(line))) for line in sections[6].split('\n')[1:]]
-        temperature_to_humidity.sort(key=lambda x: x[1])
-        almanac.append(temperature_to_humidity)
-
-        humidity_to_location = [list(map(int, p.findall(line))) for line in sections[7].split('\n')[1:]]
-        humidity_to_location.sort(key=lambda x: x[1])
-        almanac.append(humidity_to_location)
+        for i in range(1, len(sections)):
+            section = []
+            for line in sections[i].split('\n')[1:]:
+                dst, src, length = [int(number) for number in p.findall(line)]
+                data = [src, src + length, dst - src]
+                section.append(data)
+            section.sort(key=lambda x: x[0])
+            almanac.append(section)
 
     return almanac
 
@@ -47,23 +30,81 @@ def read_input(filename: str) -> list:
 def part1(input_file: str) -> int:
     almanac = read_input(input_file)
     seeds = almanac[0]
-    maps = almanac[1:]
+    mappings = almanac[1:]
 
-    locations = []
+    lowest_location_number = math.inf
     for seed in seeds:
-        for m in maps:
+        for m in mappings:
             for row in m:
-                dst, src, _len = row
-                if src <= seed < (src + _len):
-                    seed = dst + (seed - src)
+                left, right, delta = row
+                if left <= seed < right:
+                    seed += delta
                     break
-        locations.append(seed)
+        lowest_location_number = min(lowest_location_number, seed)
 
-    return min(locations)
+    return lowest_location_number
 
 
 def part2(input_file: str) -> int:
-    pass
+    """Solution from: https://github.com/mebeim/aoc/tree/master/2023#day-5---if-you-give-a-seed-a-fertilizer"""
+
+    almanac = read_input(input_file)
+    seeds = almanac[0]
+    mappings = almanac[1:]
+    segments = deque([(i, i + j) for i, j in zip(seeds[::2], seeds[1::2])])
+
+    for mapping in mappings:
+        processed = deque()
+        while segments:
+            a, b = segments.popleft()
+            for c, d, delta in mapping:
+                partial_left = c <= a < d
+                partial_right = c < b <= d
+
+                if partial_left and partial_right:
+                    # Complete overlap:
+                    #     a---b
+                    # c-----------d
+                    # Entire [a, b) segment is converted
+                    processed.append((a + delta, b + delta))
+                    break
+
+                if partial_left:
+                    # Partial left overlap:
+                    #     a------b
+                    # c------d
+                    # [a, d) is converted
+                    processed.append((a + delta, d + delta))
+                    # [d, b) may overlap with other segments, keep it
+                    segments.append((d, b))
+                    break
+
+                if partial_right:
+                    # Partial right overlap:
+                    # a------b
+                    #     c------d
+                    # [a, d) is converted
+                    processed.append((c + delta, b + delta))
+                    # [a, c) may overlap with other segments, keep it
+                    segments.append((a, c))
+                    break
+
+                if a < c and b > d:
+                    # Partial inner overlap:
+                    # a-----------b
+                    #     c---d
+                    # [c, d) is converted
+                    processed.append((c + delta, d + delta))
+                    # [a, c) may overlap with other segments, keep it
+                    segments.append((a, c))
+                    # [d, b) may overlap with other segments, keep it
+                    segments.append((d, b))
+                    break
+            else:
+                # No overlap with any segment in this mapping, keep as is
+                processed.append((a, b))
+        segments = processed
+    return min(s[0] for s in segments)
 
 
 def test():
@@ -73,8 +114,8 @@ def test():
     assert part1(filename) == 35
     print('Part 1 OK')
 
-    # assert part2(filename) == 30
-    # print('Part 2 OK')
+    assert part2(filename) == 46
+    print('Part 2 OK')
 
 
 def main():
@@ -84,11 +125,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 23441
-    # assert solution_part2 == 5923918
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
+
+    assert solution_part1 == 196167384
+    assert solution_part2 == 125742456
 
 
 if __name__ == '__main__':
