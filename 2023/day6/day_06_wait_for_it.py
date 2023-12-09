@@ -1,3 +1,4 @@
+import math
 import os
 import re
 
@@ -17,33 +18,55 @@ def read_input(filename: str) -> tuple[list[int], list[int]]:
 
 def part1(input_file: str) -> int:
     times, distances = read_input(input_file)
-    margin_of_error = 1
-    for i, time in enumerate(times):
+    result = 1
+    for time, max_dist in zip(times, distances):
         number_of_ways_to_win = 0
-        max_dist = distances[i]
         for time_to_hold in range(1, time):
             speed = time_to_hold
             travel_time = time - time_to_hold
             distance = travel_time * speed
             if distance > max_dist:
                 number_of_ways_to_win += 1
-        margin_of_error *= number_of_ways_to_win
-    return margin_of_error
+        result *= number_of_ways_to_win
+    return result
+
+    # def part2(input_file: str) -> int:
+    #     times, distances = read_input(input_file)
+    #     time = int(''.join(map(str, times)))
+    #     record_distance = int(''.join(map(str, distances)))
+    #
+    #     number_of_ways_to_win = 0
+    #     for time_to_hold in range(1, time):
+    #         speed = time_to_hold
+    #         travel_time = time - time_to_hold
+    #         distance = travel_time * speed
+    #         if distance > record_distance:
+    #             number_of_ways_to_win += 1
+    #     return number_of_ways_to_win
 
 
 def part2(input_file: str) -> int:
+    """
+    link: https://en.wikipedia.org/wiki/Quadratic_formula
+    link: https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb#scrollTo=zjf-F1pEb4_i
+    d = (t - h) * h
+    d = th - h**2
+
+    Where d is the distance to beat, t is the race duration, and h is the hold time.
+
+    Therefore:
+    h**2 - th + d = 0
+    """
     times, distances = read_input(input_file)
     time = int(''.join(map(str, times)))
-    record_distance = int(''.join(map(str, distances)))
+    dist = int(''.join(map(str, distances)))
 
-    number_of_ways_to_win = 0
-    for time_to_hold in range(1, time):
-        speed = time_to_hold
-        travel_time = time - time_to_hold
-        distance = travel_time * speed
-        if distance > record_distance:
-            number_of_ways_to_win += 1
-    return number_of_ways_to_win
+    # solve using quadratic
+    discriminant = time ** 2 - (4 * dist)
+    h1 = int((-time + math.sqrt(discriminant)) / 2)
+    h2 = int((-time - math.sqrt(discriminant)) / 2)
+
+    return abs(h1 - h2)
 
 
 def test():
