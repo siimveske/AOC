@@ -53,6 +53,8 @@ class Hand:
         assert False
 
     def _parse_type(self):
+        '''solution from: https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb#scrollTo=WLalO9sRb4_k'''
+
         cards = self.cards  # we will replace value of joker
         ordered_counts = Counter(cards).most_common()  # e.g. [('3', 2), ('2', 1), ('T', 1), ('K', 1)]
 
