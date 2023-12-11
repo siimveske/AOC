@@ -1,31 +1,30 @@
 import os
-from collections import deque
+from itertools import cycle
 
 
-def read_input(filename: str) -> tuple[deque[str], dict[str, tuple[str, str]]]:
+def read_input(filename: str) -> tuple[list[int], dict[str, tuple[str, str]]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     graph = {}
     with open(input_file_path, 'r') as f:
-        cmd, path = f.read().split('\n\n')
-        cmd = deque([i for i in cmd])
+        directions, path = f.read().split('\n\n')
+        directions = [int(i == 'R') for i in directions]
         for line in path.split('\n'):
-            node = line[0:3]
-            left = line[7:10]
-            right = line[12:15]
+            node, left, right = line[0:3], line[7:10], line[12:15]
             graph[node] = (left, right)
-    return cmd, graph
+    return directions, graph
 
 
 def part1(input_file: str) -> int:
-    cmd, graph = read_input(input_file)
+    directions, graph = read_input(input_file)
     result = 0
     location = 'AAA'
-    while location != 'ZZZ':
-        location = graph[location][0] if cmd[0] == 'L' else graph[location][1]
+    for direction in cycle(directions):
+        location = graph[location][direction]
         result += 1
-        cmd.rotate(-1)
+        if location == 'ZZZ':
+            break
     return result
 
 
