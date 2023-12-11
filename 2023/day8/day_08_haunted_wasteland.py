@@ -1,6 +1,5 @@
 import math
 import os
-from collections import defaultdict
 from itertools import cycle
 
 
@@ -34,17 +33,16 @@ def part2(input_file: str) -> int:
     directions, graph = read_input(input_file)
 
     nodes = [node for node in graph if node[-1] == 'A']
-    counts = defaultdict(int)
+    counts = []
 
     for node in nodes:
-        tmp = node
-        for direction in cycle(directions):
-            counts[node] += 1
-            tmp = graph[tmp][direction]
-            if tmp[-1] == 'Z':
+        for steps, direction in enumerate(cycle(directions), 1):
+            node = graph[node][direction]
+            if node[-1] == 'Z':
+                counts.append(steps)
                 break
 
-    return math.lcm(*counts.values())
+    return math.lcm(*counts)
 
 
 def test():
