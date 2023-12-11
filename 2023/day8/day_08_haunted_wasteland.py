@@ -1,4 +1,6 @@
+import math
 import os
+from collections import defaultdict
 from itertools import cycle
 
 
@@ -29,7 +31,20 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    bets = read_input(input_file)
+    directions, graph = read_input(input_file)
+
+    nodes = [node for node in graph if node[-1] == 'A']
+    counts = defaultdict(int)
+
+    for node in nodes:
+        tmp = node
+        for direction in cycle(directions):
+            counts[node] += 1
+            tmp = graph[tmp][direction]
+            if tmp[-1] == 'Z':
+                break
+
+    return math.lcm(*counts.values())
 
 
 def test():
@@ -39,8 +54,9 @@ def test():
     assert part1(filename) == 6
     print('Part 1 OK')
 
-    # assert part2(filename) == 5905
-    # print('Part 2 OK')
+    filename = 'test_input2.txt'
+    assert part2(filename) == 6
+    print('Part 2 OK')
 
 
 def main():
@@ -50,11 +66,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 18727
-    # assert solution_part2 == 254837398
+    assert solution_part2 == 18024643846273
 
 
 if __name__ == '__main__':
