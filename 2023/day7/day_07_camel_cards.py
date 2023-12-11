@@ -1,132 +1,63 @@
 import os
 from collections import Counter
-from typing import Any
+
+'''
+Solution from: https://github.com/mebeim/aoc/blob/master/2023/solutions/day07.py
+'''
 
 
-class Hand:
-    STRENGTH = {
-        'high-card': 0,
-        'one-pair': 1,
-        'two-pair': 2,
-        'three-of-a-kind': 3,
-        'full-house': 4,
-        'four-of-a-kind': 5,
-        'five-of-a-kind': 6
-    }
-
-    def __init__(self, cards: str, bid: str, joker=False):
-        self.card_scores = {
-            '2': 2,
-            '3': 3,
-            '4': 4,
-            '5': 5,
-            '6': 6,
-            '7': 7,
-            '8': 8,
-            '9': 9,
-            'T': 10,
-            'J': 11,
-            'Q': 12,
-            'K': 13,
-            'A': 14
-        }
-        self.bid = int(bid)
-        self.cards = cards
-        self.joker = joker
-        if joker:
-            self.card_scores['J'] = 1
-        self.type = self._parse_type()
-        self.strength = Hand.STRENGTH[self.type]
-
-    def __lt__(self, other):
-        if self.cards == other.cards:
-            return False
-
-        if self.strength != other.strength:
-            return self.strength < other.strength
-
-        for a, b in zip(self.cards, other.cards):
-            if a == b:
-                continue
-            return self.card_scores[a] < self.card_scores[b]
-
-        assert False
-
-    def _parse_type(self):
-        '''solution from: https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb#scrollTo=WLalO9sRb4_k'''
-
-        cards = self.cards  # we will replace value of joker
-        ordered_counts = Counter(cards).most_common()  # e.g. [('3', 2), ('2', 1), ('T', 1), ('K', 1)]
-
-        # get the most common card
-        best, best_count = ordered_counts[0]  # e.g. ('3', 2)
-        if best_count == 5:
-            return "five-of-a-kind"
-
-        second_best, second_best_count = ordered_counts[1]  # e.g. ('2', 1)
-
-        if self.joker:  # Part 2
-            if best == 'J':  # get the next best card
-                best, best_count = second_best, second_best_count
-
-            # convert all J into the best card
-            cards = cards.replace("J", best)
-
-            ordered_counts = Counter(cards).most_common()  # recount the hand
-            best, best_count = ordered_counts[0]
-            if best_count == 5:
-                return "five-of-a-kind"
-
-            second_best, second_best_count = ordered_counts[1]  # e.g. ('2', 1)
-
-        if best_count == 4:
-            return "four-of-a-kind"
-
-        if best_count == 3:
-            if second_best_count == 2:
-                return "full-house"
-            else:
-                return "three-of-a-kind"
-
-        if best_count == 2:
-            if second_best_count == 2:
-                return "two-pair"
-            else:
-                return "one-pair"
-
-        return "high-card"
-
-
-def read_input(filename: str) -> list[tuple[Any, Any]]:
+def read_input(filename: str) -> dict[str, int]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    data = []
+    bets = {}
+    tbl = str.maketrans('TJQKA', 'ABCDE')
     with open(input_file_path, 'r') as f:
         for line in f:
-            cards, bid = line.split()
-            data.append((cards, bid))
-    return data
+            hand, bet = line.split()
+            bets[hand.translate(tbl)] = int(bet)
+    return bets
+
+
+def strength(hand):
+    counter = Counter(hand)
+    descending_frequencies = sorted(counter.values(), reverse=True)
+    return descending_frequencies, hand
+
+
+def strength_with_joker(hand):
+    if hand == '00000':
+        return [5], hand
+
+    counter = Counter(hand)
+    jokers = counter.pop('0', 0)
+    descending_frequencies = sorted(counter.values(), reverse=True)
+    descending_frequencies[0] += jokers
+
+    return descending_frequencies, hand
 
 
 def part1(input_file: str) -> int:
-    data = read_input(input_file)
-    hands = [Hand(cards, bid) for cards, bid in data]
-    hands.sort()
-    result = 0
-    for idx, hand in enumerate(hands, 1):
-        result += (idx * hand.bid)
-    return result
+    bets = read_input(input_file)
+    ordered_hands = sorted(bets, key=strength)
+    total = 0
+
+    for rank, hand in enumerate(ordered_hands, 1):
+        total += rank * bets[hand]
+
+    return total
 
 
 def part2(input_file: str) -> int:
-    data = read_input(input_file)
-    hands = [Hand(cards, bid, joker=True) for cards, bid in data]
-    hands.sort()
-    result = 0
-    for idx, hand in enumerate(hands, 1):
-        result += idx * hand.bid
-    return result
+    bets = read_input(input_file)
+    new_bets = {hand.replace('B', '0'): bet for hand, bet in bets.items()}
+    ordered_hands = sorted(new_bets, key=strength_with_joker)
+    total = 0
+
+    for rank, hand in enumerate(ordered_hands, 1):
+        total += rank * new_bets[hand]
+
+    return total
 
 
 def test():
