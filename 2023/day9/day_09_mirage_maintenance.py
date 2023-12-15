@@ -1,4 +1,5 @@
 import os
+from itertools import pairwise
 
 
 def read_input(filename: str) -> list[list[int]]:
@@ -17,21 +18,10 @@ def part1(input_file: str) -> int:
     data = read_input(input_file)
     total = 0
 
-    for line in data:
-        sequence = [line]
-
-        while True:
-            differences = [sequence[-1][i + 1] - sequence[-1][i] for i in range(len(sequence[-1]) - 1)]
-
-            if all(diff == 0 for diff in differences):
-                cumulative_sum = [0]
-                while sequence:
-                    last_element = sequence.pop()[-1]
-                    cumulative_sum.append(cumulative_sum[-1] + last_element)
-                total += cumulative_sum[-1]
-                break
-            else:
-                sequence.append(differences)
+    for nums in data:
+        while any(nums):
+            total += nums[-1]
+            nums = [b - a for a, b in pairwise(nums)]
 
     return total
 
@@ -40,21 +30,12 @@ def part2(input_file: str) -> int:
     data = read_input(input_file)
     total = 0
 
-    for line in data:
-        sequence = [line]
-
-        while True:
-            differences = [sequence[-1][i + 1] - sequence[-1][i] for i in range(len(sequence[-1]) - 1)]
-
-            if all(diff == 0 for diff in differences):
-                cumulative_sum = [0]
-                while sequence:
-                    first_element = sequence.pop()[0]
-                    cumulative_sum.append(first_element + (-1 * cumulative_sum[-1]))
-                total += cumulative_sum[-1]
-                break
-            else:
-                sequence.append(differences)
+    for nums in data:
+        sign = 1
+        while any(nums):
+            total += nums[0] * sign
+            nums = [b - a for a, b in pairwise(nums)]
+            sign = -sign
 
     return total
 
