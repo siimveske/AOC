@@ -1,7 +1,4 @@
-import math
 import os
-from itertools import cycle
-from typing import List
 
 
 def read_input(filename: str) -> list[list[int]]:
@@ -40,7 +37,26 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    directions, graph = read_input(input_file)
+    data = read_input(input_file)
+    total = 0
+
+    for line in data:
+        sequence = [line]
+
+        while True:
+            differences = [sequence[-1][i + 1] - sequence[-1][i] for i in range(len(sequence[-1]) - 1)]
+
+            if all(diff == 0 for diff in differences):
+                cumulative_sum = [0]
+                while sequence:
+                    first_element = sequence.pop()[0]
+                    cumulative_sum.append(first_element + (-1 * cumulative_sum[-1]))
+                total += cumulative_sum[-1]
+                break
+            else:
+                sequence.append(differences)
+
+    return total
 
 
 def test():
@@ -50,9 +66,8 @@ def test():
     assert part1(filename) == 114
     print('Part 1 OK')
 
-    # filename = 'test_input2.txt'
-    # assert part2(filename) == 6
-    # print('Part 2 OK')
+    assert part2(filename) == 2
+    print('Part 2 OK')
 
 
 def main():
@@ -62,11 +77,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 1953784198
-    # assert solution_part2 == 18024643846273
+    assert solution_part2 == 957
 
 
 if __name__ == '__main__':
