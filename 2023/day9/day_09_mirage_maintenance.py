@@ -31,11 +31,10 @@ def part2(input_file: str) -> int:
     total = 0
 
     for nums in data:
-        sign = 1
+        nums = nums[::-1]
         while any(nums):
-            total += nums[0] * sign
+            total += nums[-1]
             nums = [b - a for a, b in pairwise(nums)]
-            sign = -sign
 
     return total
 
