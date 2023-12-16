@@ -27,45 +27,50 @@ def read_input(filename: str) -> list[list[int]]:
             right = c_idx + 1
             right_node = data[r_idx][right] if right < cols else None
 
+            valid_up_nodes = ['S', '|', 'F', '7']
+            valid_down_nodes = ['S', '|', 'L', 'J']
+            valid_left_nodes = ['S', 'F', 'L', '-']
+            valid_right_nodes = ['S', '7', 'J', '-']
+
             if node == 'S':
                 start = current_node
-                if up_node and up_node in ['|', 'F', '7']:
+                if up_node and up_node in valid_up_nodes:
                     graph[current_node].append((up, c_idx))
-                if down_node and down_node in ['|', 'L', 'J']:
+                if down_node and down_node in valid_down_nodes:
                     graph[current_node].append((down, c_idx))
-                if left_node and left_node in ['F', 'L', '-']:
+                if left_node and left_node in valid_left_nodes:
                     graph[current_node].append((r_idx, left))
-                if right_node and right_node in ['7', 'J', '-']:
+                if right_node and right_node in valid_right_nodes:
                     graph[current_node].append((r_idx, right))
             elif node == '|':
-                if up_node and up_node in ['S', '|', 'F', '7']:
+                if up_node and up_node in valid_up_nodes:
                     graph[current_node].append((up, c_idx))
-                if down_node and down_node in ['S', '|', 'L', 'J']:
+                if down_node and down_node in valid_down_nodes:
                     graph[current_node].append((down, c_idx))
             elif node == '-':
-                if left_node and left_node in ['S', 'F', 'L', '-']:
+                if left_node and left_node in valid_left_nodes:
                     graph[current_node].append((r_idx, left))
-                if right_node and right_node in ['S', '7', 'J', '-']:
+                if right_node and right_node in valid_right_nodes:
                     graph[current_node].append((r_idx, right))
             elif node == 'F':
-                if right_node and right_node in ['S', '7', 'J', '-']:
+                if right_node and right_node in valid_right_nodes:
                     graph[current_node].append((r_idx, right))
-                if down_node and down_node in ['S', '|', 'L', 'J']:
+                if down_node and down_node in valid_down_nodes:
                     graph[current_node].append((down, c_idx))
             elif node == '7':
-                if left_node and left_node in ['S', 'F', 'L', '-']:
+                if left_node and left_node in valid_left_nodes:
                     graph[current_node].append((r_idx, left))
-                if down_node and down_node in ['S', '|', 'L', 'J']:
+                if down_node and down_node in valid_down_nodes:
                     graph[current_node].append((down, c_idx))
             elif node == 'L':
-                if up_node and up_node in ['S', '|', 'F', '7']:
+                if up_node and up_node in valid_up_nodes:
                     graph[current_node].append((up, c_idx))
-                if right_node and right_node in ['S', '7', 'J', '-']:
+                if right_node and right_node in valid_right_nodes:
                     graph[current_node].append((r_idx, right))
             elif node == 'J':
-                if up_node and up_node in ['S', '|', 'F', '7']:
+                if up_node and up_node in valid_up_nodes:
                     graph[current_node].append((up, c_idx))
-                if left_node and left_node in ['S', 'F', 'L', '-']:
+                if left_node and left_node in valid_left_nodes:
                     graph[current_node].append((r_idx, left))
 
     return start, graph
