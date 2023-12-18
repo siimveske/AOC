@@ -52,6 +52,29 @@ def calculate_distances(galay_combinations) -> list[int]:
     return distances
 
 
+def calculate_total_distance(galaxy_map, galaxies, multiplayer):
+    """
+    Initial algorithm from: https://old.reddit.com/r/adventofcode/comments/18fmrjk/2023_day_11_solutions/kd5hc7t/
+    """
+
+    empty_rows = [i for i, row in enumerate(galaxy_map) if all(cell == '.' for cell in row)]
+    empty_cols = [i for i in range(len(galaxy_map[0])) if all(row[i] == '.' for row in galaxy_map)]
+    galay_combinations = list(combinations(galaxies, 2))
+
+    total = 0
+    for a, b in galay_combinations:
+        ar, br = sorted([a[0], b[0]])
+        ac, bc = sorted([a[1], b[1]])
+        total += (br - ar) + (bc - ac)
+        for row in empty_rows:
+            if ar < row < br:
+                total += multiplayer - 1
+        for col in empty_cols:
+            if ac < col < bc:
+                total += multiplayer - 1
+    return total
+
+
 def part1(input_file: str) -> int:
     galaxy_map = read_input(input_file)
     expanded_galaxy_map = expand(galaxy_map)
@@ -61,52 +84,11 @@ def part1(input_file: str) -> int:
     return sum(distances)
 
 
-def expand_galaxies(galaxy_map, galaxies, multiplier):
-    # Identify rows and columns that contain only . character
-    empty_rows = [i for i, row in enumerate(galaxy_map) if all(cell == '.' for cell in row)]
-    empty_cols = [i for i in range(len(galaxy_map[0])) if all(row[i] == '.' for row in galaxy_map)]
-
-    glxy_set = [i for i in galaxies]
-    updated_rows = []
-    for i in range(len(empty_rows) - 1, -1, -1):
-        border = empty_rows[i]
-        tmp = []
-        while glxy_set:
-            x, y = glxy_set.pop()
-            if x > border:
-                new_x = x + ((i + 1) * (multiplier - 1))
-                updated_rows.append((new_x, y))
-            else:
-                tmp.append((x, y))
-        glxy_set = tmp
-    updated_rows.extend(glxy_set)
-
-    glxy_set = [i for i in updated_rows]
-    expanded_galaxies = []
-    for i in range(len(empty_cols) - 1, -1, -1):
-        border = empty_cols[i]
-        tmp = []
-        while glxy_set:
-            x, y = glxy_set.pop()
-            if y > border:
-                new_y = y + ((i + 1) * (multiplier - 1))
-                expanded_galaxies.append((x, new_y))
-            else:
-                tmp.append((x, y))
-        glxy_set = tmp
-    expanded_galaxies.extend(glxy_set)
-
-    expanded_galaxies = sorted(expanded_galaxies)
-    return expanded_galaxies
-
-
 def part2(input_file: str, multiplier: int) -> int:
     galaxy_map = read_input(input_file)
     galaxies = find_galaxies(galaxy_map)
-    expanded_galaxies = expand_galaxies(galaxy_map, galaxies, multiplier)
-    galay_combinations = list(combinations(expanded_galaxies, 2))
-    distances = calculate_distances(galay_combinations)
-    return sum(distances)
+    total = calculate_total_distance(galaxy_map, galaxies, multiplier)
+    return total
 
 
 def test():
