@@ -15,17 +15,24 @@ def read_input(filename: str) -> list[list[str]]:
 def check_for_mirror(pattern, i):
     splitpoint = i + 1
     pattern_length = len(pattern)
-    if (pattern_length - splitpoint) > splitpoint:
-        return False
 
-    for idx in range(pattern_length - splitpoint):
-        up = splitpoint + idx
-        down = i - idx
-        a = pattern[up]
-        b = pattern[down]
-        if a != b:
-            return False
-
+    half = pattern_length / 2.0
+    if splitpoint > half:
+        for idx in range(pattern_length - splitpoint):
+            up = splitpoint + idx
+            down = i - idx
+            a = pattern[up]
+            b = pattern[down]
+            if a != b:
+                return False
+    else:
+        for idx in range(splitpoint):
+            up = splitpoint + idx
+            down = i - idx
+            a = pattern[up]
+            b = pattern[down]
+            if a != b:
+                return False
     return True
 
 
@@ -59,7 +66,12 @@ def part1(input_file: str) -> int:
         vertical = get_vertical(pattern)
         if vertical:
             result += vertical
-        print(f"h:{horizontal}, v:{vertical}")
+
+        # if horizontal == 0 and vertical == 0:
+        #     print('--------------------------------------------------')
+        #     for row in pattern:
+        #         print(''.join(row))
+        # print(f"h:{horizontal}, v:{vertical}")
     return result
 
 
@@ -75,8 +87,6 @@ def test():
     assert part1(filename) == 405
     filename = "test_input2.txt"
     assert part1(filename) == 10
-    # filename = "test_input3.txt"
-    # assert part1(filename) == 12
     print("Part 1 OK")
 
     # assert part2(filename) == 525152
@@ -92,8 +102,8 @@ def main():
 
     # solution_part2 = part2(filename)
     # print(f"Solution for Part 2: {solution_part2}\n")
-    #
-    # assert solution_part1 == 7599
+
+    assert solution_part1 == 33975
     # assert solution_part2 == 15454556629917
 
 
