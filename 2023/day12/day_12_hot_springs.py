@@ -1,71 +1,132 @@
+import functools
 import os
-from itertools import combinations
-from typing import List, Tuple, Any
+
+"""Solution from: https://redd.it/18hbbxe"""
 
 
-def read_input(filename: str) -> list[list[str]]:
+def read_input(filename: str) -> list[tuple[str, tuple[int, ...]]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    condition_records = []
     with open(input_file_path, "r") as f:
-        condition_records = [line.split() for line in f.read().splitlines()]
+        for line in f:
+            records, groups = line.split()
+            groups = tuple(map(int, groups.split(',')))
+            condition_records.append((records, groups))
     return condition_records
 
 
-def valid_patterns(input_string, pattern):
-    # Split the input string and pattern
-    input_list = list(input_string)
-    pattern = list(map(int, pattern.split(',')))
+@functools.cache
+def calc(record, groups):
+    # Did we run out of groups? We might still be valid
+    if not groups:
 
-    # Recursive function to generate combinations
-    def generate_combinations(line):
-        if '?' not in line:
-            return [''.join(line)]
+        # Make sure there aren't any more damaged springs, if so, we're valid
+        if "#" not in record:
+            # This will return true even if record is empty, which is valid
+            return 1
         else:
-            i = line.index('?')
-            line[i] = '.'
-            result_dot = generate_combinations(line[:])
-            line[i] = '#'
-            result_hash = generate_combinations(line[:])
-            return result_dot + result_hash
+            # More damaged springs that aren't in the groups
+            return 0
 
-    # Function to check if a combination is valid
-    def is_valid(combination, target_pattern):
-        groups = [len(group) for group in combination.split('.') if group]
-        return groups == target_pattern
+    # There are more groups, but no more record
+    if not record:
+        # We can't fit, exit
+        return 0
 
-    # Generate all combinations and filter valid ones
-    new_combinations = generate_combinations(input_list)
-    valid_combinations = [combination for combination in new_combinations if is_valid(combination, pattern)]
+    # Look at the next element in each record and group
+    next_character = record[0]
+    next_group = groups[0]
 
-    return valid_combinations
+    # Logic that treats the first character as pound-sign "#"
+    def pound():
+        # If the first is a pound, then the first n characters must be
+        # able to be treated as a pound, where n is the first group number
+        this_group = record[:next_group]
+        this_group = this_group.replace("?", "#")
+
+        # If the next group can't fit all the damaged springs, then abort
+        if this_group != next_group * "#":
+            return 0
+
+        # If the rest of the record is just the last group, then we're
+        # done and there's only one possibility
+        if len(record) == next_group:
+            # Make sure this is the last group
+            if len(groups) == 1:
+                # We are valid
+                return 1
+            else:
+                # There's more groups, we can't make it work
+                return 0
+
+        # Make sure the character that follows this group can be a seperator
+        if record[next_group] in "?.":
+            # It can be seperator, so skip it and reduce to the next group
+            return calc(record[next_group + 1:], groups[1:])
+
+        # Can't be handled, there are no possibilites
+        return 0
+
+    # Logic that treats the first character as dot "."
+    def dot():
+        # We just skip over the dot looking for the next pound
+        return calc(record[1:], groups)
+
+    if next_character == '#':
+        # Test pound logic
+        out = pound()
+
+    elif next_character == '.':
+        # Test dot logic
+        out = dot()
+
+    elif next_character == '?':
+        # This character could be either character, so we'll explore both
+        # possibilities
+        out = dot() + pound()
+
+    else:
+        raise RuntimeError
+
+    # # Help with debugging
+    # print(record, groups, "->", out)
+    return out
 
 
 def part1(input_file: str) -> int:
     broken_records = read_input(input_file)
     total = 0
-    for input_string, pattern in broken_records:
-        patterns = valid_patterns(input_string, pattern)
-        total += len(patterns)
+    for record, groups in broken_records:
+        total += calc(record, groups)
+        calc.cache_clear()
     return total
 
 
 def part2(input_file: str) -> int:
-    galaxy_map = read_input(input_file)
-    pass
+    broken_records = read_input(input_file)
+    total = 0
+    for record, groups in broken_records:
+        record = '?'.join([record] * 5)
+        groups = groups * 5
+        total += calc(record, groups)
+        calc.cache_clear()
+        # # Create a nice divider for debugging
+        # print(10 * "-")
+    return total
 
 
 def test():
     print("---- TEST ----")
 
     filename = "test_input.txt"
-    assert part1(filename) == 21
 
+    assert part1(filename) == 21
     print("Part 1 OK")
 
-    # assert part2(filename) == 1030
-    #
-    # print("Part 2 OK")
+    assert part2(filename) == 525152
+    print("Part 2 OK")
 
 
 def main():
@@ -75,11 +136,11 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 7599
-    # assert solution_part2 == 857986849428
+    assert solution_part2 == 15454556629917
 
 
 if __name__ == "__main__":
