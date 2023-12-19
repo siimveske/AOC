@@ -18,9 +18,11 @@ def check_for_mirror(pattern, i):
     if (pattern_length - splitpoint) > splitpoint:
         return False
 
-    for j in range(splitpoint, pattern_length):
-        a = pattern[j]
-        b = pattern[pattern_length - j]
+    for idx in range(pattern_length - splitpoint):
+        up = splitpoint + idx
+        down = i - idx
+        a = pattern[up]
+        b = pattern[down]
         if a != b:
             return False
 
@@ -53,9 +55,11 @@ def part1(input_file: str) -> int:
         horizontal = get_horizontal(pattern)
         if horizontal:
             result += (horizontal * 100)
-        else:
-            vertical = get_vertical(pattern)
+
+        vertical = get_vertical(pattern)
+        if vertical:
             result += vertical
+        print(f"h:{horizontal}, v:{vertical}")
     return result
 
 
@@ -69,6 +73,10 @@ def test():
     filename = "test_input.txt"
 
     assert part1(filename) == 405
+    filename = "test_input2.txt"
+    assert part1(filename) == 10
+    # filename = "test_input3.txt"
+    # assert part1(filename) == 12
     print("Part 1 OK")
 
     # assert part2(filename) == 525152
