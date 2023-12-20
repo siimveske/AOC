@@ -12,85 +12,65 @@ def read_input(filename: str) -> list[list[str]]:
     return patterns
 
 
-def check_for_mirror(pattern, i):
-    splitpoint = i + 1
-    pattern_length = len(pattern)
-
-    half = pattern_length / 2.0
-    if splitpoint > half:
-        for idx in range(pattern_length - splitpoint):
-            up = splitpoint + idx
-            down = i - idx
-            a = pattern[up]
-            b = pattern[down]
-            if a != b:
-                return False
-    else:
-        for idx in range(splitpoint):
-            up = splitpoint + idx
-            down = i - idx
-            a = pattern[up]
-            b = pattern[down]
-            if a != b:
-                return False
-    return True
-
-
-def get_horizontal(pattern: list[str]):
+def find(grid) -> int:
+    """Solution src: https://github.com/oliver-ni/advent-of-code/blob/master/py/2023/day13.py"""
     result = 0
-    for i in range(0, len(pattern) - 1):
-        this_line = pattern[i]
-        next_line = pattern[i + 1]
-        if this_line == next_line:
-            is_mirrored = check_for_mirror(pattern, i)
-            if is_mirrored:
-                result = i + 1
-                break
+    for i in range(1, len(grid)):
+        if all(a == b for a, b in zip(grid[:i][::-1], grid[i:])):
+            result = i
+            break
     return result
 
 
-def get_vertical(matrix):
-    t_matrix = list(zip(*matrix))
-    result = get_horizontal(t_matrix)
+def find2(grid) -> int:
+    """Solution src: https://github.com/oliver-ni/advent-of-code/blob/master/py/2023/day13.py"""
+    result = 0
+    for i in range(1, len(grid)):
+        differs = []
+        for a, b in zip(grid[:i][::-1], grid[i:]):
+            for ax, bx in zip(a, b):
+                differs.append(ax != bx)
+        if sum(differs) == 1:
+            result = i
+            break
     return result
 
 
 def part1(input_file: str) -> int:
-    patterns = read_input(input_file)
+    grids = read_input(input_file)
     result = 0
-    for pattern in patterns:
-        horizontal = get_horizontal(pattern)
-        if horizontal:
-            result += (horizontal * 100)
+    for grid in grids:
+        result += 100 * find(grid)
+        result += find([*zip(*grid)])
 
-        vertical = get_vertical(pattern)
-        if vertical:
-            result += vertical
-
-        # if horizontal == 0 and vertical == 0:
-        #     print('--------------------------------------------------')
-        #     for row in pattern:
-        #         print(''.join(row))
-        # print(f"h:{horizontal}, v:{vertical}")
     return result
 
 
 def part2(input_file: str) -> int:
-    broken_records = read_input(input_file)
+    grids = read_input(input_file)
+    result = 0
+    for grid in grids:
+        result += 100 * find2(grid)
+        result += find2([*zip(*grid)])
+
+    return result
 
 
 def test():
     print("---- TEST ----")
 
     filename = "test_input.txt"
-
     assert part1(filename) == 405
+
     filename = "test_input2.txt"
     assert part1(filename) == 10
+
     print("Part 1 OK")
 
-    # assert part2(filename) == 525152
-    # print("Part 2 OK")
+    filename = "test_input3.txt"
+    assert part2(filename) == 400
+
+    print("Part 2 OK")
 
 
 def main():
@@ -100,11 +80,11 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 33975
-    # assert solution_part2 == 15454556629917
+    assert solution_part2 == 29083
 
 
 if __name__ == "__main__":
