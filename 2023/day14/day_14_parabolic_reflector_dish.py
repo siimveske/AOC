@@ -41,8 +41,47 @@ def part1(input_file: str) -> int:
     return result
 
 
+def rotate_matrix(matrix):
+    return [list(reversed(col)) for col in list(zip(*matrix))]
+
+
 def part2(input_file: str) -> int:
-    raw_lines = read_input(input_file)
+    """Inspired by: https://redd.it/18kmo3i"""
+    lines = read_input(input_file)
+    line_length = len(lines[0])
+
+    NUM_OF_DIRECTIONS = 4
+    NUM_OF_CYCLES = 1_000_000_000
+    states = {}
+    end_cycle = -1
+    start_cycle = -1
+    for cycle_index in range(NUM_OF_CYCLES):
+        for direction in range(NUM_OF_DIRECTIONS):
+            tilt(lines)
+            lines = rotate_matrix(lines)
+
+        board_state = ''.join([item for line in lines for item in line])
+        if board_state in states:
+            end_cycle = cycle_index
+            start_cycle = states[board_state]
+            break
+        else:
+            states[board_state] = cycle_index
+
+    # Do some math
+    loop_size = end_cycle - start_cycle
+    final_cycle_match = ((NUM_OF_CYCLES - start_cycle) % loop_size) + start_cycle
+    remaining = final_cycle_match - (end_cycle % loop_size)
+    for cycle in range(remaining - 1):
+        for direction in range(NUM_OF_DIRECTIONS):
+            tilt(lines)
+            lines = rotate_matrix(lines)
+
+    result = 0
+    for idx_row, row in enumerate(lines):
+        row_sum = sum([item == 'O' for item in row])
+        result += row_sum * (line_length - idx_row)
+    return result
 
 
 def test():
@@ -67,7 +106,7 @@ def main():
     print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 106648
-    # assert solution_part2 == 54925
+    assert solution_part2 == 87700
 
 
 if __name__ == '__main__':
