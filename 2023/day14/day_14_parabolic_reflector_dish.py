@@ -6,13 +6,12 @@ def read_input(filename: str) -> list[list[str]]:
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r') as f:
-        lines = [[*n.strip()] for n in f.readlines()]
+        lines = [list(n.strip()) for n in f]
 
     return lines
 
 
-def part1(input_file: str) -> int:
-    lines = read_input(input_file)
+def tilt(lines):
     transforms = [0] * len(lines[0])
     for i_row in range(1, len(lines)):
         row = lines[i_row]
@@ -29,12 +28,16 @@ def part1(input_file: str) -> int:
                 lines[i_row][i_col] = '.'
                 transforms[i_col] -= 1
 
+
+def part1(input_file: str) -> int:
+    lines = read_input(input_file)
+    line_length = len(lines[0])
+    tilt(lines)
+
     result = 0
-    for i in range(len(lines), 0, -1):
-        i_row = len(lines) - i
-        row = lines[i_row]
-        c_row = sum([item == 'O' for item in row])
-        result += i * c_row
+    for idx_row, row in enumerate(lines):
+        row_sum = sum([item == 'O' for item in row])
+        result += row_sum * (line_length - idx_row)
     return result
 
 
@@ -49,9 +52,8 @@ def test():
     assert part1(filename) == 136
     print('Part 1 OK')
 
-    # filename = 'test_input2.txt'
-    # assert part2(filename) == 281
-    # print('Part 2 OK')
+    assert part2(filename) == 64
+    print('Part 2 OK')
 
 
 def main():
@@ -61,8 +63,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 106648
     # assert solution_part2 == 54925
