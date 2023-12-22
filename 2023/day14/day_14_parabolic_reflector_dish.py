@@ -46,17 +46,18 @@ def rotate_matrix(matrix):
 
 
 def part2(input_file: str) -> int:
-    """Inspired by: https://redd.it/18kmo3i"""
+    """Inspired by: https://redd.it/18kmo3i and
+    https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb"""
     lines = read_input(input_file)
     line_length = len(lines[0])
 
-    NUM_OF_DIRECTIONS = 4
-    NUM_OF_CYCLES = 1_000_000_000
+    num_of_directions = 4
+    required_cycles = 1_000_000_000
     states = {}
     end_cycle = -1
     start_cycle = -1
-    for cycle_index in range(NUM_OF_CYCLES):
-        for direction in range(NUM_OF_DIRECTIONS):
+    for cycle_index in range(required_cycles):
+        for direction in range(num_of_directions):
             tilt(lines)
             lines = rotate_matrix(lines)
 
@@ -69,11 +70,12 @@ def part2(input_file: str) -> int:
             states[board_state] = cycle_index
 
     # Do some math
-    loop_size = end_cycle - start_cycle
-    final_cycle_match = ((NUM_OF_CYCLES - start_cycle) % loop_size) + start_cycle
-    remaining = final_cycle_match - (end_cycle % loop_size)
-    for cycle in range(remaining - 1):
-        for direction in range(NUM_OF_DIRECTIONS):
+    repeat_len = end_cycle - start_cycle                    # length of 1 cycle
+    remaining_cycles = required_cycles - (end_cycle + 1)    # distance from current location to endpoint
+    additional_cycles = remaining_cycles % repeat_len
+
+    for cycle in range(additional_cycles):
+        for direction in range(num_of_directions):
             tilt(lines)
             lines = rotate_matrix(lines)
 
