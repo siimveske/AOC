@@ -32,37 +32,22 @@ def parse_tokens(tokens: list[str]):
 
 def part1(input_file: str) -> int:
     data = read_input(input_file)
-    result = 0
-    for text in data:
-        result += get_hash(text)
-
-    return result
+    return sum(map(get_hash, data))
 
 
 def part2(input_file: str) -> int:
     data = read_input(input_file)
     commands = parse_tokens(data)
-    db = {}
+    hashmap = collections.defaultdict(dict)
     for key, val in commands:
         idx = get_hash(key)
-        if idx in db:
-            # remove key
-            if val == 0:
-                if key in db[idx]:
-                    db[idx].pop(key)
-                    if len(db[idx]) == 0:
-                        db.pop(idx)
-
-            # add/update key
-            else:
-                db[idx][key] = val
-
+        if val > 0:
+            hashmap[idx][key] = val
         else:
-            if val:
-                db[idx] = collections.OrderedDict([(key, val)])
+            hashmap[idx].pop(key, None)
 
     result = 0
-    for box_number, box in db.items():
+    for box_number, box in hashmap.items():
         for slot_number, focal_length in enumerate(box.values(), 1):
             power = (box_number + 1) * slot_number * focal_length
             result += power
