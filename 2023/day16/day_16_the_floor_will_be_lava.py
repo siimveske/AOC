@@ -18,23 +18,24 @@ directions = {
 }
 
 
-def part1(input_file: str) -> int:
-    grid = read_input(input_file)
-    rows, cols = len(grid), len(grid[0])
+def solve(grid, start) -> int:
+    grid_size = len(grid)
     visited = set()
-    queue = collections.deque([(0, 0, 'left')])
+    tiles = set()
+    queue = collections.deque([start])
     while queue:
         node = queue.popleft()
         current_r, current_c, coming_from = node
 
-        row_in_bound = 0 <= current_r < rows
-        col_in_bound = 0 <= current_c < cols
+        row_in_bound = 0 <= current_r < grid_size
+        col_in_bound = 0 <= current_c < grid_size
 
         if not row_in_bound or not col_in_bound or node in visited:
             continue
 
         # Mark current node as visited
         visited.add(node)
+        tiles.add((current_r, current_c))
         grid_item = grid[current_r][current_c]
 
         # Continue existing direction
@@ -80,21 +81,35 @@ def part1(input_file: str) -> int:
             elif coming_from == 'right':
                 queue.append((current_r + 1, current_c, 'up'))      # right -> down
 
-    tiles = set()
-    for r, c, _ in visited:
-        tiles.add((r, c))
+    return len(tiles)
 
-    # screen = [['.'] * cols for _ in range(rows)]
-    # for r, c in tiles:
-    #     screen[r][c] = '#'
-    # for r in screen:
-    #     print(''.join(r))
-    result = len(tiles)
+
+def part1(input_file: str) -> int:
+    grid = read_input(input_file)
+    start = (0, 0, 'left')
+    result = solve(grid, start)
     return result
 
 
 def part2(input_file: str) -> int:
-    data = read_input(input_file)
+    grid = read_input(input_file)
+    grid_size = len(grid)
+    solutions = []
+    for i in range(grid_size):
+        left_start = (i, 0, 'left')
+        solutions.append(solve(grid, left_start))
+
+        right_start = (i, grid_size - 1, 'right')
+        solutions.append(solve(grid, right_start))
+
+        up_start = (0, i, 'up')
+        solutions.append(solve(grid, up_start))
+
+        down_start = (grid_size - 1, i, 'down')
+        solutions.append(solve(grid, down_start))
+
+    result = max(solutions)
+    return result
 
 
 def test():
@@ -119,7 +134,7 @@ def main():
     print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 7996
-    # assert solution_part2 == 269410
+    assert solution_part2 == 8239
 
 
 if __name__ == '__main__':
