@@ -33,6 +33,8 @@ def part1(input_file: str) -> int:
         if not row_in_bound or not col_in_bound or node in visited:
             continue
 
+        if current_r == 93 and current_c == 30:
+            pass
         # Mark current node as visited
         visited.add(node)
         grid_item = grid[current_r][current_c]
@@ -76,11 +78,20 @@ def part1(input_file: str) -> int:
             elif coming_from == 'down':
                 queue.append((current_r, current_c + 1, 'left'))    # down -> right
             elif coming_from == 'up':
-                queue.append((current_r, current_c - 1, 'left'))    # up -> left
+                queue.append((current_r, current_c - 1, 'right'))   # up -> left
             elif coming_from == 'right':
-                queue.append((current_r + 1, current_c, 'down'))    # right -> down
+                queue.append((current_r + 1, current_c, 'up'))      # right -> down
 
-    result = len(visited)
+    tiles = set()
+    for r, c, _ in visited:
+        tiles.add((r, c))
+
+    # screen = [['.'] * cols for _ in range(rows)]
+    # for r, c in tiles:
+    #     screen[r][c] = '#'
+    # for r in screen:
+    #     print(''.join(r))
+    result = len(tiles)
     return result
 
 
@@ -108,8 +119,8 @@ def main():
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 510792
+
+    assert solution_part1 == 7996
     # assert solution_part2 == 269410
 
 
