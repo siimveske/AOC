@@ -33,8 +33,6 @@ def part1(input_file: str) -> int:
         if not row_in_bound or not col_in_bound or node in visited:
             continue
 
-        if current_r == 93 and current_c == 30:
-            pass
         # Mark current node as visited
         visited.add(node)
         grid_item = grid[current_r][current_c]
@@ -106,8 +104,8 @@ def test():
     assert part1(filename) == 46
     print('Part 1 OK')
 
-    # assert part2(filename) == 145
-    # print('Part 2 OK')
+    assert part2(filename) == 51
+    print('Part 2 OK')
 
 
 def main():
@@ -117,8 +115,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 7996
     # assert solution_part2 == 269410
