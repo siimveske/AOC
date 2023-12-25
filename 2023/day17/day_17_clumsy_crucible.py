@@ -1,6 +1,6 @@
-import collections
 import os
-from typing import List
+import sys
+sys.setrecursionlimit(100000)
 
 
 def read_input(filename: str) -> list[list[int]]:
@@ -11,7 +11,7 @@ def read_input(filename: str) -> list[list[int]]:
         return [[int(value) for value in line] for line in f.read().splitlines()]
 
 
-def calculate(pos, end, grid, memo, cnt, visited):
+def calculate(pos, end, grid, memo, cnt, visited, coming_from):
     row, col = pos
     max_row, max_col = end
     up_row = row - 1
@@ -24,26 +24,27 @@ def calculate(pos, end, grid, memo, cnt, visited):
         return memo[pos]
     if pos == end:
         return grid[max_row][max_col]
-    if row > max_row or col > max_col or row < 0 or col < 0:
-        return float('inf')
     if pos in visited:
         return float('inf')
     if any([i > 3 for i in [u, d, l, r]]):
         return float('inf')
 
-    visited.add(pos)
-
-    if row == 0 and col == 0:
+    if pos == (0, 0) and coming_from == (-1, -1):
         result = 0
     else:
+        visited.add(pos)
         result = grid[row][col]
 
-    u_result = calculate((up_row, col), end, grid, memo, (u + 1, 0, 0, 0), visited)
-    d_result = calculate((down_row, col), end, grid, memo, (0, d + 1, 0, 0), visited)
-    l_result = calculate((row, left_col), end, grid, memo, (0, 0, l + 1, 0), visited)
-    r_result = calculate((row, right_col), end, grid, memo, (0, 0, 0, r + 1), visited)
+    min_udlr = float('inf')
+    if coming_from != (up_row, col) and up_row >= 0:
+        min_udlr = min(min_udlr, calculate((up_row, col), end, grid, memo, (u + 1, 0, 0, 0), visited, pos))
+    if coming_from != (down_row, col) and down_row <= max_row:
+        min_udlr = min(min_udlr, calculate((down_row, col), end, grid, memo, (0, d + 1, 0, 0), visited, pos))
+    if coming_from != (row, left_col) and left_col >= 0:
+        min_udlr = min(min_udlr, calculate((row, left_col), end, grid, memo, (0, 0, l + 1, 0), visited, pos))
+    if coming_from != (row, right_col) and right_col <= max_col:
+        min_udlr = min(min_udlr, calculate((row, right_col), end, grid, memo, (0, 0, 0, r + 1), visited, pos))
 
-    min_udlr = min([u_result, d_result, l_result, r_result])
     memo[pos] = result + min_udlr
 
     return memo[pos]
@@ -53,7 +54,7 @@ def part1(input_file: str) -> int:
     grid = read_input(input_file)
     rows = len(grid) - 1
     cols = len(grid[0]) - 1
-    result = calculate((0, 0), (rows, cols), grid, {}, (0, 0, 0, 0), set())
+    result = calculate((0, 0), (rows, cols), grid, {}, (0, 0, 0, 0), set(), (-1,-1))
     return result
 
 
