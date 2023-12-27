@@ -1,61 +1,79 @@
+import collections
+import heapq
+import math
 import os
-import sys
-sys.setrecursionlimit(100000)
 
 
-def read_input(filename: str) -> list[list[int]]:
+def read_input(filename: str) -> tuple[dict[tuple[int, int], int], tuple[int, int]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
+    grid = {}
     with open(input_file_path, 'r') as f:
-        return [[int(value) for value in line] for line in f.read().splitlines()]
+        lines = f.read().splitlines()
+        for idx_r, row in enumerate(lines):
+            for idx_c, value in enumerate(row):
+                grid[(idx_r, idx_c)] = int(value)
+
+    rows = len(lines)
+    cols = len(lines[0])
+
+    return grid, (rows - 1, cols - 1)
 
 
-def calculate(pos, end, grid, memo, cnt, visited, coming_from):
-    row, col = pos
-    max_row, max_col = end
-    up_row = row - 1
-    down_row = row + 1
-    left_col = col - 1
-    right_col = col + 1
-    u, d, l, r = cnt
+def get_neighbors(node: tuple[tuple[int, int], tuple[int, int]]):
+    location, direction = node
+    r, c = location
+    nr, nc = direction
+    if nr == 0:
+        yield (r - 1, c), (-1, 0)
+        yield (r + 1, c), (1, 0)
+    if nc == 0:
+        yield (r, c - 1), (0, -1)
+        yield (r, c + 1), (0, 1)
+    if nr > 0:
+        yield (r + 1, c), (nr + 1, 0)
+    if nr < 0:
+        yield (r - 1, c), (nr - 1, 0)
+    if nc > 0:
+        yield (r, c + 1), (0, nc + 1)
+    if nc < 0:
+        yield (r, c - 1), (0, nc - 1)
 
-    if pos in memo:
-        return memo[pos]
-    if pos == end:
-        return grid[max_row][max_col]
-    if pos in visited:
-        return float('inf')
-    if any([i > 3 for i in [u, d, l, r]]):
-        return float('inf')
 
-    if pos == (0, 0) and coming_from == (-1, -1):
-        result = 0
-    else:
-        visited.add(pos)
-        result = grid[row][col]
+def dijkstra(grid, destination, neighbors, max_run):
+    """Modified Dijkstra's shortest path Algorithmg
+    src: https://github.com/oliver-ni/advent-of-code/blob/master/py/2023/day17.py"""
 
-    min_udlr = float('inf')
-    if coming_from != (up_row, col) and up_row >= 0:
-        min_udlr = min(min_udlr, calculate((up_row, col), end, grid, memo, (u + 1, 0, 0, 0), visited, pos))
-    if coming_from != (down_row, col) and down_row <= max_row:
-        min_udlr = min(min_udlr, calculate((down_row, col), end, grid, memo, (0, d + 1, 0, 0), visited, pos))
-    if coming_from != (row, left_col) and left_col >= 0:
-        min_udlr = min(min_udlr, calculate((row, left_col), end, grid, memo, (0, 0, l + 1, 0), visited, pos))
-    if coming_from != (row, right_col) and right_col <= max_col:
-        min_udlr = min(min_udlr, calculate((row, right_col), end, grid, memo, (0, 0, 0, r + 1), visited, pos))
+    start_location, start_direction = (0, 0), (0, 0)
+    start = (start_location, start_direction)
+    dist = collections.defaultdict(lambda: math.inf, {start: 0})
+    pq = [(0, start)]
 
-    memo[pos] = result + min_udlr
+    while pq:
+        cost, node = heapq.heappop(pq)
+        loc, vec = node
+        if not all(-max_run <= component <= max_run for component in vec):
+            continue
+        if loc == destination:
+            return dist[node]
+        for neighbor in neighbors(node):
+            nlocation = neighbor[0]
+            if nlocation not in grid:
+                continue
+            new_dist = dist[node] + grid[nlocation]
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                heapq.heappush(pq, (new_dist, neighbor))
 
-    return memo[pos]
+    # No path found
+    return math.inf
 
 
 def part1(input_file: str) -> int:
-    grid = read_input(input_file)
-    rows = len(grid) - 1
-    cols = len(grid[0]) - 1
-    result = calculate((0, 0), (rows, cols), grid, {}, (0, 0, 0, 0), set(), (-1,-1))
-    return result
+    graph, destination = read_input(input_file)
+    result = dijkstra(graph, destination, get_neighbors, 3)
+    return int(result)
 
 
 def part2(input_file: str) -> int:
@@ -82,8 +100,8 @@ def main():
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 7996
+
+    assert solution_part1 == 1013
     # assert solution_part2 == 8239
 
 
