@@ -41,6 +41,22 @@ def get_neighbors(node: tuple[tuple[int, int], tuple[int, int]]):
         yield (r, c - 1), (0, nc - 1)
 
 
+def get_neighbors2(node: tuple[tuple[int, int], tuple[int, int]]):
+    location, direction = node
+    r, c = location
+    nr, nc = direction
+    if 0 < nr < 4:
+        yield (r + 1, c), (nr + 1, 0)
+    elif -4 < nr < 0:
+        yield (r - 1, c), (nr - 1, 0)
+    elif 0 < nc < 4:
+        yield (r, c + 1), (0, nc + 1)
+    elif -4 < nc < 0:
+        yield (r, c - 1), (0, nc - 1)
+    else:
+        yield from get_neighbors(node)
+
+
 def dijkstra(grid, destination, neighbors, max_run):
     """Modified Dijkstra's shortest path Algorithmg
     src: https://github.com/oliver-ni/advent-of-code/blob/master/py/2023/day17.py"""
@@ -55,8 +71,15 @@ def dijkstra(grid, destination, neighbors, max_run):
         loc, vec = node
         if not all(-max_run <= component <= max_run for component in vec):
             continue
-        if loc == destination:
-            return dist[node]
+
+        # for part two we need to move at least 4 steps before we can stop
+        if max_run > 3:
+            if loc == destination and not all(abs(component) < 4 for component in vec):
+                return dist[node]
+        else:
+            if loc == destination:
+                return dist[node]
+
         for neighbor in neighbors(node):
             nlocation = neighbor[0]
             if nlocation not in grid:
@@ -77,7 +100,9 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    grid = read_input(input_file)
+    graph, destination = read_input(input_file)
+    result = dijkstra(graph, destination, get_neighbors2, 10)
+    return int(result)
 
 
 def test():
@@ -87,8 +112,8 @@ def test():
     assert part1(filename) == 102
     print('Part 1 OK')
 
-    # assert part2(filename) == 51
-    # print('Part 2 OK')
+    assert part2(filename) == 94
+    print('Part 2 OK')
 
 
 def main():
@@ -98,11 +123,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 1013
-    # assert solution_part2 == 8239
+    assert solution_part2 == 1215
 
 
 if __name__ == '__main__':
