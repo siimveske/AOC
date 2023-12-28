@@ -30,6 +30,27 @@ def tokens_to_vertices(tokens: list[tuple[str, int, str]]) -> tuple[list[tuple[i
     return vertices, perimeter
 
 
+def tokens_to_vertices2(tokens: list[tuple[str, int, str]]) -> tuple[list[tuple[int, int]], int]:
+    vertices = []
+    r, c = 0, 0
+    perimeter = 0
+    directions = {'U': (-1, 0), 'D': (1, 0), 'L': (0, -1), 'R': (0, 1)}
+
+    for token in tokens:
+        direction, steps, color = token
+
+        direction = "RDLU"[int(color[-2])]
+        steps = int(color[2:-2], 16)
+
+        dr, dc = directions[direction]
+        r += dr * steps
+        c += dc * steps
+        vertices.append((r, c))
+        perimeter += steps
+
+    return vertices, perimeter
+
+
 def shoelace(vertices):
     """https://en.wikipedia.org/wiki/Shoelace_formula -> Triangle form"""
     xs, ys = zip(*vertices)
@@ -50,7 +71,10 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    graph, destination = read_input(input_file)
+    tokens = read_input(input_file)
+    vertices, perimeter = tokens_to_vertices2(tokens)
+    area = shoelace(vertices) + perimeter // 2 + 1
+    return int(area)
 
 
 def test():
@@ -60,8 +84,8 @@ def test():
     assert part1(filename) == 62
     print('Part 1 OK')
 
-    # assert part2(filename) == 94
-    # print('Part 2 OK')
+    assert part2(filename) == 952408144115
+    print('Part 2 OK')
 
 
 def main():
@@ -71,11 +95,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 47527
-    # assert solution_part2 == 1215
+    assert solution_part2 == 52240187443190
 
 
 if __name__ == '__main__':
