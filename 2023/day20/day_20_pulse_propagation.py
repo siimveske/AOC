@@ -18,11 +18,10 @@ class Pulse(Enum):
 class Module:
     memory: bool | dict
 
-    def __init__(self, module_name: str, module_type: ModuleType, outputs: list[str], monitor=False):
+    def __init__(self, module_name: str, module_type: ModuleType, outputs: list[str]):
         self.name = module_name
         self.type = module_type
         self.outputs = outputs
-        self.monitor = monitor
 
         if self.type == ModuleType.FLIPFLOP:
             self.memory = False
@@ -37,11 +36,7 @@ class Module:
 
         elif self.type == ModuleType.CONJUNCTION:
             self.memory[sender] = pulse.value
-            if self.monitor:
-                # for part two we want to know if this node sends out high pulse
-                return Pulse.LOW if all([i for i in self.memory.values()]) else self.name
-            else:
-                return Pulse.LOW if all([i for i in self.memory.values()]) else Pulse.HIGH
+            return Pulse.LOW if all([i for i in self.memory.values()]) else Pulse.HIGH
 
         return None
 
@@ -72,25 +67,6 @@ def read_input(filename: str):
                 graph[output].memory[name] = False
 
     return graph
-
-
-def mark_special_nodes(graph):
-
-    rx_parent = ''
-    for name, module in graph.items():
-        if 'rx' in module.outputs:
-            rx_parent = name
-            break
-
-    nodes_to_watch = []
-    for name, module in graph.items():
-        if rx_parent in module.outputs:
-            nodes_to_watch.append(name)
-
-    for name in nodes_to_watch:
-        graph[name].monitor = True
-
-    return len(nodes_to_watch)
 
 
 def part1(input_file: str) -> int:
@@ -124,35 +100,28 @@ def part1(input_file: str) -> int:
 
 def part2(input_file: str) -> int:
     graph = read_input(input_file)
-    num_of_special_nodes = mark_special_nodes(graph)
     broadcaster = graph.get('broadcaster')
-    ANSWER = {}
+    important_node = [name for name, module in graph.items() if 'rx' in module.outputs][0]
+    cycle_lengths = {name: 0 for name, module in graph.items() if important_node in module.outputs}
 
-    for i in range(1, 1000000000000000):
+    for i in range(1, 1000000):
         q = collections.deque([('broadcaster', destination, Pulse.LOW) for destination in broadcaster.outputs])
         while q:
             src, dst, pulse = q.popleft()
-            # print(f'{src} -> {pulse} -> {dst}')
 
-            # skip the 'output' debug node
             if dst not in graph:
                 continue
+
+            if dst == important_node and pulse == Pulse.HIGH:
+                cycle_lengths[src] = i
+                if all(cycle_lengths.values()):
+                    return math.lcm(*cycle_lengths.values())
 
             current_module = graph[dst]
             out_pulse = current_module.update_state(src, pulse)
             if out_pulse is not None:
-                if type(out_pulse) is str and out_pulse not in ANSWER:
-                    ANSWER[out_pulse] = i
-                    # print(ANSWER)
-                    if len(ANSWER) == num_of_special_nodes:
-                        return math.lcm(*ANSWER.values())
-                    out_pulse = Pulse.HIGH
-
                 for connected_module in current_module.outputs:
                     q.append((current_module.name, connected_module, out_pulse))
-
-        if i % 100000 == 0:
-            print('#', end='')
 
 
 def test():
