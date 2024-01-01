@@ -9,7 +9,14 @@ class ModuleType(Enum):
     BROADCASTER = 3
 
 
+class Pulse(Enum):
+    HIGH = True
+    LOW = False
+
+
 class Module:
+    memory: bool | dict
+
     def __init__(self, module_name: str, module_type: ModuleType, outputs: list[str]):
         self.name = module_name
         self.type = module_type
@@ -20,15 +27,15 @@ class Module:
         elif self.type == ModuleType.CONJUNCTION:
             self.memory = {}
 
-    def update_state(self, sender: str, pulse: bool):
+    def update_state(self, sender: str, pulse: Pulse):
         if self.type == ModuleType.FLIPFLOP:
-            if not pulse:
+            if pulse == Pulse.LOW:
                 self.memory = not self.memory
-                return self.memory
+                return Pulse.HIGH if self.memory else Pulse.LOW
 
         elif self.type == ModuleType.CONJUNCTION:
-            self.memory[sender] = pulse
-            return False if all([i for i in self.memory.values()]) else True
+            self.memory[sender] = pulse.value
+            return Pulse.LOW if all([i for i in self.memory.values()]) else Pulse.HIGH
 
         return None
 
@@ -67,11 +74,11 @@ def part1(input_file: str) -> int:
     low, high = 0, 0
     for i in range(1000):
         low += 1
-        q = collections.deque([('broadcaster', destination, False) for destination in broadcaster.outputs])
+        q = collections.deque([('broadcaster', destination, Pulse.LOW) for destination in broadcaster.outputs])
         while q:
             src, dst, pulse = q.popleft()
             # print(f'{src} -> {pulse} -> {dst}')
-            if pulse:
+            if pulse == Pulse.HIGH:
                 high += 1
             else:
                 low += 1
@@ -80,11 +87,11 @@ def part1(input_file: str) -> int:
             if dst not in graph:
                 continue
 
-            module = graph[dst]
-            out_pulse = module.update_state(src, pulse)
+            current_module = graph[dst]
+            out_pulse = current_module.update_state(src, pulse)
             if out_pulse is not None:
-                for output in module.outputs:
-                    q.append((module.name, output, out_pulse))
+                for connected_module in current_module.outputs:
+                    q.append((current_module.name, connected_module, out_pulse))
 
     return low * high
 
