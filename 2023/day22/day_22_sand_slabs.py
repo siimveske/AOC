@@ -1,21 +1,6 @@
 import os
 
 
-class Line:
-    def __init__(self, p1, p2):
-        self.p1 = p1
-        self.p2 = p2
-
-
-def print_lines(p1, p2):
-    diff = [a - b for a, b in zip(p1, p2)]
-    str_diff = map(str, diff)
-
-    print(','.join(str_diff))
-    # if any(i > 0 for i in diff):
-    #     print(','.join(str_diff))
-
-
 def read_input(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
@@ -30,25 +15,22 @@ def read_input(filename: str):
     return lines
 
 
-def line_to_segment(a, b):
+def interpolate(a, b):
     x0, y0, z0 = a
     x1, y1, z1 = b
     segment = []
 
     # For horizontal segments (x-axis)
     if y0 == y1 and z0 == z1:
-        for x in range(x0, x1 + 1) if x0 <= x1 else range(x0, x1 - 1, -1):
-            segment.append((x, y0, z0))
+        segment = [(x, y0, z0) for x in range(x0, x1 + 1)]
 
     # For vertical segments (y-axis)
     elif x0 == x1 and z0 == z1:
-        for y in range(y0, y1 + 1) if y0 <= y1 else range(y0, y1 - 1, -1):
-            segment.append((x0, y, z0))
+        segment = [(x0, y, z0) for y in range(y0, y1 + 1)]
 
     # For depth segments (z-axis)
     elif x0 == x1 and y0 == y1:
-        for z in range(z0, z1 + 1) if z0 <= z1 else range(z0, z1 - 1, -1):
-            segment.append((x0, y0, z))
+        segment = [(x0, y0, z) for z in range(z0, z1 + 1)]
 
     return segment
 
@@ -66,21 +48,24 @@ def get_supports(segments, segment):
 def part1(input_file: str) -> int:
     lines = read_input(input_file)
     sorted_lines = sorted(lines, key=lambda x: x[0][2])
-    segments = [line_to_segment(a, b) for a, b in sorted_lines]
+    segments = [interpolate(a, b) for a, b in sorted_lines]
     supported = {i: [] for i in range(len(segments))}
     processed = dict()
+    max_z = segments[0][-1][2]
     for idx, segment in enumerate(segments):
         while True:
             nxt = [(x, y, z - 1) for x, y, z in segment]
             if nxt[0][2] <= 0:
                 processed[idx] = segment
                 break
-            supports = get_supports(processed, nxt)
-            if supports:
-                supported[idx] = supports
-                processed[idx] = segment
-                break
+            if nxt[0][2] <= max_z:
+                supports = get_supports(processed, nxt)
+                if supports:
+                    supported[idx] = supports
+                    processed[idx] = segment
+                    break
             segment = nxt
+        max_z = max(max_z, segment[-1][2])  # compare known highest z val with current segment highest z val
         segments[idx] = segment
 
     can_be_removed = set()
