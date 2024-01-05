@@ -1,4 +1,3 @@
-import collections
 import os
 
 
@@ -69,7 +68,6 @@ def part1(input_file: str) -> int:
     sorted_lines = sorted(lines, key=lambda x: x[0][2])
     segments = [line_to_segment(a, b) for a, b in sorted_lines]
     supported = {i: [] for i in range(len(segments))}
-    supporting = {i: [] for i in range(len(segments))}
     processed = dict()
     for idx, segment in enumerate(segments):
         while True:
@@ -80,8 +78,6 @@ def part1(input_file: str) -> int:
             supports = get_supports(processed, nxt)
             if supports:
                 supported[idx] = supports
-                for i in supports:
-                    supporting[i].append(idx)
                 processed[idx] = segment
                 break
             segment = nxt
@@ -89,12 +85,13 @@ def part1(input_file: str) -> int:
 
     can_be_removed = set()
     cant_be_removed = set()
-    for k, v in supporting.items():
-        if not v:
-            can_be_removed.add(k)
     for k, v in supported.items():
-        if len(v) > 1:
-            can_be_removed.update(v)
+        if len(v) == 1:
+            cant_be_removed.add(v[0])
+    for i in range(len(lines)):
+        if i in cant_be_removed:
+            continue
+        can_be_removed.add(i)
 
     result = len(can_be_removed)
     return result
@@ -123,7 +120,7 @@ def main():
     # solution_part2 = part2(filename, 327)
     # print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 3572
+    assert solution_part1 == 497
     # assert solution_part2 == 594606492802848
 
 
