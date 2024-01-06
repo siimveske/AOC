@@ -1,3 +1,4 @@
+import collections
 import os
 
 
@@ -82,17 +83,70 @@ def part1(input_file: str) -> int:
     return result
 
 
+def count_falling(root_brick, supports, supported_by) -> int:
+    """original solution: https://github.com/mebeim/aoc/blob/master/2023/solutions/day22.py"""
+    q = collections.deque([root_brick])
+    falling = set()
+
+    while q:
+        brick = q.popleft()
+        falling.add(brick)
+
+        for supporter in supported_by[brick]:
+            if all(s in falling for s in supports[supporter]):
+                q.append(supporter)
+
+    return len(falling) - 1
+
+
 def part2(input_file: str) -> int:
-    grid, start = read_input(input_file)
+    lines = read_input(input_file)
+    sorted_lines = sorted(lines, key=lambda x: x[0][2])
+    segments = [interpolate(a, b) for a, b in sorted_lines]
+    supported = {i: [] for i in range(len(segments))}
+    supporting = {i: set() for i in range(len(segments))}
+    processed = dict()
+    max_z = segments[0][-1][2]
+    for idx, segment in enumerate(segments):
+        while True:
+            nxt = [(x, y, z - 1) for x, y, z in segment]
+            if nxt[0][2] <= 0:
+                processed[idx] = segment
+                break
+            if nxt[0][2] <= max_z:
+                supports = get_supports(processed, nxt)
+                if supports:
+                    supported[idx] = supports
+                    for supporter in supports:
+                        supporting[supporter].add(idx)
+                    processed[idx] = segment
+                    break
+            segment = nxt
+        max_z = max(max_z, segment[-1][2])  # compare known highest z val with current segment highest z val
+        segments[idx] = segment
+
+    cant_be_removed = set()
+    for k, v in supported.items():
+        if len(v) == 1:
+            cant_be_removed.add(v[0])
+
+    result = 0
+    for node in cant_be_removed:
+        result += count_falling(node, supported, supporting)
+
+    return result
 
 
 def test():
     print('---- TEST ----')
 
     filename = 'test_input.txt'
-    part1(filename)
+
     assert part1(filename) == 5
     print('Part 1 OK')
+
+    assert part2(filename) == 7
+    print('Part 2 OK')
 
 
 def main():
@@ -102,11 +156,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename, 327)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 497
-    # assert solution_part2 == 594606492802848
+    assert solution_part2 == 67468
 
 
 if __name__ == '__main__':
