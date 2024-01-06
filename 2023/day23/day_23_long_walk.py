@@ -1,5 +1,7 @@
-import collections
 import os
+import sys
+
+sys.setrecursionlimit(5000)
 
 
 def read_input(filename: str):
@@ -11,13 +13,15 @@ def read_input(filename: str):
     return grid
 
 
-def walk(pos, end, grid, size, visited):
+def walk(pos, end, grid, size, visited, memo):
     row, col = pos
 
     if pos == end:
         return 0
     if pos in visited:
         return 0
+    if pos in memo:
+        return memo[pos]
 
     visited.add(pos)
 
@@ -40,9 +44,12 @@ def walk(pos, end, grid, size, visited):
         if grid[row][right] in '.>':
             next_locations.append((row, right))
 
-    distances = [1 + walk(loc, end, grid, size, set(visited)) for loc in next_locations]
+    distances = [1 + walk(loc, end, grid, size, set(visited), memo) for loc in next_locations]
 
-    return max(distances)
+    max_distance = max(distances)
+    memo[pos] = max_distance
+
+    return max_distance
 
 
 def part1(input_file: str) -> int:
@@ -50,7 +57,9 @@ def part1(input_file: str) -> int:
     size = len(grid)
     start = (0, 1)
     end = (size - 1, size - 2)
-    result = walk(start, end, grid, size, set())
+    visited = set()
+    memo = {}
+    result = walk(start, end, grid, size, visited, memo)
     return result
 
 
@@ -79,8 +88,8 @@ def main():
 
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
-    #
-    # assert solution_part1 == 497
+
+    assert solution_part1 == 2154
     # assert solution_part2 == 67468
 
 
