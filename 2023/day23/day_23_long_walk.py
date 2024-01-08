@@ -19,7 +19,7 @@ def walk(pos, end, grid, size, visited, memo):
     if pos == end:
         return 0
     if pos in visited:
-        return 0
+        return -float('inf')
     if pos in memo:
         return memo[pos]
 
@@ -64,7 +64,65 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    lines = read_input(input_file)
+    # https://www.youtube.com/watch?v=NTLYL7Mg2jU
+
+    grid = read_input(input_file)
+    length = len(grid)
+    start = (0, 1)
+    stop = (length - 1, length - 2)
+
+    # Find junction poits (points with more than 2 neighbors)
+    points = {start, stop}
+    for r, row in enumerate(grid):
+        for c, ch in enumerate(row):
+            if ch == '#':
+                continue
+            # Count neighbors
+            neighbors = 0
+            for nr, nc in [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]:
+                if (0 <= nr < length) and (0 <= nc < length) and grid[nr][nc] != '#':
+                    neighbors += 1
+            if neighbors >= 3:
+                points.add((r, c))
+
+    # Build an adjacency graph
+    graph = {pt: {} for pt in points}
+    for sr, sc in points:
+        stack = [(0, sr, sc)]
+        seen = {(sr, sc)}
+        while stack:
+            n, r, c = stack.pop()
+            if n != 0 and (r, c) in points:  # We have found a distance between two adjacent junction points
+                graph[(sr, sc)][(r, c)] = n
+                continue
+
+            # Calculate distances between junction points
+            for dr, dc in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                nr = r + dr
+                nc = c + dc
+                if (0 <= nr < length) and (0 <= nc < length) and (grid[nr][nc] != '#') and (nr, nc) not in seen:
+                    stack.append((n + 1, nr, nc))
+                    seen.add((nr, nc))
+
+    # Find the longest path
+    seen = set()
+    def dfs(pt):
+        if pt == stop:
+            return 0
+        m = -float('inf')
+
+        # Lock this point for this path
+        seen.add(pt)
+        for nx in graph[pt]:
+            if nx not in seen:
+                m = max(m, graph[pt][nx] + dfs(nx))  # graph[pt][nx] means distance from pt to nx
+        # Release the point for next path
+        seen.remove(pt)
+
+        return m
+
+    result = dfs(start)
+    return result
 
 
 def test():
@@ -75,8 +133,8 @@ def test():
     assert part1(filename) == 94
     print('Part 1 OK')
 
-    # assert part2(filename) == 7
-    # print('Part 2 OK')
+    assert part2(filename) == 154
+    print('Part 2 OK')
 
 
 def main():
@@ -86,11 +144,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 2154
-    # assert solution_part2 == 67468
+    assert solution_part2 == 6654
 
 
 if __name__ == '__main__':
