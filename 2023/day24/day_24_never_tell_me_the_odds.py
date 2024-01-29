@@ -1,5 +1,8 @@
 import os
+import sympy
 
+
+# src: https://colab.research.google.com/github/derailed-dash/Advent-of-Code/blob/master/src/AoC_2023/Dazbo's_Advent_of_Code_2023.ipynb#scrollTo=e9L3bSaHEU1B&line=9&uniqifier=1
 
 class Hailstone:
     def __init__(self, pos: list[int], vel: list[int]) -> None:
@@ -82,7 +85,26 @@ def part1(input_file: str, range_min: int, range_max: int) -> int:
 
 
 def part2(input_file: str) -> int:
-    pass
+    stones = read_input(input_file)
+
+    # define SymPy rock symbols - these are our unknowns representing:
+    # initial rock location (xr, yr, zr) and rock velocity (vxr, vyr, vzr)
+    xr, yr, zr, vxr, vyr, vzr = sympy.symbols("xr yr zr vxr vyr vzr")
+
+    equations = []  # list of equations that must be true
+    for stone in stones[:10]:   # we don't need ALL the stones to find a solution. We need just enough.
+        x, y, z = stone.x_pos, stone.y_pos, stone.z_pos
+        vx, vy, vz = stone.x_velocity, stone.y_velocity, stone.z_velocity
+        equations.append(sympy.Eq((xr-x)*(vy-vyr), (yr-y)*(vx-vxr)))
+        equations.append(sympy.Eq((yr-y)*(vz-vzr), (zr-z)*(vy-vyr)))
+
+    result = 0
+    solutions = sympy.solve(equations, dict=True)  # SymPy does the hard work
+    if solutions:
+        solution = solutions[0]
+        result = sum([solution[xr], solution[yr], solution[zr]])
+
+    return result
 
 
 def test():
@@ -93,8 +115,8 @@ def test():
     assert part1(filename, 7, 27) == 2
     print("Part 1 OK")
 
-    # assert part2(filename) == 154
-    # print('Part 2 OK')
+    assert part2(filename) == 47
+    print("Part 2 OK")
 
 
 def main():
@@ -104,11 +126,11 @@ def main():
     solution_part1 = part1(filename, 200000000000000, 400000000000000)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 26611
-    # assert solution_part2 == 6654
+    assert solution_part2 == 684195328708898
 
 
 if __name__ == "__main__":
