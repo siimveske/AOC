@@ -1,44 +1,79 @@
-LIMIT = 29000000
+class Item:
+    def __init__(self, name, cost, damage, armor) -> None:
+        self.name = name
+        self.cost = cost
+        self.damage = damage
+        self.armor = armor
 
 
-# https://www.reddit.com/r/adventofcode/comments/3xjpp2/comment/cy5buyt/?utm_source=share&utm_medium=web2x&context=3
-def sum_of_presents(house: int) -> int:
-    result = 0
-    limit = int(house ** 0.5) + 1
-    for elf in range(1, limit):
-        if house % elf == 0:
-            result += elf
-            result += house / elf
-
-    return result * 10
+class Character:
+    def __init__(self, hp, damage, armor) -> None:
+        self.hp = hp
+        self.damage = damage
+        self.armor = armor
 
 
-def sum_of_presents2(house: int) -> int:
-    result = 0
-    limit = int(house ** 0.5) + 1
-    for elf in range(1, limit):
-        if house % elf != 0:
-            continue
-        if elf <= 50:
-            result += house / elf
-        if house / elf <= 50:
-            result += elf
+def fight(player, boss):
+    player_hp = player.hp
+    boss_hp = boss.hp
 
-    return result * 11
+    while True:
+        boss_hp -= max(1, player.damage - boss.armor)
+        if boss_hp <= 0:
+            return True
+        player_hp -= max(1, boss.damage - player.armor)
+        if player_hp <= 0:
+            return False
 
 
 def part1() -> int:
-    house_number = 1
-    while sum_of_presents(house_number) < LIMIT:
-        house_number += 1
-    return house_number
+    player = Character(100, 0, 0)
+    boss = Character(103, 9, 2)
+
+    weapons = []
+    weapons.append(Item("Dagger", 8, 4, 0))
+    weapons.append(Item("Shortsword", 10, 5, 0))
+    weapons.append(Item("Warhammer", 25, 6, 0))
+    weapons.append(Item("Longsword", 40, 7, 0))
+    weapons.append(Item("Greataxe", 74, 8, 0))
+
+    armors = []
+    armors.append(Item("NOARMOR", 0, 0, 0))
+    armors.append(Item("Leather", 13, 0, 1))
+    armors.append(Item("Chainmail", 31, 0, 2))
+    armors.append(Item("Splintmail", 53, 0, 3))
+    armors.append(Item("Bandedmail", 75, 0, 4))
+    armors.append(Item("Platemail", 102, 0, 5))
+
+    rings = []
+    rings.append(Item("HAND1", 0, 0, 0))
+    rings.append(Item("HAND2", 0, 0, 0))
+    rings.append(Item("Damage +1", 25, 1, 0))
+    rings.append(Item("Damage +2", 50, 2, 0))
+    rings.append(Item("Damage +3", 100, 3, 0))
+    rings.append(Item("Defense +1", 20, 0, 1))
+    rings.append(Item("Defense +2", 40, 0, 2))
+    rings.append(Item("Defense +3", 80, 0, 3))
+
+    least_gold_to_win_fight = 100000
+    for weapon in weapons:
+        for armor in armors:
+            for ring1 in rings:
+                for ring2 in rings:
+                    if ring1 == ring2:
+                        continue
+                    player.armor = armor.armor
+                    player.damage = weapon.damage + ring1.damage + ring2.damage
+                    player.armor = armor.armor + ring1.armor + ring2.armor
+                    if fight(player, boss):
+                        least_gold_to_win_fight = min(
+                            least_gold_to_win_fight, weapon.cost + armor.cost + ring1.cost + ring2.cost
+                        )
+    return least_gold_to_win_fight
 
 
 def part2() -> int:
-    house_number = 1
-    while sum_of_presents2(house_number) < LIMIT:
-        house_number += 1
-    return house_number
+    pass
 
 
 def main():
@@ -46,11 +81,11 @@ def main():
 
     solution_part1 = part1()
     print(f"Solution for Part 1: {solution_part1}")
-    assert solution_part1 == 665280
+    assert solution_part1 == 121
 
-    solution_part2 = part2()
-    print(f"Solution for Part 2: {solution_part2}\n")
-    assert solution_part2 == 705600
+    # solution_part2 = part2()
+    # print(f"Solution for Part 2: {solution_part2}\n")
+    # assert solution_part2 == 705600
 
 
 if __name__ == "__main__":
