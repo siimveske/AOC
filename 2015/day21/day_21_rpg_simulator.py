@@ -30,30 +30,33 @@ def part1() -> int:
     player = Character(100, 0, 0)
     boss = Character(103, 9, 2)
 
-    weapons = []
-    weapons.append(Item("Dagger", 8, 4, 0))
-    weapons.append(Item("Shortsword", 10, 5, 0))
-    weapons.append(Item("Warhammer", 25, 6, 0))
-    weapons.append(Item("Longsword", 40, 7, 0))
-    weapons.append(Item("Greataxe", 74, 8, 0))
+    weapons = [
+        Item("Dagger", 8, 4, 0),
+        Item("Shortsword", 10, 5, 0),
+        Item("Warhammer", 25, 6, 0),
+        Item("Longsword", 40, 7, 0),
+        Item("Greataxe", 74, 8, 0)
+    ]
 
-    armors = []
-    armors.append(Item("NOARMOR", 0, 0, 0))
-    armors.append(Item("Leather", 13, 0, 1))
-    armors.append(Item("Chainmail", 31, 0, 2))
-    armors.append(Item("Splintmail", 53, 0, 3))
-    armors.append(Item("Bandedmail", 75, 0, 4))
-    armors.append(Item("Platemail", 102, 0, 5))
+    armors = [
+        Item("NOARMOR", 0, 0, 0),
+        Item("Leather", 13, 0, 1),
+        Item("Chainmail", 31, 0, 2),
+        Item("Splintmail", 53, 0, 3),
+        Item("Bandedmail", 75, 0, 4),
+        Item("Platemail", 102, 0, 5)
+    ]
 
-    rings = []
-    rings.append(Item("HAND1", 0, 0, 0))
-    rings.append(Item("HAND2", 0, 0, 0))
-    rings.append(Item("Damage +1", 25, 1, 0))
-    rings.append(Item("Damage +2", 50, 2, 0))
-    rings.append(Item("Damage +3", 100, 3, 0))
-    rings.append(Item("Defense +1", 20, 0, 1))
-    rings.append(Item("Defense +2", 40, 0, 2))
-    rings.append(Item("Defense +3", 80, 0, 3))
+    rings = [
+        Item("HAND1", 0, 0, 0),
+        Item("HAND2", 0, 0, 0),
+        Item("Damage +1", 25, 1, 0),
+        Item("Damage +2", 50, 2, 0),
+        Item("Damage +3", 100, 3, 0),
+        Item("Defense +1", 20, 0, 1),
+        Item("Defense +2", 40, 0, 2),
+        Item("Defense +3", 80, 0, 3)
+    ]
 
     least_gold_to_win_fight = 100000
     for weapon in weapons:
