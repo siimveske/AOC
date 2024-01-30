@@ -26,38 +26,39 @@ def fight(player, boss):
             return False
 
 
+player = Character(100, 0, 0)
+boss = Character(103, 9, 2)
+
+weapons = [
+    Item("Dagger", 8, 4, 0),
+    Item("Shortsword", 10, 5, 0),
+    Item("Warhammer", 25, 6, 0),
+    Item("Longsword", 40, 7, 0),
+    Item("Greataxe", 74, 8, 0)
+]
+
+armors = [
+    Item("NOARMOR", 0, 0, 0),
+    Item("Leather", 13, 0, 1),
+    Item("Chainmail", 31, 0, 2),
+    Item("Splintmail", 53, 0, 3),
+    Item("Bandedmail", 75, 0, 4),
+    Item("Platemail", 102, 0, 5)
+]
+
+rings = [
+    Item("HAND1", 0, 0, 0),
+    Item("HAND2", 0, 0, 0),
+    Item("Damage +1", 25, 1, 0),
+    Item("Damage +2", 50, 2, 0),
+    Item("Damage +3", 100, 3, 0),
+    Item("Defense +1", 20, 0, 1),
+    Item("Defense +2", 40, 0, 2),
+    Item("Defense +3", 80, 0, 3)
+]
+
+
 def part1() -> int:
-    player = Character(100, 0, 0)
-    boss = Character(103, 9, 2)
-
-    weapons = [
-        Item("Dagger", 8, 4, 0),
-        Item("Shortsword", 10, 5, 0),
-        Item("Warhammer", 25, 6, 0),
-        Item("Longsword", 40, 7, 0),
-        Item("Greataxe", 74, 8, 0)
-    ]
-
-    armors = [
-        Item("NOARMOR", 0, 0, 0),
-        Item("Leather", 13, 0, 1),
-        Item("Chainmail", 31, 0, 2),
-        Item("Splintmail", 53, 0, 3),
-        Item("Bandedmail", 75, 0, 4),
-        Item("Platemail", 102, 0, 5)
-    ]
-
-    rings = [
-        Item("HAND1", 0, 0, 0),
-        Item("HAND2", 0, 0, 0),
-        Item("Damage +1", 25, 1, 0),
-        Item("Damage +2", 50, 2, 0),
-        Item("Damage +3", 100, 3, 0),
-        Item("Defense +1", 20, 0, 1),
-        Item("Defense +2", 40, 0, 2),
-        Item("Defense +3", 80, 0, 3)
-    ]
-
     least_gold_to_win_fight = 100000
     for weapon in weapons:
         for armor in armors:
@@ -76,7 +77,21 @@ def part1() -> int:
 
 
 def part2() -> int:
-    pass
+    most_gold_to_lose_fight = 0
+    for weapon in weapons:
+        for armor in armors:
+            for ring1 in rings:
+                for ring2 in rings:
+                    if ring1 == ring2:
+                        continue
+                    player.armor = armor.armor
+                    player.damage = weapon.damage + ring1.damage + ring2.damage
+                    player.armor = armor.armor + ring1.armor + ring2.armor
+                    if not fight(player, boss):
+                        most_gold_to_lose_fight = max(
+                            most_gold_to_lose_fight, weapon.cost + armor.cost + ring1.cost + ring2.cost
+                        )
+    return most_gold_to_lose_fight
 
 
 def main():
@@ -86,9 +101,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 121
 
-    # solution_part2 = part2()
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 705600
+    solution_part2 = part2()
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 201
 
 
 if __name__ == "__main__":
