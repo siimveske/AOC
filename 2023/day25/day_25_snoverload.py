@@ -9,10 +9,9 @@ def read_input(filename: str):
     graph = nx.Graph()
     with open(input_file_path, "r") as f:
         for line in f:
-            line = line.strip().replace(":", "")
-            components = line.split(" ")
-            for component in components[1:]:
-                graph.add_edge(components[0], component)
+            l, r = line.split(":")
+            for node in r.strip().split():
+                graph.add_edge(l, node)
 
     return graph
 
@@ -24,10 +23,6 @@ def part1(input_file: str) -> int:
     return result
 
 
-def part2(input_file: str) -> int:
-    stones = read_input(input_file)
-
-
 def test():
     print("---- TEST ----")
 
@@ -35,9 +30,6 @@ def test():
 
     assert part1(filename) == 54
     print("Part 1 OK")
-
-    # assert part2(filename) == 47
-    # print("Part 2 OK")
 
 
 def main():
@@ -47,11 +39,7 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-
     assert solution_part1 == 552682
-    # assert solution_part2 == 684195328708898
 
 
 if __name__ == "__main__":
