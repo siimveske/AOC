@@ -1,21 +1,26 @@
 import os
+import networkx as nx
 
 
 def read_input(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
-    hailstones = []
+    graph = nx.Graph()
     with open(input_file_path, "r") as f:
         for line in f:
-            pass
+            line = line.strip().replace(":", "")
+            components = line.split(" ")
+            for component in components[1:]:
+                graph.add_edge(components[0], component)
 
-    return hailstones
+    return graph
 
 
 def part1(input_file: str) -> int:
-    stones = read_input(input_file)
-    result = 0
+    graph = read_input(input_file)
+    cut_value, partition = nx.stoer_wagner(graph)
+    result = len(partition[0]) * len(partition[1])
     return result
 
 
@@ -45,7 +50,7 @@ def main():
     # solution_part2 = part2(filename)
     # print(f"Solution for Part 2: {solution_part2}\n")
 
-    # assert solution_part1 == 26611
+    assert solution_part1 == 552682
     # assert solution_part2 == 684195328708898
 
 
