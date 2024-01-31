@@ -14,45 +14,34 @@ Recharge = namedtuple("Recharge", "name cost manna time")
 def fight(player, boss, active_spells, is_player_turn, cost):
     boss_hp, boss_dmg = boss.hp, boss.dmg
     player_hp, player_mana = player.hp, player.mana
+    player_armor = 0
 
     new_spells = set()
     active_items = set()
 
     for spell in active_spells:
         if type(spell) is Shield:
-            boss_dmg -= spell.armor
+            player_armor = spell.armor
             duration = spell.time - 1
             if duration > 0:
-                new_spells.add(Shield(spell.cost, spell.armor, duration))
+                new_spells.add(Shield("Shield", spell.cost, spell.armor, duration))
                 active_items.add("Shield")
 
         elif type(spell) is Poison:
             boss_hp -= spell.damage
             if boss_hp <= 0:
                 return cost
-
             duration = spell.time - 1
             if duration > 0:
-                new_spells.add(Poison(spell.cost, spell.damage, duration))
+                new_spells.add(Poison("Poison", spell.cost, spell.damage, duration))
                 active_items.add("Poison")
 
         elif type(spell) is Recharge:
             player_mana += spell.manna
             duration = spell.time - 1
             if duration > 0:
-                new_spells.add(Recharge(spell.cost, spell.manna, duration))
+                new_spells.add(Recharge("Recharge", spell.cost, spell.manna, duration))
                 active_items.add("Recharge")
-
-        # if type(spell) is MagicMissile:
-        #     boss_hp -= spell.damage
-        #     if boss_hp <= 0:
-        #         return cost
-        #
-        # elif type(spell) is Drain:
-        #     player_hp += spell.heal
-        #     boss_hp -= spell.damage
-        #     if boss_hp <= 0:
-        #         return cost
 
     CHEAPEST_SPELL = 53
     spells = [
@@ -63,11 +52,12 @@ def fight(player, boss, active_spells, is_player_turn, cost):
         Recharge("Recharge", 229, 101, 5)
     ]
 
+    costs = [float("inf")]
+
     if is_player_turn:
         if player_mana < CHEAPEST_SPELL and not active_items:
             return float("inf")
 
-        costs = []
         for spell in spells:
             if spell.name in active_items:
                 continue
@@ -91,21 +81,34 @@ def fight(player, boss, active_spells, is_player_turn, cost):
                 result = fight(Player(hp=player_hp, mana=player_mana), Boss(hp=boss_hp, dmg=boss_dmg), new_spells, False, cost + spell.cost)
                 costs.append(result)
 
-        return min(costs)
+            elif type(spell) is Shield:
+                player_mana -= spell.cost
+                result = fight(Player(hp=player_hp, mana=player_mana), Boss(hp=boss_hp, dmg=boss_dmg), new_spells | {spell}, False, cost + spell.cost)
+                costs.append(result)
 
+            elif type(spell) is Poison:
+                player_mana -= spell.cost
+                result = fight(Player(hp=player_hp, mana=player_mana), Boss(hp=boss_hp, dmg=boss_dmg), new_spells | {spell}, False, cost + spell.cost)
+                costs.append(result)
+
+            elif type(spell) is Recharge:
+                player_mana -= spell.cost
+                result = fight(Player(hp=player_hp, mana=player_mana), Boss(hp=boss_hp, dmg=boss_dmg), new_spells | {spell}, False, cost + spell.cost)
+                costs.append(result)
     else:
-        player_hp -= boss_dmg
+        player_hp -= max(1, boss_dmg - player_armor)
         if player_hp <= 0:
             return float("inf")
         else:
             return fight(Player(hp=player_hp, mana=player_mana), Boss(hp=boss_hp, dmg=boss_dmg), new_spells, True, cost)
 
+    return min(costs)
 
 
 def part1() -> int:
     player = Player(hp=50, mana=500)
     boss = Boss(hp=55, dmg=8)
-    result = fight(player, boss, set(), True, float("inf"))
+    result = fight(player, boss, set(), True, 0)
     return result
 
 
