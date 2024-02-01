@@ -2,11 +2,11 @@ import os
 
 
 def read_input(filename: str) -> list:
-    script_location = os.path.dirname(os.path.realpath(__file__))
-    input_file_path = os.path.join(script_location, filename)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(script_dir, filename)
 
     instructions = []
-    with open(input_file_path, "r") as f:
+    with open(file_path, "r") as f:
         for line in f:
             parts = line.replace(",", "").split()
             if parts[0] in ["jio", "jie"]:
@@ -23,24 +23,22 @@ def run(instructions: list, reg_a: int, reg_b: int) -> tuple:
     program_length = len(instructions)
     idx = 0
     while idx < program_length:
-        instruction = instructions[idx]
-        if instruction[0] == "hlf":
-            registry[instruction[1]] //= 2
-        elif instruction[0] == "tpl":
-            registry[instruction[1]] *= 3
-        elif instruction[0] == "inc":
-            registry[instruction[1]] += 1
-        elif instruction[0] == "jmp":
-            idx += instruction[1]
+        command, *args = instructions[idx]
+        if command == "hlf":
+            registry[args[0]] //= 2
+        elif command == "tpl":
+            registry[args[0]] *= 3
+        elif command == "inc":
+            registry[args[0]] += 1
+        elif command == "jmp":
+            idx += args[0]
             continue
-        elif instruction[0] == "jie":
-            if registry[instruction[1]] % 2 == 0:
-                idx += instruction[2]
-                continue
-        elif instruction[0] == "jio":
-            if registry[instruction[1]] == 1:
-                idx += instruction[2]
-                continue
+        elif command == "jie" and registry[args[0]] % 2 == 0:
+            idx += args[1]
+            continue
+        elif command == "jio" and registry[args[0]] == 1:
+            idx += args[1]
+            continue
         idx += 1
     return registry["a"], registry["b"]
 
