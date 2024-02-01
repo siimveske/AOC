@@ -7,14 +7,20 @@ SPELLS = {
 }
 
 least_mana_used = 10000000
+hard_difficulty = False
 
 
 def fight(player_hp, player_mana, boss_hp, active_spells, is_player_turn, mana_used):
-    global least_mana_used
+    global least_mana_used, hard_difficulty
 
     boss_dmg = 8
     player_armor = 0
     new_spells = dict()
+
+    if is_player_turn and hard_difficulty:
+        player_hp -= 1
+        if player_hp <= 0:
+            return False
 
     for spell, time in active_spells:
         new_time = time - 1
@@ -63,7 +69,11 @@ def part1() -> int:
 
 
 def part2() -> int:
-    pass
+    global least_mana_used, hard_difficulty
+    hard_difficulty = True
+    least_mana_used = 10000000
+    fight(player_hp=50, player_mana=500, boss_hp=55, active_spells=[], is_player_turn=True, mana_used=0)
+    return least_mana_used
 
 
 def main():
@@ -72,10 +82,10 @@ def main():
     solution_part1 = part1()
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 953
-    #
-    # solution_part2 = part2()
-    # print(f"Solution for Part 2: {solution_part2}\n")
-    # assert solution_part2 == 201
+
+    solution_part2 = part2()
+    print(f"Solution for Part 2: {solution_part2}\n")
+    assert solution_part2 == 1289
 
 
 if __name__ == "__main__":
