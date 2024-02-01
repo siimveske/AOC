@@ -16,32 +16,22 @@ def fight(player_hp, player_mana, boss_hp, active_spells, is_player_turn, mana_u
     player_armor = 0
     new_spells = dict()
 
-    for item in active_spells:
-        spell, time = item
+    for spell, time in active_spells:
+        new_time = time - 1
         if spell == "MagicMissile":
-            boss_hp -= 4
-
+            boss_hp -= SPELLS[spell]["damage"]
         elif spell == "Drain":
-            player_hp += 2
-            boss_hp -= 2
-
+            player_hp += SPELLS[spell]["heal"]
+            boss_hp -= SPELLS[spell]["damage"]
         elif spell == "Shield":
-            player_armor = 7
-            duration = time - 1
-            if duration > 0:
-                new_spells["Shield"] = duration
-
+            player_armor = SPELLS[spell]["armor"]
         elif spell == "Poison":
-            boss_hp -= 3
-            duration = time - 1
-            if duration > 0:
-                new_spells["Poison"] = duration
-
+            boss_hp -= SPELLS[spell]["damage"]
         elif spell == "Recharge":
-            player_mana += 101
-            duration = time - 1
-            if duration > 0:
-                new_spells["Recharge"] = duration
+            player_mana += SPELLS[spell]["manna"]
+
+        if new_time > 0:
+            new_spells[spell] = new_time
 
     if boss_hp <= 0:
         if mana_used < least_mana_used:
@@ -57,9 +47,9 @@ def fight(player_hp, player_mana, boss_hp, active_spells, is_player_turn, mana_u
                 continue
             new_active_spells = list(new_spells.items())
             new_active_spells.append((spell, SPELLS[spell]["time"]))
-            new_mana = player_mana - SPELLS[spell]["cost"]
+            new_player_mana = player_mana - SPELLS[spell]["cost"]
             new_used_mana = mana_used + SPELLS[spell]["cost"]
-            fight(player_hp, new_mana, boss_hp, new_active_spells, False, new_used_mana)
+            fight(player_hp, new_player_mana, boss_hp, new_active_spells, False, new_used_mana)
     else:
         player_hp -= max(1, boss_dmg - player_armor)
         if player_hp > 0:
