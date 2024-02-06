@@ -1,16 +1,20 @@
 def part1() -> int:
-    row = 2981
-    column = 3075
+    target_row = 2981
+    target_col = 3075
     code = 20151125
 
-    i = 0
+    r, c = 1, 1
     while True:
-        for col in range(i + 1):
-            r = i - col
-            if r == row - 1 and col == column - 1:
-                return code
-            code = (code * 252533) % 33554393
-        i += 1
+        r -= 1
+        c += 1
+
+        if r == 0:
+            r = c
+            c = 1
+
+        code = (code * 252533) % 33554393
+        if r == target_row and c == target_col:
+            return code
 
 
 def main():
