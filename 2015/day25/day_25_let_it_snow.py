@@ -1,8 +1,9 @@
-def part1() -> int:
-    target_row = 2981
-    target_col = 3075
-    code = 20151125
+import sys
 
+sys.setrecursionlimit(15000)
+
+
+def solution1(code, mul, mod, target_row, target_col) -> int:
     r, c = 1, 1
     while True:
         r -= 1
@@ -12,9 +13,31 @@ def part1() -> int:
             r = c
             c = 1
 
-        code = (code * 252533) % 33554393
-        if r == target_row and c == target_col:
+        code = (code * mul) % mod
+        if (r, c) == (target_row, target_col):
             return code
+
+
+def solution2(code, mul, mod, target_row, target_col) -> int:
+    # https://www.mathsisfun.com/algebra/triangular-numbers.html
+    # In triangular number pattern if we know a row and column of a point in the hypothenus
+    # then the formula to calulate the number of points in the hypothenus is: row+col-1
+    side = target_row + target_col - 2  # side length of 1 step smaller triangle
+    nth = (side) * (side + 1) // 2 + target_col
+
+    # Use Modular exponentiation to calculate a value with large exponent (nth - 1)
+    # https://en.wikipedia.org/wiki/Modular_exponentiation
+    nth_code = (code * pow(mul, nth - 1, mod)) % mod
+    return nth_code
+
+
+def part1() -> int:
+    code = 20151125
+    mul = 252533
+    mod = 33554393
+    target_row = 2981
+    target_col = 3075
+    return solution2(code, mul, mod, target_row, target_col)
 
 
 def main():
