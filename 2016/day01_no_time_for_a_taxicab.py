@@ -9,22 +9,7 @@ def read_input(filename: str) -> list[str]:
         return f.read().split(", ")
 
 
-def calculate_distance(commands: list[str]) -> int:
-    compass = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}
-    directions = list(compass.keys())
-    x, y, current_direction = 0, 0, 0
-
-    for cmd in commands:
-        turn, amount = cmd[0], int(cmd[1:])
-        current_direction = (current_direction + (1 if turn == "R" else -1)) % 4
-        dx, dy = compass[directions[current_direction]]
-        x += dx * amount
-        y += dy * amount
-
-    return abs(x) + abs(y)
-
-
-def calculate_distance2(commands):
+def calculate_distance(commands: list[str], return_on_revisit=False) -> int:
     compass = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}
     directions = list(compass.keys())
     x, y, current_direction = 0, 0, 0
@@ -37,11 +22,14 @@ def calculate_distance2(commands):
         for i in range(amount):
             x += dx
             y += dy
-            if (x, y) in visited:
+            if return_on_revisit and (x, y) in visited:
                 return abs(x) + abs(y)
             visited.add((x, y))
 
-    raise Exception("No solution found")
+    if return_on_revisit:
+        raise Exception("No solution found")
+    else:
+        return abs(x) + abs(y)
 
 
 def part1(filename: str) -> int:
@@ -52,7 +40,7 @@ def part1(filename: str) -> int:
 
 def part2(filename: str) -> int:
     commands = read_input(filename)
-    distance = calculate_distance2(commands)
+    distance = calculate_distance(commands, return_on_revisit=True)
     return distance
 
 
@@ -63,7 +51,7 @@ def test():
     assert calculate_distance(["R5", "L5", "R5", "R3"]) == 12
     print("Part 1: OK")
 
-    assert calculate_distance2(["R8", "R4", "R4", "R8"]) == 4
+    assert calculate_distance(["R8", "R4", "R4", "R8"], return_on_revisit=True) == 4
     print("Part 2: OK")
 
 
