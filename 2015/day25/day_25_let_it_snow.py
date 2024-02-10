@@ -1,8 +1,3 @@
-import sys
-
-sys.setrecursionlimit(15000)
-
-
 def solution1(code, mul, mod, target_row, target_col) -> int:
     r, c = 1, 1
     while True:
