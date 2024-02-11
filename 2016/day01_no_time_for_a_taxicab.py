@@ -9,19 +9,24 @@ def read_input(filename: str) -> list[str]:
         return f.read().split(", ")
 
 
+def turn(current_direction, turn_direction):
+    #  2d vector (x, y) rotated counter clockwise (L) by 90 degrees is (-y, x)
+    #  2d vector (x, y) rotated clockwise (R) by 90 degrees is (y, -x)
+    x, y = current_direction
+    return (-y, x) if turn_direction == "L" else (y, -x)
+
+
 def calculate_distance(commands: list[str], return_on_revisit=False) -> int:
-    compass = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}
-    directions = list(compass.keys())
-    x, y, current_direction = 0, 0, 0
+    x, y = 0, 0
+    current_direction = (0, 1)
     visited = set()
 
     for cmd in commands:
-        turn, amount = cmd[0], int(cmd[1:])
-        current_direction = (current_direction + (1 if turn == "R" else -1)) % 4
-        dx, dy = compass[directions[current_direction]]
+        turn_direction, amount = cmd[0], int(cmd[1:])
+        current_direction = turn(current_direction, turn_direction)
+        dx, dy = current_direction
         for i in range(amount):
-            x += dx
-            y += dy
+            x, y = x + dx, y + dy
             if return_on_revisit and (x, y) in visited:
                 return abs(x) + abs(y)
             visited.add((x, y))
