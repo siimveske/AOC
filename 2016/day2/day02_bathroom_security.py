@@ -9,21 +9,26 @@ def read_input(filename: str) -> list[str]:
         return f.read().splitlines()
 
 
-def part1(filename: str) -> str:
-    instructions = read_input(filename)
-    keypad = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+def calculate_code(instructions, keypad, start) -> str:
     directions = {"U": (-1, 0), "D": (1, 0), "L": (0, -1), "R": (0, 1)}
     code = []
-    r, c = 1, 1
+    row, col = start
     length = len(keypad)
     for line in instructions:
         for direction in line:
             dr, dc = directions[direction]
-            if (0 <= r + dr < length) and (0 <= c + dc < length):
-                r += dr
-                c += dc
-        code.append(keypad[r][c])
+            r, c = row + dr, col + dc
+            if (0 <= r < length) and (0 <= c < length) and (keypad[r][c] != ""):
+                row, col = r, c
+        code.append(keypad[row][col])
     return "".join(map(str, code))
+
+
+def part1(filename: str) -> str:
+    instructions = read_input(filename)
+    keypad = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    start = (1, 1)
+    return calculate_code(instructions, keypad, start)
 
 
 def part2(filename: str) -> str:
@@ -35,18 +40,8 @@ def part2(filename: str) -> str:
         ["", "A", "B", "C", ""],
         ["", "", "D", "", ""],
     ]
-    directions = {"U": (-1, 0), "D": (1, 0), "L": (0, -1), "R": (0, 1)}
-    code = []
-    row, col = 2, 0
-    length = len(keypad)
-    for line in instructions:
-        for direction in line:
-            dr, dc = directions[direction]
-            r, c = row + dr, col + dc
-            if (0 <= r < length) and (0 <= c < length) and (keypad[r][c] != ""):
-                row, col = r, c
-        code.append(keypad[row][col])
-    return "".join(map(str, code))
+    start = (2, 0)
+    return calculate_code(instructions, keypad, start)
 
 
 def test():
