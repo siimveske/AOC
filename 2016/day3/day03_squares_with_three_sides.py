@@ -23,19 +23,19 @@ def part1(filename: str) -> int:
     return len(filtered_triangles)
 
 
-def part2(filename: str) -> str:
-    instructions = read_input(filename)
-
-
-def test():
-    print("---- TEST ----")
-    filename = "test_input.txt"
-
-    assert part1(filename) == "1985"
-    print("Part 1: OK")
-
-    assert part2(filename) == "5DB3"
-    print("Part 2: OK")
+def part2(filename: str) -> int:
+    triangles = read_input(filename)
+    filtered_triangles = []
+    rows = len(triangles)
+    cols = len(triangles[0])
+    for idx_c in range(cols):
+        for idx_r in range(0, rows, 3):
+            a = triangles[idx_r][idx_c]
+            b = triangles[idx_r + 1][idx_c]
+            c = triangles[idx_r + 2][idx_c]
+            if a + b > c and a + c > b and b + c > a:
+                filtered_triangles.append((a, b, c))
+    return len(filtered_triangles)
 
 
 def main():
@@ -45,12 +45,11 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 993
-    #
-    # solution_part1 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part1}")
-    # assert solution_part1 == "74CD2"
+
+    solution_part1 = part2(filename)
+    print(f"Solution for Part 2: {solution_part1}")
+    assert solution_part1 == 1849
 
 
 if __name__ == "__main__":
-    # test()
     main()
