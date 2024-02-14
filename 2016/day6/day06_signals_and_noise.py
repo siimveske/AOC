@@ -14,16 +14,24 @@ def part1(filename: str) -> str:
     message = read_input(filename)
 
     # Create list of letter counts {'e': 3, 'd': 2, 'v': 2, 'a': 1}
-    counts = [Counter(column) for column in zip(*message)] # list of
+    counts = [Counter(column) for column in zip(*message)]
 
-    # Create list of most common letters
-    result = [counter.most_common(1)[0][0] for counter in counts]
+    # Create list of most common letters and pick the first i.e the most common
+    result = [counter.most_common()[0][0] for counter in counts]
 
     return "".join(result)
 
 
 def part2(filename: str) -> str:
-    instructions = read_input(filename)
+    message = read_input(filename)
+
+    # Create list of letter counts {'e': 3, 'd': 2, 'v': 2, 'a': 1}
+    counts = [Counter(column) for column in zip(*message)]
+
+    # Create list of most common letters and pick the last i.e the least common
+    result = [counter.most_common()[-1][0] for counter in counts]
+
+    return "".join(result)
 
 
 def test():
@@ -32,9 +40,9 @@ def test():
 
     assert part1(filename) == "easter"
     print("Part 1: OK")
-    #
-    # assert part2(filename) == "5DB3"
-    # print("Part 2: OK")
+
+    assert part2(filename) == "advent"
+    print("Part 2: OK")
 
 
 def main():
@@ -45,9 +53,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == "xhnqpqql"
 
-    # solution_part1 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part1}")
-    # assert solution_part1 == "74CD2"
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}")
+    assert solution_part2 == "brhailro"
 
 
 if __name__ == "__main__":
