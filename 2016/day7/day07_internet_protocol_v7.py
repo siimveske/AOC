@@ -11,7 +11,7 @@ def read_input(filename: str) -> list[str]:
 
 
 def has_abba(s: str) -> bool:
-    pattern = r"([a-zA-Z])([a-zA-Z])\2\1"
+    pattern = r"(.)(?!\1)(.)\2\1"
     match = re.search(pattern, s)
     return match is not None and match.group(1) != match.group(2)
 
