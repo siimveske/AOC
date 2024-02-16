@@ -1,4 +1,3 @@
-from collections import deque
 import os
 import re
 
@@ -28,11 +27,11 @@ def read_input(filename: str) -> list[tuple[str, int, int]]:
 
 
 def rotate_column(matrix: list[list[int]], column: int, amount: int) -> list[list[int]]:
-    # Convert the column to a deque for easy rotation
-    column_values = deque([row[column] for row in matrix])
+    # Convert the column to a list for easy rotation
+    column_values = [row[column] for row in matrix]
 
-    # Rotate the deque
-    column_values.rotate(amount)
+    # Rotate the list
+    column_values = column_values[-amount:] + column_values[:-amount]
 
     # Replace the values in the original matrix
     for i, row in enumerate(matrix):
@@ -56,9 +55,17 @@ def draw_rectangle(matrix: list[list[int]], width: int, height: int) -> list[lis
     return matrix
 
 
-def part1(filename: str) -> int:
-    commands = read_input(filename)
-    grid = [[0] * 50 for _ in range(6)]
+def print_grid(grid):
+    for row in grid:
+        print(row)
+
+
+def print_grid2(grid):
+    for row in grid:
+        print("".join("#" if x else " " for x in row))
+
+
+def transform(grid, commands):
     for cmd, arg1, arg2 in commands:
         if cmd == "rect":
             grid = draw_rectangle(grid, arg1, arg2)
@@ -66,16 +73,21 @@ def part1(filename: str) -> int:
             grid = rotate_row(grid, arg1, arg2)
         elif cmd == "col":
             grid = rotate_column(grid, arg1, arg2)
+    return grid
+
+
+def part1(filename: str) -> int:
+    commands = read_input(filename)
+    grid = [[0] * 50 for _ in range(6)]
+    grid = transform(grid, commands)
     return sum(sum(row) for row in grid)
 
 
-def part2(filename: str) -> int:
-    addesses = read_input(filename)
-
-
-def print_grid(grid):
-    for row in grid:
-        print(row)
+def part2(filename: str):
+    commands = read_input(filename)
+    grid = [[0] * 50 for _ in range(6)]
+    grid = transform(grid, commands)
+    return grid
 
 
 def test():
@@ -109,9 +121,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 128
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}")
-    # assert solution_part2 == 231
+    solution_part2 = part2(filename)
+    print("Solution for Part 2: EOARGPHYAO")
+    print_grid2(solution_part2)
 
 
 if __name__ == "__main__":
