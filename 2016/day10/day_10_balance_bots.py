@@ -98,8 +98,14 @@ def part2(filename: str) -> int:
         if len(state[high_target]) == 2:
             queue.append(high_target)
 
-    a, b, c = [v[0] for k, v in state.items() if k[0] == 'output' and k[1] in [0, 1, 2]]
-    return a * b * c
+    # Calculate product for output numbers 0, 1, and 2
+    result = 1
+    for item, values in state.items():
+        item_name, item_id = item
+        if item_name == 'output' and item_id in [0, 1, 2]:
+            output_value = values[0]
+            result *= output_value
+    return result
 
 
 def main():
