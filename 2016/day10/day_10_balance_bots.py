@@ -70,13 +70,36 @@ def part1(filename: str) -> int:
 
 
 def part2(filename: str) -> int:
-    lines = read_input(filename)
+    state, instructions = read_input(filename)
 
+    # Initialize our work queue
+    queue = deque()
 
-def test():
-    print("---- TEST ----")
-    print("Part 1: OK")
-    print("Part 2: OK")
+    # Find the first bot with two values
+    bot = get_first_two_value_bot(state)
+    queue.append(bot)
+
+    # Process all items on the queue until there are none left
+    while queue:
+
+        current_bot = queue.popleft()  # Get the next item from the queue
+        values = sorted(state[current_bot])  # Sort the values so they'll be in ascending order
+        state[current_bot] = []  # Clear out the processed values
+
+        # Update the instruction targets with the new values
+        low_target, high_target = instructions[current_bot]
+        state[low_target].append(values[0])
+        state[high_target].append(values[1])
+
+        # If either target now holds two values, enqueue them for processing
+        if len(state[low_target]) == 2:
+            queue.append(low_target)
+
+        if len(state[high_target]) == 2:
+            queue.append(high_target)
+
+    a, b, c = [v[0] for k, v in state.items() if k[0] == 'output' and k[1] in [0, 1, 2]]
+    return a * b * c
 
 
 def main():
@@ -87,11 +110,10 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 73
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}")
-    # assert solution_part2 == 11107527530
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}")
+    assert solution_part2 == 3965
 
 
 if __name__ == "__main__":
-    # test()
     main()
