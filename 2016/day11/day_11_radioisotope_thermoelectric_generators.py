@@ -19,18 +19,18 @@ def read_input(filename: str) -> list[list[str]]:
     return floors
 
 
-def get_state_hash(floors):
-    state = tuple(frozenset(floor) for floor in floors)
+def get_state_hash(floors, current_floor):
+    state = (current_floor, tuple(frozenset(floor) for floor in floors))
     return state
 
 
 explored_states = set()
 
 
-def state_explored(floors):
+def state_explored(floors, current_floor):
     global explored_states
 
-    current_state = get_state_hash(floors)
+    current_state = get_state_hash(floors, current_floor)
     if current_state in explored_states:
         return True
 
@@ -80,7 +80,7 @@ def part1(filename: str) -> int:
         if not valid_floor_contents(floors):
             continue
 
-        if state_explored(floors):
+        if state_explored(floors, current_floor):
             continue
 
         # If first, second and third floor are empty, everything is on floor 4 and we've won
