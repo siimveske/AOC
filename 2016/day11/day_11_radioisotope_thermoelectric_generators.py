@@ -19,15 +19,26 @@ def read_input(filename: str) -> list[list[str]]:
     return floors
 
 
-def get_state_hash(floors, current_floor):
-    state = (current_floor, tuple(frozenset(floor) for floor in floors))
+def get_state_hash(floors: list[list[str]], current_floor: int):
+
+    cnt = []
+    for floor in floors:
+        num_of_generators = 0
+        num_of_chips = 0
+        for item in floor:
+            if 'generator' in item:
+                num_of_generators += 1
+            if 'chip' in item:
+                num_of_chips += 1
+        cnt.append((num_of_generators, num_of_chips))
+    state = (current_floor, tuple(cnt))
     return state
 
 
 explored_states = set()
 
 
-def state_explored(floors, current_floor):
+def state_explored(floors: list[list[str]], current_floor: int):
     global explored_states
 
     current_state = get_state_hash(floors, current_floor)
@@ -39,7 +50,7 @@ def state_explored(floors, current_floor):
     return False
 
 
-def valid_floor_contents(floors):
+def valid_floor_contents(floors: list[list[str]]):
     for floor in floors:
         # Only floors with a generator can cause problems
         if not any([item for item in floor if 'generator' in item]):
@@ -59,7 +70,7 @@ def valid_floor_contents(floors):
     return True
 
 
-def make_move(floors, current_floor, next_floor, move_items):
+def make_move(floors: list[list[str]], current_floor: int, next_floor: int, move_items: list[str]):
     new_floor_contents = copy.deepcopy(floors)
     new_floor_contents[current_floor] = list(set(new_floor_contents[current_floor]) - set(move_items))
     new_floor_contents[next_floor] += move_items
@@ -69,22 +80,17 @@ def make_move(floors, current_floor, next_floor, move_items):
 def part1(filename: str) -> int:
     floors = read_input(filename)
 
-    # Initialize our work queue
     current_floor, num_moves = 0, 0
     queue = deque([(floors, current_floor, num_moves)])
 
-    # Process all items on the queue until there are none left
     while queue:
         floors, current_floor, num_moves = queue.popleft()
-
-        if not valid_floor_contents(floors):
-            continue
 
         if state_explored(floors, current_floor):
             continue
 
-        # If first, second and third floor are empty, everything is on floor 4 and we've won
-        if floors[0] == floors[1] == floors[2] == []:
+        # If everything is on floor 4 then we've won
+        if len(floors[-1]) == sum(len(floor) for floor in floors):
             return num_moves
 
         num_moves += 1
@@ -92,27 +98,18 @@ def part1(filename: str) -> int:
         floor_above = current_floor + 1
         possible_moves = list(itertools.combinations(floors[current_floor] + [None], 2))
 
-        if floor_above < len(floors):
-            for move_items in possible_moves:
+        for move_items in possible_moves:
+            for next_floor in [floor_below, floor_above]:
+                if not 0 <= next_floor < len(floors):
+                    continue
                 new_floor_contents = make_move(
                     floors,
                     current_floor,
-                    floor_above,
+                    next_floor,
                     list(filter(None, move_items))
                 )
-
-                queue.append((new_floor_contents, floor_above, num_moves))
-
-        if floor_below >= 0:
-            for move_items in possible_moves:
-                new_floor_contents = make_move(
-                    floors,
-                    current_floor,
-                    floor_below,
-                    list(filter(None, move_items))
-                )
-
-                queue.append((new_floor_contents, floor_below, num_moves))
+                if valid_floor_contents(new_floor_contents):
+                    queue.append((new_floor_contents, next_floor, num_moves))
 
 
 def test():
@@ -131,9 +128,10 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 37
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}")
-    # assert solution_part2 == 3965
+    filename = "input2.txt"
+    solution_part2 = part1(filename)
+    print(f"Solution for Part 2: {solution_part2}")
+    assert solution_part2 == 61
 
 
 if __name__ == "__main__":

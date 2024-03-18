@@ -1,0 +1,4 @@
+strontium generator,strontium-compatible microchip,plutonium generator,plutonium-compatible microchip,elerium generator,elerium-compatible microchip,dilithium generator,dilithium-compatible microchip
+thulium generator,ruthenium generator,ruthenium-compatible microchip,curium generator,curium-compatible microchip
+thulium-compatible microchip
+The fourth floor contains nothing relevant
