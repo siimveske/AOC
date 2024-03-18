@@ -98,7 +98,7 @@ def part1(filename: str) -> int:
                     floors,
                     current_floor,
                     floor_above,
-                    filter(None, move_items)
+                    list(filter(None, move_items))
                 )
 
                 queue.append((new_floor_contents, floor_above, num_moves))
@@ -109,10 +109,18 @@ def part1(filename: str) -> int:
                     floors,
                     current_floor,
                     floor_below,
-                    filter(None, move_items)
+                    list(filter(None, move_items))
                 )
 
                 queue.append((new_floor_contents, floor_below, num_moves))
+
+
+def test():
+    print("---- TEST ----")
+    filename = "test_input.txt"
+
+    assert part1(filename) == 11
+    print("Part 1: OK")
 
 
 def main():
@@ -121,7 +129,7 @@ def main():
 
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
-    # assert solution_part1 == 73
+    assert solution_part1 == 37
 
     # solution_part2 = part2(filename)
     # print(f"Solution for Part 2: {solution_part2}")
@@ -129,4 +137,5 @@ def main():
 
 
 if __name__ == "__main__":
+    test()
     main()
