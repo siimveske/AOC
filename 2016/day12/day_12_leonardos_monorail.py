@@ -10,31 +10,40 @@ def read_input(filename: str) -> list[list[str]]:
     return instructions
 
 
-def part1(filename: str) -> int:
-    instructions = read_input(filename)
-    registers = {"a": 0, "b": 0, "c": 0, "d": 0}
+def work(registers: dict, instructions: list[list[str]]) -> int:
     pointer = 0
 
     while pointer < len(instructions):
         inst = instructions[pointer]
-
+        jump = 1
         if inst[0] == "cpy":
-            src = int(inst[1]) if inst[1].lstrip('-').isdigit() else registers[inst[1]]
-            dest = inst[2]
-            registers[dest] = src
+            val = registers[inst[1]] if inst[1] in registers else int(inst[1])
+            name = inst[2]
+            registers[name] = val
         elif inst[0] == "inc":
             registers[inst[1]] += 1
         elif inst[0] == "dec":
             registers[inst[1]] -= 1
         elif inst[0] == "jnz":
-            val = int(inst[1]) if inst[1].lstrip('-').isdigit() else registers.get(inst[1])
-            jump = int(inst[2]) if inst[2].lstrip('-').isdigit() else registers.get(inst[2])
+            val = registers[inst[1]] if inst[1] in registers else int(inst[1])
             if val != 0:
-                pointer += jump - 1
+                jump = registers[inst[2]] if inst[2] in registers else int(inst[2])
 
-        pointer += 1
+        pointer += jump
 
     return registers["a"]
+
+
+def part1(filename: str) -> int:
+    instructions = read_input(filename)
+    registers = {"a": 0, "b": 0, "c": 0, "d": 0}
+    return work(registers, instructions)
+
+
+def part2(filename: str) -> int:
+    instructions = read_input(filename)
+    registers = {"a": 0, "b": 0, "c": 1, "d": 0}
+    return work(registers, instructions)
 
 
 def test():
@@ -53,10 +62,9 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == 318020
 
-    # filename = "input2.txt"
-    # solution_part2 = part1(filename)
-    # print(f"Solution for Part 2: {solution_part2}")
-    # assert solution_part2 == 61
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}")
+    assert solution_part2 == 9227674
 
 
 if __name__ == "__main__":
