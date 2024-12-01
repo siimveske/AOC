@@ -1,7 +1,14 @@
 import os
 
 
-def read_input(filename: str) -> list[list[int, int]]:
+def read_input(filename: str) -> tuple[list[int], list[int]]:
+    """
+    Reads a file and returns two sorted lists of integers.
+
+    The file is expected to contain two integers per line, with the first integer
+    on each line corresponding to the first list and the second integer on each
+    line corresponding to the second list.
+    """
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -10,36 +17,32 @@ def read_input(filename: str) -> list[list[int, int]]:
 
     with open(input_file_path, 'r') as f:
         for line in f:
-            a, b = line.split()
-            list_a.append(int(a))
-            list_b.append(int(b))
+            a, b = map(int, line.split())
+            list_a.append(a)
+            list_b.append(b)
 
     list_a.sort()
     list_b.sort()
-    pairs = [list_a, list_b]
 
-    return pairs
+    return list_a, list_b
 
 
 def part1(input_file: str) -> int:
-    list_a, list_b = read_input(input_file)
-    pairs = list(zip(list_a, list_b))
-
-    total = 0
-    for a, b in pairs:
-        total += abs(a-b)
-    return total
+    first_list, second_list = read_input(input_file)
+    total_difference = sum(abs(a - b) for a, b in zip(first_list, second_list))
+    return total_difference
 
 
 def part2(input_file: str) -> int:
-    list_a, list_b = read_input(input_file)
+    first_list, second_list = read_input(input_file)
     total = 0
-    counts = {}
+    count_map = {}
 
-    for number in list_a:
-        if number not in counts:
-            counts[number] = list_b.count(number)
-        total += number * counts[number]
+    for num in first_list:
+        if num not in count_map:
+            count_map[num] = second_list.count(num)
+        total += num * count_map[num]
+
     return total
 
 
