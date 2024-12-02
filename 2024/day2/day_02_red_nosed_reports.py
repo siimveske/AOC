@@ -13,30 +13,6 @@ def read_input(filename: str) -> list[list[int]]:
 
     return reports
 
-def get_safe_reports(reports: list[list[int]]) -> list[list[int]]:
-    safe_reports = []
-
-    min_diff = 1
-    max_diff = 3
-    for line in reports:
-        is_increasing_requence = line[0] < line[1]
-        is_safe = True
-        for i in range(len(line) - 1):
-            diff = line[i] - line[i+1]
-            if not min_diff <= abs(diff) <= max_diff:
-                is_safe = False
-                break
-            if is_increasing_requence and (line[i] - line[i+1]) >= 0:
-                is_safe = False
-                break
-            if not is_increasing_requence and (line[i] - line[i+1]) <= 0:
-                is_safe = False
-                break
-        if is_safe:
-            safe_reports.append(line)
-
-    return safe_reports
-
 def is_safe_report(report: list[int]) -> int:
     min_diff = 1
     max_diff = 3
@@ -56,10 +32,18 @@ def is_safe_report(report: list[int]) -> int:
             break
     return is_safe
 
-def generate_sublists(input_list):
-    result = []
-    for i in range(len(input_list)):
-        sublist = input_list[:i] + input_list[i+1:]
+def get_safe_reports(reports: list[list[int]]) -> list[list[int]]:
+    safe_reports = []
+    for line in reports:
+        is_safe = is_safe_report(line)
+        if is_safe == -1:
+            safe_reports.append(line)
+    return safe_reports
+
+def generate_options(levels: list[int]) -> list[list[int]]:
+    result = [levels]
+    for i in range(len(levels)):
+        sublist = levels[:i] + levels[i+1:]
         result.append(sublist)
     return result
 
@@ -67,13 +51,7 @@ def get_safe_reports2(reports: list[list[int]]) -> list[list[int]]:
     safe_reports = []
 
     for line in reports:
-        is_safe = is_safe_report(line)
-
-        if is_safe == -1:
-            safe_reports.append(line)
-            continue
-
-        for option in generate_sublists(line):
+        for option in generate_options(line):
             if is_safe_report(option) == -1:
                 safe_reports.append(option)
                 break
