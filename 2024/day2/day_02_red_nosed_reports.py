@@ -13,47 +13,40 @@ def read_input(filename: str) -> list[list[int]]:
 
     return reports
 
-def is_safe_report(report: list[int]) -> int:
-    min_diff = 1
-    max_diff = 3
-    is_increasing_requence = report[0] < report[1]
+def is_safe(report: list[int]) -> bool:
+    min_value = 1
+    max_value = 3
 
-    is_safe = -1
+    is_increasing_requence = report[0] < report[1]
+    is_decreasing_sequence = report[0] > report[1]
+
     for i in range(len(report) - 1):
         diff = report[i] - report[i+1]
-        if not min_diff <= abs(diff) <= max_diff:
-            is_safe = i
-            break
-        if is_increasing_requence and (report[i] - report[i+1]) >= 0:
-            is_safe = i
-            break
-        if not is_increasing_requence and (report[i] - report[i+1]) <= 0:
-            is_safe = i
-            break
-    return is_safe
+        if not min_value <= abs(diff) <= max_value:
+            return False
+
+        next_item_is_smaller = report[i+1] < report[i]
+        next_item_is_bigger = report[i+1] > report[i]
+
+        if is_increasing_requence and next_item_is_smaller:
+            return False
+        if is_decreasing_sequence and next_item_is_bigger:
+            return False
+
+    return True
 
 def get_safe_reports(reports: list[list[int]]) -> list[list[int]]:
-    safe_reports = []
-    for line in reports:
-        is_safe = is_safe_report(line)
-        if is_safe == -1:
-            safe_reports.append(line)
-    return safe_reports
+    return [report for report in reports if is_safe(report)]
 
 def generate_options(levels: list[int]) -> list[list[int]]:
-    result = [levels]
-    for i in range(len(levels)):
-        sublist = levels[:i] + levels[i+1:]
-        result.append(sublist)
-    return result
+    return [levels[:i] + levels[i+1:] for i in range(len(levels))]
 
 def get_safe_reports2(reports: list[list[int]]) -> list[list[int]]:
     safe_reports = []
-
-    for line in reports:
-        for option in generate_options(line):
-            if is_safe_report(option) == -1:
-                safe_reports.append(option)
+    for report in reports:
+        for modified_report in generate_options(report):
+            if is_safe(modified_report):
+                safe_reports.append(modified_report)
                 break
 
     return safe_reports
