@@ -14,6 +14,31 @@ def find_multiplications(input_string: str) -> list[tuple[int, int]]:
     matches = re.findall(pattern, input_string)
     return matches
 
+def find_patterns(input_string: str) -> list[str]:
+    pattern = r"(mul\((\d{1,3}),(\d{1,3})\))|(do\(\))|(don't\(\))"
+    matches = re.findall(pattern, input_string)
+
+    # Process matches to filter out empty groups
+    filtered_matches = []
+    for match in matches:
+        filtered_matches.append(next(filter(None, match)))
+    return filtered_matches
+
+DO = True
+def multiply(pattern: str) -> int:
+    global DO
+    total = 0
+    for p in pattern:
+        if p == r'do()':
+            DO = True
+        elif p == r"don't()":
+            DO = False
+        elif DO:
+            a, b = find_multiplications(p)[0]
+            total += int(a) * int(b)
+    return total
+
+
 def part1(input_file: str) -> int:
     memory = read_input(input_file)
     total = 0
@@ -22,11 +47,13 @@ def part1(input_file: str) -> int:
             total += int(a) * int(b)
     return total
 
-# def part2(input_file: str) -> int:
-#     reports = read_input(input_file)
-#     safe_reports = get_safe_reports2(reports)
-#     result = len(safe_reports)
-#     return result
+def part2(input_file: str) -> int:
+    memory = read_input(input_file)
+    total = 0
+    for line in memory:
+        patterns = find_patterns(line)
+        total += multiply(patterns)
+    return total
 
 
 def test():
@@ -36,8 +63,9 @@ def test():
     assert part1(filename) == 161
     print('Part 1 OK')
 
-    # assert part2(filename) == 4
-    # print('Part 2 OK')
+    filename = 'test_input2.txt'
+    assert part2(filename) == 48
+    print('Part 2 OK')
 
 
 def main():
@@ -47,11 +75,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 178794710
-    # assert solution_part2 == 436
+    assert solution_part2 == 76729637
 
 
 if __name__ == '__main__':
