@@ -2,57 +2,49 @@ import os
 import re
 
 
-def read_input(filename: str) -> list[str]:
+def read_input(filename: str) -> str:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     with open(input_file_path, 'r', encoding='utf-8') as f:
-        return f.read().splitlines()
+        return f.read()
 
-def find_multiplications(input_string: str) -> list[tuple[int, int]]:
+def parse_operands(input_string: str) -> list[tuple[int, int]]:
     pattern = r"mul\((\d{1,3}),(\d{1,3})\)"
+    matches = re.findall(pattern, input_string)
+    matches = [tuple(map(int, match)) for match in matches]
+    return matches
+
+def parse_tokens(input_string: str) -> list[str]:
+    pattern = r"(mul\(\d{1,3},\d{1,3}\)|do\(\)|don't\(\))"
     matches = re.findall(pattern, input_string)
     return matches
 
-def find_patterns(input_string: str) -> list[str]:
-    pattern = r"(mul\((\d{1,3}),(\d{1,3})\))|(do\(\))|(don't\(\))"
-    matches = re.findall(pattern, input_string)
-
-    # Process matches to filter out empty groups
-    filtered_matches = []
-    for match in matches:
-        filtered_matches.append(next(filter(None, match)))
-    return filtered_matches
-
-DO = True
-def multiply(pattern: str) -> int:
-    global DO
-    total = 0
-    for p in pattern:
-        if p == r'do()':
-            DO = True
-        elif p == r"don't()":
-            DO = False
-        elif DO:
-            a, b = find_multiplications(p)[0]
-            total += int(a) * int(b)
-    return total
+def multiply(tokens: str) -> int:
+    do = True
+    result = 0
+    for token in tokens:
+        if token == 'do()':
+            do = True
+        elif token == "don't()":
+            do = False
+        elif do:
+            operand1, operand2 = parse_operands(token)[0]
+            result += operand1 * operand2
+    return result
 
 
 def part1(input_file: str) -> int:
-    memory = read_input(input_file)
     total = 0
-    for line in memory:
-        for a, b in find_multiplications(line):
-            total += int(a) * int(b)
+    memory = read_input(input_file)
+    for operand1, operand2 in parse_operands(memory):
+        total += operand1 * operand2
     return total
 
 def part2(input_file: str) -> int:
     memory = read_input(input_file)
-    total = 0
-    for line in memory:
-        patterns = find_patterns(line)
-        total += multiply(patterns)
+    tokens = parse_tokens(memory)
+    total = multiply(tokens)
     return total
 
 
