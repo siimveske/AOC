@@ -48,19 +48,23 @@ def get_incorrectly_ordered(rules: dict, pages: list) -> list:
 
 def sort_pages(rules: dict, pages: list) -> list:
     ordered_pages = []
-    for sequence in pages:
-        sorted_sequence = sequence[::]
-        stop = len(sorted_sequence) - 1
-        while stop > 0:
-            for i in range(stop):
-                current = sorted_sequence[i]
-                nxt = sorted_sequence[i+1]
-                if (current in rules[nxt]) or (nxt not in rules[current]):
-                    tmp = sorted_sequence[i]
-                    sorted_sequence[i] = sorted_sequence[i+1]
-                    sorted_sequence[i+1] = tmp
-            stop -= 1
-        ordered_pages.append(sorted_sequence)
+
+    for page_list in pages:
+        sorted_list = page_list[:]
+        n = len(sorted_list) - 1
+
+        while n > 0:
+            for i in range(n):
+                current_page = sorted_list[i]
+                next_page = sorted_list[i+1]
+
+                if current_page in rules[next_page]:
+                    sorted_list[i], sorted_list[i+1] = sorted_list[i+1], sorted_list[i]
+
+            n -= 1
+
+        ordered_pages.append(sorted_list)
+
     return ordered_pages
 
 def part1(input_file: str) -> int:
