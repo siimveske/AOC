@@ -19,7 +19,7 @@ def read_input(filename: str) -> tuple[dict, list[list[int]]]:
     return rules, pages
 
 
-def filter_valid_pages(rules: dict, pages: list) -> list:
+def get_correctly_ordered(rules: dict, pages: list) -> list:
     filtered_pages = []
 
     for page_list in pages:
@@ -36,26 +36,47 @@ def filter_valid_pages(rules: dict, pages: list) -> list:
 
     return filtered_pages
 
+def get_incorrectly_ordered(rules: dict, pages: list) -> list:
+    filtered_pages = []
+    for page_list in pages:
+        for i, page in enumerate(page_list[:-1]):
+            next_page = page_list[i + 1]
+            if next_page not in rules[page]:
+                filtered_pages.append(page_list)
+                break
+    return filtered_pages
+
+def sort_pages(rules: dict, pages: list) -> list:
+    ordered_pages = []
+    for sequence in pages:
+        sorted_sequence = sequence[::]
+        stop = len(sorted_sequence) - 1
+        while stop > 0:
+            for i in range(stop):
+                current = sorted_sequence[i]
+                nxt = sorted_sequence[i+1]
+                if (current in rules[nxt]) or (nxt not in rules[current]):
+                    tmp = sorted_sequence[i]
+                    sorted_sequence[i] = sorted_sequence[i+1]
+                    sorted_sequence[i+1] = tmp
+            stop -= 1
+        ordered_pages.append(sorted_sequence)
+    return ordered_pages
+
 def part1(input_file: str) -> int:
     """Returns the sum of the middle pages after filtering pages according to rules."""
     rules, page_lists = read_input(input_file)
-    valid_page_lists = filter_valid_pages(rules, page_lists)
-    middle_pages = [page_list[len(page_list) // 2] for page_list in valid_page_lists]
+    correctly_ordered_pages = get_correctly_ordered(rules, page_lists)
+    middle_pages = [page_list[len(page_list) // 2] for page_list in correctly_ordered_pages]
     return sum(middle_pages)
 
 
-# def part2(input_file: str) -> int:
-#     first_list, second_list = read_input(input_file)
-#     total = 0
-#     count_map = {}
-
-#     for num in first_list:
-#         if num not in count_map:
-#             count_map[num] = second_list.count(num)
-#         total += num * count_map[num]
-
-#     return total
-
+def part2(input_file: str) -> int:
+    rules, page_lists = read_input(input_file)
+    incorrectly_ordered_pages = get_incorrectly_ordered(rules, page_lists)
+    ordered_pages = sort_pages(rules, incorrectly_ordered_pages)
+    middle_pages = [pages[len(pages) // 2] for pages in ordered_pages]
+    return sum(middle_pages)
 
 
 def test():
@@ -65,8 +86,8 @@ def test():
     assert part1(filename) == 143
     print('Part 1 OK')
 
-    # assert part2(filename) == 31
-    # print('Part 2 OK')
+    assert part2(filename) == 123
+    print('Part 2 OK')
 
 
 def main():
@@ -76,11 +97,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 4814
-    # assert solution_part2 == 20520794
+    assert solution_part2 == 5448
 
 
 if __name__ == '__main__':
