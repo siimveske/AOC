@@ -52,12 +52,45 @@ def part1(input_file: str) -> int:
                         total += 1
     return total
 
+def is_xmas(matrix: list[list[str]], row: int, col: int) -> bool:
+    """
+    Count the occurrences of 'MAS' in all four diagonal directions from 'A'.
+    """
+    cnt_mas = 0
+    num_rows = len(matrix)
+    num_cols = len(matrix[0])
+    directions = [
+        ((-1, -1),(1, 1)),  # up_left, down_right
+        ((-1, 1),(1, -1))   # up_right, down_left
+    ]
 
-# def part2(input_file: str) -> int:
-#     memory = read_input(input_file)
-#     tokens = parse_tokens(memory)
-#     total = multiply(tokens)
-#     return total
+    for direction in directions:
+        letters = []
+        for diagonal in direction:
+            r, c = diagonal
+            new_row = row + r
+            new_col = col + c
+
+            if (0 <= new_row < num_rows) and (0 <= new_col < num_cols):
+                letters.append(matrix[new_row][new_col])
+
+        if ''.join(letters) in ['MS', 'SM']:
+            cnt_mas += 1
+
+    return cnt_mas == 2
+
+def part2(input_file: str) -> int:
+    matrix = read_input(input_file)
+    num_rows = len(matrix)
+    num_cols = len(matrix[0])
+    xmas_count = 0
+
+    for row in range(num_rows):
+        for col in range(num_cols):
+            if matrix[row][col] == 'A':
+                xmas_count += is_xmas(matrix, row, col)
+
+    return xmas_count
 
 
 def test():
@@ -71,9 +104,9 @@ def test():
 
     print('Part 1 OK')
 
-    # filename = 'test_input2.txt'
-    # assert part2(filename) == 48
-    # print('Part 2 OK')
+    filename = 'test_input3.txt'
+    assert part2(filename) == 9
+    print('Part 2 OK')
 
 
 def main():
@@ -83,11 +116,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 2685
-    # assert solution_part2 == 76729637
+    assert solution_part2 == 2048
 
 
 if __name__ == '__main__':
