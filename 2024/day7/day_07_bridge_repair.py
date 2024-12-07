@@ -1,19 +1,43 @@
+import itertools
+from operator import add, mul
 import os
+import re
 
 
-def read_input(filename: str) -> list[list[str]]:
+def read_input(filename: str) -> list[list[int]]:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     input_path = os.path.join(script_dir, filename)
 
-    grid = []
+    equations = []
     with open(input_path, 'r', encoding='utf-8') as file:
         for line in file:
-            grid.append([*line.strip()])
-    return grid
+            numbers = re.findall(r'\d+', line)
+            numbers = [int(i) for i in numbers]
+            equations.append(numbers)
+    return equations
+
+OPERATIONS = [add, mul]
 
 def part1(input_file: str) -> int:
-    grid = read_input(input_file)
-    return 0
+    equations = read_input(input_file)
+    total = 0
+    cache = {}
+    for equation in equations:
+        expected_result, arguments = equation[0], equation[1:]
+        num_of_operations = len(arguments)-1
+        if num_of_operations not in cache:
+            cache[num_of_operations] = list(itertools.product(OPERATIONS, repeat=num_of_operations))
+
+        for operations in cache[num_of_operations]:
+            test_result = operations[0](arguments[0], arguments[1])
+            for i in range(1, num_of_operations):
+                test_result = operations[i](test_result, arguments[i+1])
+
+            if test_result == expected_result:
+                total += expected_result
+                break
+
+    return total
 
 
 def part2(input_file: str) -> int:
@@ -42,7 +66,7 @@ def main():
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 4758
+    assert solution_part1 == 7710205485870
     # assert solution_part2 == 1670
 
 
