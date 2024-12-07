@@ -11,23 +11,19 @@ def read_input(filename: str) -> list[list[int]]:
     equations = []
     with open(input_path, 'r', encoding='utf-8') as file:
         for line in file:
-            numbers = re.findall(r'\d+', line)
-            numbers = [int(i) for i in numbers]
+            numbers = [int(i) for i in re.findall(r'\d+', line)]
             equations.append(numbers)
     return equations
 
-
-
-def part1(input_file: str) -> int:
-    equations = read_input(input_file)
-    total = 0
+def calculate_total(equations: list[list[int]], ops: list) -> int:
     cache = {}
+    total = 0
 
     for equation in equations:
         expected_result, arguments = equation[0], equation[1:]
-        num_of_operations = len(arguments)-1
+        num_of_operations = len(arguments) - 1
         if num_of_operations not in cache:
-            cache[num_of_operations] = list(itertools.product([add, mul], repeat=num_of_operations))
+            cache[num_of_operations] = list(itertools.product(ops, repeat=num_of_operations))
 
         for operations in cache[num_of_operations]:
             test_result = operations[0](arguments[0], arguments[1])
@@ -43,28 +39,15 @@ def part1(input_file: str) -> int:
 def join(a, b):
     return int(f'{a}{b}')
 
-def part2(input_file: str) -> int:
+def part1(input_file: str) -> int:
     equations = read_input(input_file)
-    total = 0
-    cache = {}
-
-    for equation in equations:
-        expected_result, arguments = equation[0], equation[1:]
-        num_of_operations = len(arguments)-1
-        if num_of_operations not in cache:
-            cache[num_of_operations] = list(itertools.product([add, mul, join], repeat=num_of_operations))
-
-        for operations in cache[num_of_operations]:
-            test_result = operations[0](arguments[0], arguments[1])
-            for i in range(1, num_of_operations):
-                test_result = operations[i](test_result, arguments[i+1])
-
-            if test_result == expected_result:
-                total += expected_result
-                break
-
+    total = calculate_total(equations, [add, mul])
     return total
 
+def part2(input_file: str) -> int:
+    equations = read_input(input_file)
+    total = calculate_total(equations, [add, mul, join])
+    return total
 
 def test():
     print('---- TEST ----')
