@@ -34,7 +34,30 @@ def part1(input_file: str) -> int:
     return len(antinodes)
 
 def part2(input_file: str) -> int:
-    pass
+    graph, rows, cols = read_input(input_file)
+    antinodes = set()
+    for points in graph.values():
+        for p1, p2 in itertools.combinations(points, 2):
+            antinodes.add(p1)
+            antinodes.add(p2)
+
+            dx = p2[0] - p1[0]
+            dy = p2[1] - p1[1]
+            distance = max(rows, cols)
+            for i in range(1, distance):  # extend line in all directions
+                #diection A
+                x = p1[0] + dx * i
+                y = p1[1] + dy * i
+                if 0 <= x < rows and 0 <= y < cols:
+                    antinodes.add((x, y))
+
+                # direction B
+                x = p1[0] + dx * -i
+                y = p1[1] + dy * -i
+                if 0 <= x < rows and 0 <= y < cols:
+                    antinodes.add((x, y))
+
+    return len(antinodes)
 
 def test():
     print('---- TEST ----')
@@ -43,8 +66,8 @@ def test():
     assert part1(filename) == 14
     print('Part 1 OK')
 
-    # assert part2(filename) == 6
-    # print('Part 2 OK')
+    assert part2(filename) == 34
+    print('Part 2 OK')
 
 def main():
     print('\n---- MAIN ----')
@@ -53,11 +76,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 4758
-    # assert solution_part2 == 1670
+    assert solution_part1 == 423
+    assert solution_part2 == 1287
 
 
 if __name__ == '__main__':
