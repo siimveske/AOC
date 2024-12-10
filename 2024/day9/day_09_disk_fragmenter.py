@@ -1,15 +1,41 @@
 import os
 
 
-def read_input(filename: str) -> list[list[str]]:
+def read_input(filename: str) -> list[int]:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     input_path = os.path.join(script_dir, filename)
 
-    with open(input_path, 'r') as file:
-        pass
+    with open(input_path, "r") as file:
+        data = file.read().strip()
+        return list(map(int, data))
 
 def part1(input_file: str) -> int:
-    pass
+    data = read_input(input_file)
+
+    # build disk
+    disk = []
+    for i, number in enumerate(data):
+        if i % 2 == 0:
+            disk += [i // 2] * number
+        else:
+            disk += ["."] * number
+
+    # defragment disk
+    idx_free_space = disk.index(".")
+    idx = len(disk) - 1
+    while idx > idx_free_space:
+        disk[idx_free_space], disk[idx] = disk[idx], disk[idx_free_space]
+        # update free space index
+        while disk[idx_free_space] != "." and idx_free_space < len(disk) - 1:
+            idx_free_space += 1
+        # update index
+        idx -= 1
+
+    checksum = 0
+    for i, number in enumerate(disk):
+        if number != ".":
+            checksum += (i * number)
+    return checksum
 
 def part2(input_file: str) -> int:
     pass
@@ -34,7 +60,7 @@ def main():
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 423
+    assert solution_part1 == 6299243228569
     # assert solution_part2 == 1287
 
 
