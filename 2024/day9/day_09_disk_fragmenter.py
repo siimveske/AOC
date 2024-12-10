@@ -38,43 +38,45 @@ def part1(input_file: str) -> int:
     return checksum
 
 def part2(input_file: str) -> int:
-    data = read_input(input_file)
+    """Calculate the checksum of the disk after defragmentation."""
+    disk_data = read_input(input_file)
 
-    # build disk
+    # Build disk
     disk = []
-    fspace_info = []  # store info about free space (length_of_free_space, start_idx, end_idx)
-    file_info = []  # store info about files (length_of_file, start_idx, end_idx)
+    free_space_info = []  # store info about free space (length, start_idx, end_idx)
+    file_info = []  # store info about files (length, start_idx, end_idx)
     idx = 0
-    for i, number in enumerate(data):
+    for i, block_size in enumerate(disk_data):
         if i % 2 == 0:
-            disk += [i // 2] * number
-            file_info.append((number, idx))
+            disk += [i // 2] * block_size
+            file_info.append((block_size, idx))
         else:
-            if not number:
+            if not block_size:
                 continue
-            disk += ["."] * number
-            fspace_info.append((number, idx))
-        idx += number
+            disk += ["."] * block_size
+            free_space_info.append((block_size, idx))
+        idx += block_size
 
-    # defragment disk
+    # Defragment disk
     idx = len(disk) - 1
     for file_block in reversed(file_info):
         file_size, file_start_idx = file_block
-        for idx_free_slot, free_slot in enumerate(fspace_info):
-            slot_size, slot_start_idx = free_slot
-            if slot_start_idx >= file_start_idx:
+        for idx_free_slot, free_slot in enumerate(free_space_info):
+            free_size, free_start_idx = free_slot
+            if free_start_idx >= file_start_idx:
                 break
-            if slot_size >= file_size:
+            if free_size >= file_size:
                 file_id = disk[file_start_idx]
-                for i in range(slot_start_idx, slot_start_idx + file_size):
+                for i in range(free_start_idx, free_start_idx + file_size):
                     disk[i] = file_id
                 for i in range(file_start_idx, file_start_idx + file_size):
-                    disk[i] = '.'
-                new_slot_size = slot_size - file_size
-                new_slot_start_idx = slot_start_idx + file_size
-                fspace_info[idx_free_slot] = (new_slot_size, new_slot_start_idx)
+                    disk[i] = "."
+                new_free_size = free_size - file_size
+                new_free_start_idx = free_start_idx + file_size
+                free_space_info[idx_free_slot] = (new_free_size, new_free_start_idx)
                 break
 
+    # Calculate checksum
     checksum = 0
     for i, number in enumerate(disk):
         if number != ".":
