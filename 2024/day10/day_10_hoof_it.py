@@ -65,9 +65,32 @@ def walk(start, grid, memo):
     return result
 
 
+def walk2(start, grid, memo):
+
+    if start in memo:
+        return memo[start]
+
+    row, col = start
+    if grid[row][col] == 9:
+        return 1
+
+    result = 0
+    neighbors = get_neighbors(row, col, grid)
+    for neighbor in neighbors:
+        result +=walk2(neighbor, grid, memo)
+
+    memo[start] = result
+    return result
+
+
 def get_trailhead_score(start, grid):
     destinations = walk(start, grid, {})
     return len(destinations)
+
+
+def get_trailhead_rating(start, grid):
+    num_of_paths = walk2(start, grid, {})
+    return num_of_paths
 
 
 def part1(input_file: str) -> int:
@@ -79,7 +102,12 @@ def part1(input_file: str) -> int:
     return sum(trailhead_scores)
 
 def part2(input_file: str) -> int:
-    pass
+    grid = read_input(input_file)
+    trailheads = get_trailheads(grid)
+    trailhead_ratings = []
+    for trailhead in trailheads:
+        trailhead_ratings.append(get_trailhead_rating(trailhead, grid))
+    return sum(trailhead_ratings)
 
 def test():
     print('---- TEST ----')
@@ -101,8 +129,20 @@ def test():
 
     print('Part 1 OK')
 
-    # assert part2(filename) == 2858
-    # print('Part 2 OK')
+
+    filename = 'test_input6.txt'
+    assert part2(filename) == 3
+
+    filename = 'test_input7.txt'
+    assert part2(filename) == 13
+
+    filename = 'test_input8.txt'
+    assert part2(filename) == 227
+
+    filename = 'test_input5.txt'
+    assert part2(filename) == 81
+
+    print('Part 2 OK')
 
 def main():
     print('\n---- MAIN ----')
@@ -111,11 +151,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 782
-    # assert solution_part2 == 6326952672104
+    assert solution_part2 == 1694
 
 
 if __name__ == '__main__':
