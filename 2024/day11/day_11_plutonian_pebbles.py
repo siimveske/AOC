@@ -1,49 +1,37 @@
 from collections import defaultdict
 
 
-def blink(stones: list[int], blink_count: int) -> list[int]:
+def blink_stones(stones: list[int], blink_count: int) -> dict[int, int]:
+    """
+    Blink the stones the given number of times.
+    """
+    stone_counts = defaultdict(int)
+    for stone in stones:
+        stone_counts[stone] += 1
+
     for _ in range(blink_count):
-        new_stones = []
-        for number in stones:
+        new_stone_counts = defaultdict(int)
+        for number, count in stone_counts.items():
             if number == 0:
-                new_stones.append(1)
+                new_stone_counts[1] += count
             elif len(str(number)) % 2 == 0:
-                str_number = str(number)
-                left = str_number[: len(str_number) // 2]
-                right = str_number[len(str_number) // 2 :]
-                new_stones.append(int(left))
-                new_stones.append(int(right))
+                left, right = str(number)[: len(str(number)) // 2], str(number)[len(str(number)) // 2 :]
+                new_stone_counts[int(left)] += count
+                new_stone_counts[int(right)] += count
             else:
-                new_stones.append(number * 2024)
-        stones = new_stones
-    return stones
+                new_stone_counts[number * 2024] += count
+
+        stone_counts = new_stone_counts
+
+    return stone_counts
 
 
 def part1(stones: list[int], blink_count:int) -> int:
-    new_stones = blink(stones, blink_count)
-    return len(new_stones)
+    new_stones = blink_stones(stones, blink_count)
+    return sum(new_stones.values())
 
-def part2(stones: dict, blink_count:int) -> int:
-
-    for i in range(blink_count):
-        if i == 4:
-            pass
-        new_stones = defaultdict(int)
-        for number in stones:
-            if number == 0:
-                new_stones[1] += stones[number]
-            elif len(str(number)) % 2 == 0:
-                str_number = str(number)
-                left = str_number[: len(str_number) // 2]
-                right = str_number[len(str_number) // 2 :]
-                new_stones[int(left)] += stones[number]
-                new_stones[int(right)] += stones[number]
-            else:
-                new_stones[number * 2024] += stones[number]
-
-        stones = new_stones
-    return sum(stones.values())
-
+def part2(stones: list[int], blink_count:int) -> int:
+    return part1(stones, blink_count)
 
 
 def test():
@@ -55,10 +43,8 @@ def test():
     stones = [125, 17]
     assert part1(stones, blink_count=6) == 22
     assert part1(stones, blink_count=25) == 55312
-
     print("Part 1 OK")
 
-    stones = {125:1, 17:1}
     assert part2(stones, blink_count=25) == 55312
     print('Part 2 OK')
 
@@ -69,7 +55,6 @@ def main():
     solution_part1 = part1(stones, blink_count=25)
     print(f'Solution for Part 1: {solution_part1}')
 
-    stones = {4:1, 4841539:1, 66:1, 5279:1, 49207:1, 134:1, 609568:1, 0:1}
     solution_part2 = part2(stones, blink_count=75)
     print(f'Solution for Part 2: {solution_part2}\n')
 
