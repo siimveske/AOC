@@ -32,89 +32,65 @@ def explore(grid, row, col, plant_type, plots, visited):
 
 
 def get_island_perimeter(island: set) -> int:
+    """Calculate the perimeter of an island in a garden."""
     perimeter = 0
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     for row, col in island:
-        for i, j in directions:
-            new_row = row + i
-            new_col = col + j
-            if (new_row, new_col) not in island:
+        for row_offset, col_offset in directions:
+            neighbor_row = row + row_offset
+            neighbor_col = col + col_offset
+            if (neighbor_row, neighbor_col) not in island:
                 perimeter += 1
     return perimeter
 
 
 def get_discounted_island_perimeter(island: set, garden_grid: list) -> int:
-    '''Count the number of conrners of island'''
+    """Calculate the number of corners of an island."""
     corners = set()
-    garden = {}
-    for r, row in enumerate(garden_grid):
-        for c, plant_type in enumerate(row):
-            garden[(r, c)] = plant_type
+    garden = {(r, c): plant_type for r, row in enumerate(garden_grid) for c, plant_type in enumerate(row)}
 
     for row, col in island:
-        current_cell = (row, col)
-        plant_type = garden.get(current_cell)
+        plant_type = garden.get((row, col))
 
-        top = (row - 1, col)
-        top_right = (row - 1, col + 1)
-        right = (row, col + 1)
-        bottom_right = (row + 1, col + 1)
-        bottom = (row + 1, col)
-        bottom_left = (row + 1, col - 1)
-        left = (row, col - 1)
-        top_left = (row - 1, col - 1)
+        neighbors = {
+            "top": (row - 1, col),
+            "top_right": (row - 1, col + 1),
+            "right": (row, col + 1),
+            "bottom_right": (row + 1, col + 1),
+            "bottom": (row + 1, col),
+            "bottom_left": (row + 1, col - 1),
+            "left": (row, col - 1),
+            "top_left": (row - 1, col - 1)
+        }
 
-        top_plant = garden.get(top, '')
-        top_right_plant = garden.get(top_right, '')
-        right_plant = garden.get(right, '')
-        bottom_right_plant = garden.get(bottom_right, '')
-        bottom_plant = garden.get(bottom, '')
-        bottom_left_plant = garden.get(bottom_left, '')
-        left_plant = garden.get(left, '')
-        top_left_plant = garden.get(top_left, '')
+        neighbor_plants = {key: garden.get(pos, '') for key, pos in neighbors.items()}
 
         # Check for external (convex) corners
-        # Top Left
-        if left_plant != plant_type and top_plant != plant_type:
-            corners.add((current_cell, top_left))
-        # Top Right
-        if top_plant != plant_type and right_plant != plant_type:
-            corners.add((current_cell, top_right))
-        # Bottom Right
-        if right_plant != plant_type and bottom_plant != plant_type:
-            corners.add((current_cell, bottom_right))
-        # Bottom Left
-        if left_plant != plant_type and bottom_plant != plant_type:
-            corners.add((current_cell, bottom_left))
+        if neighbor_plants["left"] != plant_type and neighbor_plants["top"] != plant_type:
+            corners.add((row, col, "top_left"))
+        if neighbor_plants["top"] != plant_type and neighbor_plants["right"] != plant_type:
+            corners.add((row, col, "top_right"))
+        if neighbor_plants["right"] != plant_type and neighbor_plants["bottom"] != plant_type:
+            corners.add((row, col, "bottom_right"))
+        if neighbor_plants["left"] != plant_type and neighbor_plants["bottom"] != plant_type:
+            corners.add((row, col, "bottom_left"))
 
         # Check for internal (concave) corners
-        # Bottom Right
-        if bottom_plant == plant_type and right_plant == plant_type and bottom_right_plant != plant_type:
-            corners.add((current_cell, bottom_right))
-        # Bottom Left
-        if bottom_plant == plant_type and left_plant == plant_type and bottom_left_plant != plant_type:
-            corners.add((current_cell, bottom_left))
-        # Top Left
-        if top_plant == plant_type and left_plant == plant_type and top_left_plant != plant_type:
-            corners.add((current_cell, top_left))
-        # Top Right
-        if top_plant == plant_type and right_plant == plant_type and top_right_plant != plant_type:
-            corners.add((current_cell, top_right))
+        if neighbor_plants["bottom"] == plant_type and neighbor_plants["right"] == plant_type and neighbor_plants["bottom_right"] != plant_type:
+            corners.add((row, col, "bottom_right"))
+        if neighbor_plants["bottom"] == plant_type and neighbor_plants["left"] == plant_type and neighbor_plants["bottom_left"] != plant_type:
+            corners.add((row, col, "bottom_left"))
+        if neighbor_plants["top"] == plant_type and neighbor_plants["left"] == plant_type and neighbor_plants["top_left"] != plant_type:
+            corners.add((row, col, "top_left"))
+        if neighbor_plants["top"] == plant_type and neighbor_plants["right"] == plant_type and neighbor_plants["top_right"] != plant_type:
+            corners.add((row, col, "top_right"))
 
     return len(corners)
 
 
-def part1(input_file: str) -> int:
-    """Returns the total cost of fencing all of the separate gardens."""
-
-    # Get the garden grid from the input file
-    garden_grid = read_input(input_file)
-
-    # Initialize variables
+def get_islands(garden_grid):
     visited = set()
-    total_cost = 0
     islands = []
-
     # Iterate over all positions in the garden grid
     for row, line in enumerate(garden_grid):
         for col, plant_type in enumerate(line):
@@ -124,8 +100,18 @@ def part1(input_file: str) -> int:
                 island_plots = explore(garden_grid, row, col, plant_type, island_plots, visited)
                 if island_plots:
                     islands.append(island_plots)
+    return islands
 
-    # Calculate the total cost of fencing all of the separate gardens
+
+def part1(input_file: str) -> int:
+    """Returns the total cost of fencing all of the separate gardens."""
+
+    # Get the garden grid from the input file
+    garden_grid = read_input(input_file)
+    islands = get_islands(garden_grid)
+
+    # Calculate the total cost of fencing all gardens
+    total_cost = 0
     for island in islands:
         area = len(island)
         perimeter = get_island_perimeter(island)
@@ -139,23 +125,10 @@ def part2(input_file: str) -> int:
 
     # Get the garden grid from the input file
     garden_grid = read_input(input_file)
-
-    # Initialize variables
-    visited = set()
-    total_cost = 0
-    islands = []
-
-    # Iterate over all positions in the garden grid
-    for row, line in enumerate(garden_grid):
-        for col, plant_type in enumerate(line):
-            # Check if the current position is a new island
-            if (row, col) not in visited:
-                island_plots = set()
-                island_plots = explore(garden_grid, row, col, plant_type, island_plots, visited)
-                if island_plots:
-                    islands.append(island_plots)
+    islands = get_islands(garden_grid)
 
     # Calculate the total cost of fencing all gardens
+    total_cost = 0
     for island in islands:
         area = len(island)
         perimeter = get_discounted_island_perimeter(island, garden_grid)
