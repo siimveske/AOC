@@ -1,21 +1,20 @@
 import os
 import re
 
-def read_input(filename: str) -> tuple[list[int], list[int]]:
-    script_location = os.path.dirname(os.path.realpath(__file__))
-    input_file_path = os.path.join(script_location, filename)
+def read_input(filename: str) -> list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]]:
+    file_path = os.path.join(os.path.dirname(__file__), filename)
 
-    configurations = []
-    with open(input_file_path, 'r') as f:
-        machines = f.read().split('\n\n')
-        for machine in machines:
-            parsed_data = []
+    configurations: list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]] = []
+    with open(file_path, 'r') as file:
+        for machine in file.read().split('\n\n'):
+            parsed_data: list[tuple[int, int]] = []
             for line in machine.split('\n'):
                 numbers = re.findall(r'(\d+)', line)
                 numbers = tuple(map(int, numbers))
                 parsed_data.append(numbers)
             configurations.append(tuple(parsed_data))
     return configurations
+
 
 
 def press(config: tuple, btn_a_cnt: int, btn_b_cnt: int, memo: dict) -> int:
@@ -31,24 +30,22 @@ def press(config: tuple, btn_a_cnt: int, btn_b_cnt: int, memo: dict) -> int:
     if btn_a_cnt > 100 or btn_b_cnt > 100:
         return float('inf')
 
-    dist_a_x = btn_a_cnt * btn_a_x
-    dist_a_y = btn_a_cnt * btn_a_y
-    dist_b_x = btn_b_cnt * btn_b_x
-    dist_b_y = btn_b_cnt * btn_b_y
-    x = dist_a_x + dist_b_x
-    y = dist_a_y + dist_b_y
+    # Calculate current position
+    x = btn_a_cnt * btn_a_x + btn_b_cnt * btn_b_x
+    y = btn_a_cnt * btn_a_y + btn_b_cnt * btn_b_y
+
     if x > dst_x or y > dst_y:
         return float('inf')
 
     if x == dst_x and y == dst_y:
-        return 3*btn_a_cnt + btn_b_cnt
+        return 3 * btn_a_cnt + btn_b_cnt
 
-    result = []
-    result.append(press(config, btn_a_cnt + 1, btn_b_cnt, memo))
-    result.append(press(config, btn_a_cnt, btn_b_cnt + 1, memo))
-    result.append(press(config, btn_a_cnt + 1, btn_b_cnt + 1, memo))
-    result = min(result)
+    result = float('inf')
+    result = min(result, press(config, btn_a_cnt + 1, btn_b_cnt, memo))
+    result = min(result, press(config, btn_a_cnt, btn_b_cnt + 1, memo))
+    result = min(result, press(config, btn_a_cnt + 1, btn_b_cnt + 1, memo))
 
+    # Use dynamic programming to avoid redundant calculations
     memo[key] = result
     return result
 
