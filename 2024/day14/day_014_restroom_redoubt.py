@@ -5,30 +5,28 @@ import re
 def read_input(filename: str) -> list:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
-    robots = set()
+    robots = {}
     with open(file_path, 'r') as file:
-        for line in file:
+        for idx, line in enumerate(file.read().splitlines()):
             numbers = re.findall(r'(-?\d+)', line)
             x, y, vx, vy = [int(i) for i in numbers]
-            robots.add((x, y, vx, vy))
+            robots[idx] = (x, y, vx, vy)
     return robots
 
 
 def part1(input_file: str, width: int, height: int) -> int:
     grid = read_input(input_file)
     for _ in range(100):
-        new_grid = set()
-        for robot in grid:
+        for idx, robot in grid.items():
             x, y, vx, vy = robot
             new_x = (x + vx) % width
             new_y = (y + vy) % height
-            new_grid.add((new_x, new_y, vx, vy))
-        grid = new_grid
+            grid[idx] = (new_x, new_y, vx, vy)
 
     mid_x = width // 2
     mid_y = height // 2
     count = [0, 0, 0, 0]
-    for robot in grid:
+    for robot in grid.values():
         x, y, vx, vy = robot
 
         # top left
