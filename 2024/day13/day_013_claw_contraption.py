@@ -1,20 +1,21 @@
 import os
 import re
+import numpy as np
 
-def read_input(filename: str) -> list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]]:
+
+def read_input(filename: str) -> list:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
-    configurations: list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]] = []
+    configurations = []
     with open(file_path, 'r') as file:
         for machine in file.read().split('\n\n'):
-            parsed_data: list[tuple[int, int]] = []
+            parsed_data: list = []
             for line in machine.split('\n'):
                 numbers = re.findall(r'(\d+)', line)
-                numbers = tuple(map(int, numbers))
+                numbers = list(tuple(map(int, numbers)))
                 parsed_data.append(numbers)
-            configurations.append(tuple(parsed_data))
+            configurations.append(parsed_data)
     return configurations
-
 
 
 def press(config: tuple, btn_a_cnt: int, btn_b_cnt: int, memo: dict) -> int:
@@ -61,8 +62,26 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    data = read_input(input_file)
-    return 0
+    configurations = read_input(input_file)
+    offset = 10**13
+    total_cost = 0
+    for configuration in configurations:
+        button_a, button_b, destination = configuration
+        ax, ay = button_a
+        bx, by = button_b
+        dx, dy = [value + offset for value in destination]
+
+        matrix_a = np.array([[ax, bx], [ay, by]])
+        vector_b = np.array([[dx], [dy]])
+
+        solution = np.linalg.solve(matrix_a, vector_b).round()
+        a = solution[0][0]
+        b = solution[1][0]
+
+        if (a * ax + b * bx) == dx and (a * ay + b * by) == dy:
+            total_cost += 3 * a + b
+
+    return total_cost
 
 def test():
     print('---- TEST ----')
@@ -71,8 +90,8 @@ def test():
     assert part1(filename) == 480
     print('Part 1 OK')
 
-    # assert part2(filename) == 80
-    # print('Part 2 OK')
+    assert part2(filename) == 875318608908
+    print('Part 2 OK')
 
 
 def main():
@@ -82,11 +101,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 28753
-    # assert solution_part2 == 902742
+    assert solution_part2 == 102718967795500
 
 
 if __name__ == '__main__':
