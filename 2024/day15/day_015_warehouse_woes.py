@@ -38,13 +38,38 @@ def part1(input_file: str) -> int:
     while queue:
         dr, dc = queue.popleft()
         next_r, next_c = r + dr, c + dc
+
+        if grid[next_r][next_c] == "#":
+            continue
+
         if grid[next_r][next_c] == ".":
             grid[next_r][next_c] = "@"
             grid[r][c] = "."
+            r, c = next_r, next_c
+            continue
 
-        r, c = next_r, next_c
+        if grid[next_r][next_c] == "O":
+            stack = []
+            a, b = next_r, next_c
+            while grid[a][b] == "O":
+                stack.append((a, b))
+                a, b = a + dr, b + dc
+            if grid[a][b] == "#":
+                continue
+            else:
+                while stack:
+                    a, b = stack.pop()
+                    grid[a+dr][b+dc] = "O"
+                grid[next_r][next_c] = "@"
+                grid[r][c] = "."
+                r, c = next_r, next_c
 
-    return 0
+    total = 0
+    for r, row in enumerate(grid):
+        for c, char in enumerate(row):
+            if char == "O":
+                total += 100*r+c
+    return total
 
 
 # def part2(input_file: str) -> int:
@@ -55,6 +80,9 @@ def test():
 
     filename = 'test_input.txt'
     assert part1(filename) == 2028
+
+    filename = 'test_input2.txt'
+    assert part1(filename) == 10092
     print('Part 1 OK')
 
     # assert part2(filename) == 875318608908
@@ -71,7 +99,7 @@ def main():
     # solution_part2 = part2(filename)
     # print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 28753
+    assert solution_part1 == 1517819
     # assert solution_part2 == 102718967795500
 
 
