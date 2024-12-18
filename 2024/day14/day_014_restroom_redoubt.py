@@ -88,36 +88,34 @@ def part1(input_file: str, width: int, height: int) -> int:
     return result
 
 
-def part2(input_file: str, width: int, height: int):
+def part2(input_file: str, width: int, height: int) -> None:
+    """Plot the robots as they move and connect."""
     grid = read_input(input_file)
-    num_of_robots = len(grid)
-    max_num_of_connected_robots = num_of_robots // 8
+    num_robots = len(grid)
+    max_connected_robots = num_robots // 8
 
     plt.xlim(0, width)
     plt.ylim(0, height)
 
-    for i in itertools.count(1):
-        for idx, robot in grid.items():
-            x, y, vx, vy = robot
+    for step in itertools.count(1):
+        for idx, (x, y, vx, vy) in grid.items():
             new_x = (x + vx) % width
             new_y = (y + vy) % height
             grid[idx] = (new_x, new_y, vx, vy)
 
         connected = maximum_island(grid)
 
-        if connected >= max_num_of_connected_robots:
-            max_num_of_connected_robots = connected
-            print(f'Step {i}: Max connected:{max_num_of_connected_robots}')
+        if connected >= max_connected_robots:
+            max_connected_robots = connected
+            print(f'Step {step}: Max connected: {max_connected_robots}')
 
             plt.clf()
-            plt.title(f'Step {i}')
+            plt.title(f'Step {step}')
             img = [[0] * width for _ in range(height)]
-            for robot in grid.values():
-                x, y, vx, vy = robot
+            for x, y, _, _ in grid.values():
                 img[y][x] = 255
             plt.imshow(img)
             plt.show()
-
 
 
 def test():
@@ -134,10 +132,9 @@ def main():
 
     solution_part1 = part1(filename, width=101, height=103)
     print(f'Solution for Part 1: {solution_part1}')
+    assert solution_part1 == 230686500
 
     part2(filename, width=101, height=103)
-
-    assert solution_part1 == 230686500
 
 
 if __name__ == '__main__':
