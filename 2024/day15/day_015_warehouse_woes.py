@@ -31,45 +31,44 @@ def read_input(filename: str) -> list:
 
 
 def part1(input_file: str) -> int:
-    grid, cmds, start = read_input(input_file)
-    queue = deque(cmds)
+    grid, commands, start_position = read_input(input_file)
+    move_queue = deque(commands)
 
-    r, c = start
-    while queue:
-        dr, dc = queue.popleft()
-        next_r, next_c = r + dr, c + dc
+    current_row, current_col = start_position
+    while move_queue:
+        delta_row, delta_col = move_queue.popleft()
+        new_row, new_col = current_row + delta_row, current_col + delta_col
 
-        if grid[next_r][next_c] == "#":
+        if grid[new_row][new_col] == "#":
             continue
 
-        if grid[next_r][next_c] == ".":
-            grid[next_r][next_c] = "@"
-            grid[r][c] = "."
-            r, c = next_r, next_c
+        if grid[new_row][new_col] == ".":
+            grid[new_row][new_col] = "@"
+            grid[current_row][current_col] = "."
+            current_row, current_col = new_row, new_col
             continue
 
-        if grid[next_r][next_c] == "O":
-            stack = []
-            a, b = next_r, next_c
-            while grid[a][b] == "O":
-                stack.append((a, b))
-                a, b = a + dr, b + dc
-            if grid[a][b] == "#":
-                continue
-            else:
-                while stack:
-                    a, b = stack.pop()
-                    grid[a+dr][b+dc] = "O"
-                grid[next_r][next_c] = "@"
-                grid[r][c] = "."
-                r, c = next_r, next_c
+        obstacle_stack = []
+        temp_row, temp_col = new_row, new_col
+        while grid[temp_row][temp_col] == "O":
+            obstacle_stack.append((temp_row, temp_col))
+            temp_row, temp_col = temp_row + delta_row, temp_col + delta_col
+        if grid[temp_row][temp_col] == "#":
+            continue
+        else:
+            while obstacle_stack:
+                temp_row, temp_col = obstacle_stack.pop()
+                grid[temp_row + delta_row][temp_col + delta_col] = "O"
+            grid[new_row][new_col] = "@"
+            grid[current_row][current_col] = "."
+            current_row, current_col = new_row, new_col
 
-    total = 0
-    for r, row in enumerate(grid):
-        for c, char in enumerate(row):
-            if char == "O":
-                total += 100*r+c
-    return total
+    total_score = 0
+    for row_index, row in enumerate(grid):
+        for col_index, cell in enumerate(row):
+            if cell == "O":
+                total_score += 100 * row_index + col_index
+    return total_score
 
 
 # def part2(input_file: str) -> int:
