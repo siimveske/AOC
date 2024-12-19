@@ -88,11 +88,26 @@ def part2(input_file: str) -> int:
             elif tile == "@":
                 new_row += ["@", "."]
         wide_grid.append(new_row)
+    grid = wide_grid
+
+    # find new start position
+    start_position = None
+    for r, row in enumerate(grid):
+        if start_position:
+            break
+        for c, tile in enumerate(row):
+            if tile == "@":
+                start_position = (r, c)
+                break
 
     # move the robot
     move_queue = deque(commands)
     current_row, current_col = start_position
     while move_queue:
+        for row in grid:
+            print("".join(row))
+        print()
+
         delta_row, delta_col = move_queue.popleft()
         new_row, new_col = current_row + delta_row, current_col + delta_col
 
@@ -113,19 +128,64 @@ def part2(input_file: str) -> int:
             temp_row, temp_col = new_row, new_col
             while grid[temp_row][temp_col] in "[]":
                 obstacle_stack.append((temp_row, temp_col, grid[temp_row][temp_col]))
-                temp_row, temp_col = temp_row + delta_row, temp_col + delta_col
+                temp_col = temp_col + delta_col
+
+            # We can't move if we find a wall
             if grid[temp_row][temp_col] == "#":
                 continue
             else:
+                # move all obstacles one step left/right
                 while obstacle_stack:
                     temp_row, temp_col, tile = obstacle_stack.pop()
                     grid[temp_row + delta_row][temp_col + delta_col] = tile
                 grid[new_row][new_col] = "@"
                 grid[current_row][current_col] = "."
                 current_row, current_col = new_row, new_col
+
         else: # vertical
-            pass
-            # TODO: implement vertical movement
+            visited = set()
+            neighbours = deque([(new_row, new_col)])
+            no_room = False
+            while neighbours:
+                current_tile_row, current_tile_col = neighbours.popleft()
+                current_tile = grid[current_tile_row][current_tile_col]
+
+                # We can't move if we find a wall
+                if current_tile == "#":
+                    no_room = True
+                    break
+
+                if current_tile == ".":
+                    continue
+
+                node = (current_tile_row, current_tile_col, current_tile)
+                if node in visited:
+                    continue
+
+                # mark current tile as visited
+                if current_tile in "[]":
+                    visited.add(node)
+
+                # add closing bracket to-be-visited queue
+                if current_tile == "[":
+                    neighbours.append((current_tile_row, current_tile_col + 1))
+                elif current_tile == "]":
+                    neighbours.append((current_tile_row, current_tile_col - 1))
+
+                # mark tile in the next row to-be-visited
+                neighbours.append((current_tile_row + delta_row, current_tile_col))
+
+            if no_room:
+                continue
+
+            # move the obstacle
+            while visited:
+                current_tile_row, current_tile_col, current_tile = visited.pop()
+                grid[current_tile_row + delta_row][current_tile_col] = current_tile
+                grid[current_tile_row][current_tile_col] = "."
+            grid[new_row][new_col] = "@"
+            grid[current_row][current_col] = "."
+            current_row, current_col = new_row, new_col
 
     total_score = 0
     for row_index, row in enumerate(grid):
@@ -145,6 +205,10 @@ def test():
     assert part1(filename) == 10092
     print('Part 1 OK')
 
+    filename = 'test_input3.txt'
+    assert part2(filename) == 618
+
+    filename = 'test_input2.txt'
     assert part2(filename) == 9021
     print('Part 2 OK')
 
