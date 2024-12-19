@@ -71,8 +71,69 @@ def part1(input_file: str) -> int:
     return total_score
 
 
-# def part2(input_file: str) -> int:
-#     configurations = read_input(input_file)
+def part2(input_file: str) -> int:
+    grid, commands, start_position = read_input(input_file)
+
+    # build wide grid
+    wide_grid = []
+    for row in grid:
+        new_row = []
+        for tile in row:
+            if tile == "#":
+                new_row += ["#", "#"]
+            elif tile == "O":
+                new_row += ["[", "]"]
+            elif tile == ".":
+                new_row += [".", "."]
+            elif tile == "@":
+                new_row += ["@", "."]
+        wide_grid.append(new_row)
+
+    # move the robot
+    move_queue = deque(commands)
+    current_row, current_col = start_position
+    while move_queue:
+        delta_row, delta_col = move_queue.popleft()
+        new_row, new_col = current_row + delta_row, current_col + delta_col
+
+        # if we find a wall, we can't move
+        if grid[new_row][new_col] == "#":
+            continue
+
+        # if we find an empty space, we move there
+        if grid[new_row][new_col] == ".":
+            grid[new_row][new_col] = "@"
+            grid[current_row][current_col] = "."
+            current_row, current_col = new_row, new_col
+            continue
+
+        # if we find an obstacle, we need to move it
+        if delta_col != 0: # horizontal
+            obstacle_stack = []
+            temp_row, temp_col = new_row, new_col
+            while grid[temp_row][temp_col] in "[]":
+                obstacle_stack.append((temp_row, temp_col, grid[temp_row][temp_col]))
+                temp_row, temp_col = temp_row + delta_row, temp_col + delta_col
+            if grid[temp_row][temp_col] == "#":
+                continue
+            else:
+                while obstacle_stack:
+                    temp_row, temp_col, tile = obstacle_stack.pop()
+                    grid[temp_row + delta_row][temp_col + delta_col] = tile
+                grid[new_row][new_col] = "@"
+                grid[current_row][current_col] = "."
+                current_row, current_col = new_row, new_col
+        else: # vertical
+            pass
+            # TODO: implement vertical movement
+
+    total_score = 0
+    for row_index, row in enumerate(grid):
+        for col_index, cell in enumerate(row):
+            if cell == "[":
+                total_score += 100 * row_index + col_index
+    return total_score
+
 
 def test():
     print('---- TEST ----')
@@ -84,8 +145,8 @@ def test():
     assert part1(filename) == 10092
     print('Part 1 OK')
 
-    # assert part2(filename) == 875318608908
-    # print('Part 2 OK')
+    assert part2(filename) == 9021
+    print('Part 2 OK')
 
 
 def main():
@@ -95,8 +156,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 1517819
     # assert solution_part2 == 102718967795500
