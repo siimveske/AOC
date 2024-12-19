@@ -104,9 +104,6 @@ def part2(input_file: str) -> int:
     move_queue = deque(commands)
     current_row, current_col = start_position
     while move_queue:
-        for row in grid:
-            print("".join(row))
-        print()
 
         delta_row, delta_col = move_queue.popleft()
         new_row, new_col = current_row + delta_row, current_col + delta_col
@@ -179,10 +176,13 @@ def part2(input_file: str) -> int:
                 continue
 
             # move the obstacle
+            for node in visited:
+                current_tile_row, current_tile_col, current_tile = node
+                grid[current_tile_row][current_tile_col] = "."
+
             while visited:
                 current_tile_row, current_tile_col, current_tile = visited.pop()
                 grid[current_tile_row + delta_row][current_tile_col] = current_tile
-                grid[current_tile_row][current_tile_col] = "."
             grid[new_row][new_col] = "@"
             grid[current_row][current_col] = "."
             current_row, current_col = new_row, new_col
@@ -224,7 +224,7 @@ def main():
     print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 1517819
-    # assert solution_part2 == 102718967795500
+    assert solution_part2 == 1538862
 
 
 if __name__ == '__main__':
