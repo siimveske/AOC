@@ -1,74 +1,71 @@
+from collections import defaultdict
 import heapq
 import os
+
 
 def read_input(filename: str) -> list:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
-    grid = []
+    grid = {}
     start = None
     with open(file_path, "r") as file:
-        grid = file.read().splitlines()
-        for r, row in enumerate(grid):
-            if start:
-                break
+        data = file.read().splitlines()
+        for r, row in enumerate(data):
             for c, char in enumerate(row):
                 if char == "S":
                     start = (r, c)
-                    break
-
+                if char != "#":
+                    grid[r, c] = char
     return grid, start
 
 
-def rotate(current_dir, steps: int) -> tuple:
-    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-    index = directions.index(current_dir)
-    rotated_index = (index + steps) % len(directions)
-    return directions[rotated_index]
-
-
 def dijkstra(grid, position):
-    """Dijkstra's shortest path Algorithm"""
+    """Modified Dijkstra's shortest path algorithm"""
 
-    direction = (0, 1)
-    pq = [(0, position, direction)] # (cost, location, direction)
-    visited = {(position, direction)}
+    seen = []
+    best = float("inf")
+    orientation = (0, 1)
+    dist = defaultdict(lambda: float("inf"))
+    todo = [(0, position, orientation, [position])]
 
-    while pq:
-        cost, location, direction = heapq.heappop(pq)
-        visited.add((location, direction))
+    while todo:
+        val, pos, _dir, path = heapq.heappop(todo)
+        if val > dist[pos, _dir]:
+            continue
 
-        r, c = location
-        if grid[r][c] == "E":
-            return cost
+        dist[pos, _dir] = val
 
-        left_dir = rotate(direction, -1)
-        right_dir = rotate(direction, 1)
-        next_location = (r + direction[0], c + direction[1])
+        if grid[pos] == 'E' and val <= best:
+            seen += path
+            best = val
+
+        r, c = pos
+        dr, dc = _dir
         neighbors = [
-            (cost + 1, next_location, direction),
-            (cost + 1000, location, left_dir),
-            (cost + 1000, location, right_dir)]
-
-        for new_cost, new_pos, new_dir in neighbors:
-            if (new_pos, new_dir) in visited:
+            (val + 1, r + dr, c + dc, dr, dc),
+            (val + 1000, r, c, dc, -dr),
+            (val + 1000, r, c, -dc, dr)
+        ]
+        for new_cost, nr, nc, ndr, ndc in neighbors:
+            new_pos = (nr, nc)
+            new_dir = (ndr, ndc)
+            if new_pos not in grid:
                 continue
-            nr, nc = new_pos
-            if grid[nr][nc] == "#":
-                continue
-            heapq.heappush(pq, (new_cost, new_pos, new_dir))
+            heapq.heappush(todo, (new_cost, new_pos, new_dir, path + [new_pos]))
 
-    return float("inf")
+    return best, len(set(seen))
 
 
 def part1(input_file: str) -> int:
     grid, start = read_input(input_file)
-    min_cost = dijkstra(grid, start)
+    min_cost = dijkstra(grid, start)[0]
     return min_cost
 
 
-# def part2(input_file: str) -> int:
-#     grid, commands, start_position = read_input(input_file)
-#     pass
+def part2(input_file: str) -> int:
+    grid, start = read_input(input_file)
+    num_of_tiles = dijkstra(grid, start)[1]
+    return num_of_tiles
 
 
 def test():
@@ -79,11 +76,14 @@ def test():
 
     filename = "test_input2.txt"
     assert part1(filename) == 11048
-
     print("Part 1 OK")
 
-    # assert part2(filename) == 618
-    # print("Part 2 OK")
+    filename = "test_input.txt"
+    assert part2(filename) == 45
+
+    filename = "test_input2.txt"
+    assert part2(filename) == 64
+    print("Part 2 OK")
 
 
 def main():
@@ -93,11 +93,11 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 72400
-    # assert solution_part2 == 1538862
+    assert solution_part2 == 435
 
 
 if __name__ == "__main__":
