@@ -1,6 +1,5 @@
+import heapq
 import os
-import sys
-sys.setrecursionlimit(10**6)
 
 def read_input(filename: str) -> list:
     file_path = os.path.join(os.path.dirname(__file__), filename)
@@ -20,52 +19,51 @@ def read_input(filename: str) -> list:
     return grid, start
 
 
-def rotate(vector, steps: int) -> tuple:
+def rotate(current_dir, steps: int) -> tuple:
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-    index = directions.index(vector)
+    index = directions.index(current_dir)
     rotated_index = (index + steps) % len(directions)
     return directions[rotated_index]
 
 
-def calculate(grid, start, direction, cost, visited):
-    r, c = start
-    dr, dc = direction
+def dijkstra(grid, position):
+    """Dijkstra's shortest path Algorithm"""
 
-    if grid[r][c] == "E":
-        return cost
+    direction = (0, 1)
+    pq = [(0, position, direction)] # (cost, location, direction)
+    visited = {(position, direction)}
 
-    if grid[r][c] == "#" or start in visited:
-        return float("inf")
+    while pq:
+        cost, location, direction = heapq.heappop(pq)
+        visited.add((location, direction))
 
-    # Move forward
-    if start == (7, 3) and direction == (-1, 0):
-        pass
-    next_cell = (r + dr, c + dc)
-    min_cost = calculate(grid, next_cell, direction, cost + 1, visited | {(start)})
+        r, c = location
+        if grid[r][c] == "E":
+            return cost
 
-    # Rotate 90 degrees left
-    next_direction = rotate(direction, -1)
-    next_cell = (r + next_direction[0], c + next_direction[1])
-    min_cost = min(min_cost, calculate(grid, next_cell, next_direction, cost + 1000 + 1, visited | {start}))
+        left_dir = rotate(direction, -1)
+        right_dir = rotate(direction, 1)
+        next_location = (r + direction[0], c + direction[1])
+        neighbors = [
+            (cost + 1, next_location, direction),
+            (cost + 1000, location, left_dir),
+            (cost + 1000, location, right_dir)]
 
-    # Rotate 90 degrees right
-    next_direction = rotate(direction, 1)
-    next_cell = (r + next_direction[0], c + next_direction[1])
-    min_cost = min(min_cost, calculate(grid, next_cell, next_direction, cost + 1000 + 1, visited | {start}))
+        for new_cost, new_pos, new_dir in neighbors:
+            if (new_pos, new_dir) in visited:
+                continue
+            nr, nc = new_pos
+            if grid[nr][nc] == "#":
+                continue
+            heapq.heappush(pq, (new_cost, new_pos, new_dir))
 
-    # Rotate 180 degrees
-    next_direction = rotate(direction, 2)
-    next_cell = (r + next_direction[0], c + next_direction[1])
-    min_cost = min(min_cost, calculate(grid, next_cell, next_direction, cost + 2000 + 1, visited | {start}))
-
-    return min_cost
+    return float("inf")
 
 
 def part1(input_file: str) -> int:
     grid, start = read_input(input_file)
-    direction = (0, 1)
-    result = calculate(grid, start, direction, 0, set())
-    return result
+    min_cost = dijkstra(grid, start)
+    return min_cost
 
 
 # def part2(input_file: str) -> int:
@@ -98,7 +96,7 @@ def main():
     # solution_part2 = part2(filename)
     # print(f"Solution for Part 2: {solution_part2}\n")
 
-    # assert solution_part1 == 1517819
+    assert solution_part1 == 72400
     # assert solution_part2 == 1538862
 
 
