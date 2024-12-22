@@ -12,10 +12,8 @@ def read_input(filename: str) -> tuple[list[int], list[int]]:
 
     return registry, program
 
-
-def part1(input_file: str) -> int:
-    registry, program = read_input(input_file)
-    reg_a, reg_b, reg_c = registry
+def compute(seed: int, program) -> int:
+    reg_a, reg_b, reg_c = seed, 0, 0
 
     def combo(x):
         if x in [0, 1, 2, 3]:
@@ -52,13 +50,24 @@ def part1(input_file: str) -> int:
             reg_c = reg_a // 2**combo(arg)
         ip += 2
 
-    return ",".join(str(i) for i in output)
+    return output
 
 
-# def part2(input_file: str) -> int:
-#     grid, start = read_input(input_file)
-#     num_of_tiles = dijkstra(grid, start)[1]
-#     return num_of_tiles
+def part1(input_file: str) -> int:
+    registry, program = read_input(input_file)
+    result = compute(registry[0], program)
+    return ",".join(str(i) for i in result)
+
+
+def part2(input_file: str) -> int:
+    _, program = read_input(input_file)
+
+    seed = 0
+    while True:
+        result = compute(seed, program)
+        if result == program:
+            return seed
+        seed += 1
 
 
 def test():
@@ -66,15 +75,11 @@ def test():
 
     filename = "test_input.txt"
     assert part1(filename) == "4,6,3,5,6,3,5,2,1,0"
-
     print("Part 1 OK")
 
-    # filename = "test_input.txt"
-    # assert part2(filename) == 45
-
-    # filename = "test_input2.txt"
-    # assert part2(filename) == 64
-    # print("Part 2 OK")
+    filename = "test_input2.txt"
+    assert part2(filename) == 117440
+    print("Part 2 OK")
 
 
 def main():
