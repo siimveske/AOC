@@ -1,11 +1,16 @@
 import os
+import re
 
 
-def read_input(filename: str) -> list:
+def read_input(filename: str) -> tuple[list[int], list[int]]:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
     with open(file_path, "r") as file:
-        pass
+        registry, program = file.read().split("\n\n")
+        registry = [int(i) for i in re.findall(r"(\d+)", registry)]
+        program = [int(i) for i in re.findall(r"(\d+)", program)]
+
+    return registry, program
 
 
 def part1(input_file: str) -> int:
@@ -23,7 +28,7 @@ def test():
     print("---- TEST ----")
 
     filename = "test_input.txt"
-    assert part1(filename) == 7036
+    assert part1(filename) == "4,6,3,5,6,3,5,2,1,0"
 
     print("Part 1 OK")
 
