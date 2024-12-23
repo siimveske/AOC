@@ -62,12 +62,13 @@ def part1(input_file: str) -> int:
 def part2(input_file: str) -> int:
     _, program = read_input(input_file)
 
-    seed = 0
-    while True:
-        result = compute(seed, program)
-        if result == program:
-            return seed
-        seed += 1
+    # with program 0,3,5,4,3,0
+    # 0*8**1 + 3*8**2 + 5*8**3 + 4*8**4 + 3*8**5 + 0*8**6
+    result = 0
+    for i, digit in enumerate(program, start=1):
+        result += digit * 8**i
+
+    return result
 
 
 def test():
@@ -89,8 +90,8 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == "7,1,3,7,5,1,0,3,4"
     # assert solution_part2 == 435
