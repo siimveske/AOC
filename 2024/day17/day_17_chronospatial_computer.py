@@ -46,7 +46,7 @@ def compute(a: int, program: list[int]) -> int:
 
 
 def find_quine_input(a: int, idx: int, program: list[int]) -> list[int]:
-    """Return all quine inputs for program."""
+    """Return quine input for program."""
     result = None
     output = compute(a, program)
     # print(f"a: {a}, idx: {idx}, output: {output}")
