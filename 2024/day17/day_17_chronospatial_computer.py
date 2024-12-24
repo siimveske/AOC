@@ -12,20 +12,12 @@ def read_input(filename: str) -> tuple[list[int], list[int]]:
 
     return registry, program
 
-def compute(seed: int, program) -> int:
-    reg_a, reg_b, reg_c = seed, 0, 0
 
-    def combo(x):
-        if x in [0, 1, 2, 3]:
-            return x
-        elif x == 4:
-            return reg_a
-        elif x == 5:
-            return reg_b
-        elif x == 6:
-            return reg_c
-        else:
-            raise ValueError(f"Invalid instruction {x}")
+def compute(a: int, program: list[int]) -> int:
+    reg_a, reg_b, reg_c = a, 0, 0
+
+    def combo(idx):
+        return [0, 1, 2, 3, reg_a, reg_b, reg_c][idx]
 
     ip = 0
     output = []
@@ -53,6 +45,19 @@ def compute(seed: int, program) -> int:
     return output
 
 
+def find_quine_input(a: int, idx: int, program: list[int]) -> list[int]:
+    """Return all quine inputs for program."""
+    result = None
+    output = compute(a, program)
+    # print(f"a: {a}, idx: {idx}, output: {output}")
+    if output == program:
+        return a
+    if output == program[-idx:] or not idx:
+        for n in range(8):
+            result = result or find_quine_input(8 * a + n, idx + 1, program)
+    return result
+
+
 def part1(input_file: str) -> int:
     registry, program = read_input(input_file)
     result = compute(registry[0], program)
@@ -61,13 +66,7 @@ def part1(input_file: str) -> int:
 
 def part2(input_file: str) -> int:
     _, program = read_input(input_file)
-
-    # with program 0,3,5,4,3,0
-    # 0*8**1 + 3*8**2 + 5*8**3 + 4*8**4 + 3*8**5 + 0*8**6
-    result = 0
-    for i, digit in enumerate(program, start=1):
-        result += digit * 8**i
-
+    result = find_quine_input(0, 0, program)
     return result
 
 
@@ -94,7 +93,7 @@ def main():
     print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == "7,1,3,7,5,1,0,3,4"
-    # assert solution_part2 == 435
+    assert solution_part2 == 190384113204239
 
 
 if __name__ == "__main__":
