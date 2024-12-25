@@ -2,7 +2,7 @@ import os
 import re
 
 
-def read_input(filename: str) -> tuple[list[int], list[int]]:
+def read_input(filename: str) -> list[tuple[int, int]]:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
     coordinates = []
@@ -12,15 +12,6 @@ def read_input(filename: str) -> tuple[list[int], list[int]]:
             coordinates.append((a, b))
 
     return coordinates
-
-
-def simulate(coordinates, rows, cols, steps):
-    memory = [["."] * cols for _ in range(rows)]
-
-    for i in range(steps):
-        x, y = coordinates[i]
-        memory[y][x] = '#'
-    return memory
 
 
 def find_shortest_path(memory: list[list[str]]) -> int:
@@ -54,17 +45,25 @@ def find_shortest_path(memory: list[list[str]]) -> int:
 
 def part1(input_file: str, rows: int, cols: int, steps: int) -> int:
     coordinates = read_input(input_file)
-    memory = simulate(coordinates, rows, cols, steps)
-    result = find_shortest_path(memory)
-    for row in memory:
-        print("".join(row))
+
+    grid = [["."] * cols for _ in range(rows)]
+    for i in range(steps):
+        x, y = coordinates[i]
+        grid[y][x] = '#'
+
+    result = find_shortest_path(grid)
     return result
 
 
-# def part2(input_file: str) -> int:
-#     _, program = read_input(input_file)
-#     result = find_quine_input(0, 0, program)
-#     return result
+def part2(input_file: str, rows: int, cols: int) -> str:
+    coordinates = read_input(input_file)
+    grid = [["."] * cols for _ in range(rows)]
+    for x, y in coordinates:
+        grid[y][x] = "#"
+        result = find_shortest_path(grid)
+        if result == -1:
+            break
+    return f"{x},{y}"
 
 
 def test():
@@ -74,9 +73,8 @@ def test():
     assert part1(filename, rows=7, cols=7, steps=12) == 22
     print("Part 1 OK")
 
-    # filename = "test_input2.txt"
-    # assert part2(filename) == 117440
-    # print("Part 2 OK")
+    assert part2(filename, rows=7, cols=7) == "6,1"
+    print("Part 2 OK")
 
 
 def main():
@@ -86,11 +84,11 @@ def main():
     solution_part1 = part1(filename, rows=71, cols=71, steps=1024)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename, rows=71, cols=71)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 276
-    # assert solution_part2 == 190384113204239
+    assert solution_part2 == "60,37"
 
 
 if __name__ == "__main__":
