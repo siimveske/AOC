@@ -1,6 +1,6 @@
 import os
 import re
-
+from collections import deque
 
 def read_input(filename: str) -> list[tuple[int, int]]:
     file_path = os.path.join(os.path.dirname(__file__), filename)
@@ -21,10 +21,10 @@ def find_shortest_path(memory: list[list[str]]) -> int:
     rows, cols = len(memory), len(memory[0])
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     seen = [[False] * cols for _ in range(rows)]
-    queue = [(0, 0, 0)]  # (x, y, steps)
+    queue = deque([(0, 0, 0)])  # (x, y, steps)
 
     while queue:
-        x, y, steps = queue.pop(0)
+        x, y, steps = queue.popleft()
 
         if x == cols - 1 and y == rows - 1:
             return steps
@@ -57,12 +57,14 @@ def part1(input_file: str, rows: int, cols: int, steps: int) -> int:
 
 def part2(input_file: str, rows: int, cols: int) -> str:
     coordinates = read_input(input_file)
+
     grid = [["."] * cols for _ in range(rows)]
     for x, y in coordinates:
         grid[y][x] = "#"
         result = find_shortest_path(grid)
         if result == -1:
             break
+
     return f"{x},{y}"
 
 
