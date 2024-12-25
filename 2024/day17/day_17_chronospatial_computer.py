@@ -54,7 +54,9 @@ def find_quine_input(a: int, idx: int, program: list[int]) -> list[int]:
         return a
     if output == program[-idx:] or not idx:
         for n in range(8):
-            result = result or find_quine_input(8 * a + n, idx + 1, program)
+            result = find_quine_input(8 * a + n, idx + 1, program)
+            if result:
+                break
     return result
 
 
