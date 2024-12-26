@@ -4,10 +4,10 @@ def read_input(filename: str) -> list[tuple[int, int]]:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
     with open(file_path, "r") as file:
-        a, b = file.read().split("\n\n")
-        a = [i.strip() for i in a.split(",")]
-        b = b.splitlines()
-    return a,b
+        patterns, strings = file.read().split("\n\n")
+        patterns = [i.strip() for i in patterns.split(",")]
+        strings = strings.splitlines()
+    return patterns,strings
 
 def can_construct(target: str, word_bank: list[str], memo: dict[str, bool] = None) -> bool:
     """
@@ -46,34 +46,57 @@ def can_construct(target: str, word_bank: list[str], memo: dict[str, bool] = Non
     memo[target] = False
     return False
 
-def count_construct(target, word_bank, memo=None):
+def count_construct(target: str, word_bank: list[str], memo: dict[str, int] = None) -> int:
+    """
+    Counts the number of ways a target string can be constructed from a list of words in the word bank.
+
+    Args:
+        target (str): The target string to construct.
+        word_bank (list[str]): The list of words that can be used to construct the target string.
+        memo (dict[str, int], optional): A memoization dictionary to store previously computed results for efficiency. Defaults to None.
+
+    Returns:
+        int: The number of ways the target string can be constructed from the word bank.
+    """
     if memo is None:
         memo = {}
+
+    # If the target string has already been computed, return the cached result
     if target in memo:
         return memo[target]
+
+    # If the target string is empty, it can be constructed in one way
     if target == "":
         return 1
 
+    # Initialize the total count to 0
     total_count = 0
+
+    # Iterate over each word in the word bank
     for word in word_bank:
+        # If the target string starts with the word, check if the remaining suffix can be constructed
         if target.startswith(word):
+            # Part of the target that remains after removing the word
             suffix = target[len(word):]
+            # Add the number of ways the suffix can be constructed to the total count
             total_count += count_construct(suffix, word_bank, memo)
 
+    # Store the result in the memoization dictionary for future use
     memo[target] = total_count
     return total_count
 
 
+
 def part1(input_file: str) -> int:
-    a, b = read_input(input_file)
-    results = {s: can_construct(s, a) for s in b}
+    patterns, strings = read_input(input_file)
+    results = {s: can_construct(s, patterns) for s in strings}
     result = sum(results.values())
     return result
 
 
 def part2(input_file: str) -> int:
-    a, b = read_input(input_file)
-    results = {s: count_construct(s, a) for s in b}
+    patterns, strings = read_input(input_file)
+    results = {s: count_construct(s, patterns) for s in strings}
     result = sum(results.values())
     return result
 
