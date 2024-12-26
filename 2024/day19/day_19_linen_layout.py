@@ -46,6 +46,23 @@ def can_construct(target: str, word_bank: list[str], memo: dict[str, bool] = Non
     memo[target] = False
     return False
 
+def count_construct(target, word_bank, memo=None):
+    if memo is None:
+        memo = {}
+    if target in memo:
+        return memo[target]
+    if target == "":
+        return 1
+
+    total_count = 0
+    for word in word_bank:
+        if target.startswith(word):
+            suffix = target[len(word):]
+            total_count += count_construct(suffix, word_bank, memo)
+
+    memo[target] = total_count
+    return total_count
+
 
 def part1(input_file: str) -> int:
     a, b = read_input(input_file)
@@ -54,8 +71,11 @@ def part1(input_file: str) -> int:
     return result
 
 
-# def part2(input_file: str, rows: int, cols: int) -> str:
-#     coordinates = read_input(input_file)
+def part2(input_file: str) -> int:
+    a, b = read_input(input_file)
+    results = {s: count_construct(s, a) for s in b}
+    result = sum(results.values())
+    return result
 
 
 def test():
@@ -65,8 +85,8 @@ def test():
     assert part1(filename) == 6
     print("Part 1 OK")
 
-    # assert part2(filename, rows=7, cols=7) == "6,1"
-    # print("Part 2 OK")
+    assert part2(filename) == 16
+    print("Part 2 OK")
 
 
 def main():
@@ -76,11 +96,11 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename, rows=71, cols=71)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 342
-    # assert solution_part2 == "60,37"
+    assert solution_part2 == 891192814474630
 
 
 if __name__ == "__main__":
