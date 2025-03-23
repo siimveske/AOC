@@ -1,6 +1,12 @@
-from functools import cache
 import os
-import itertools as it
+from collections import deque
+from functools import cache
+from itertools import pairwise
+
+"""
+Original solution by: mgtezak
+https://github.com/mgtezak/Advent_of_Code/blob/master/2024/21/p2.py
+"""
 
 def read_input(filename: str) -> list[str]:
     file_path = os.path.join(os.path.dirname(__file__), filename)
@@ -9,66 +15,111 @@ def read_input(filename: str) -> list[str]:
         codes = file.read().strip().split("\n")
     return codes
 
+
 N_PAD = {
-    "7": (0, 0), "8": (0, 1), "9": (0, 2),
-    "4": (1, 0), "5": (1, 1), "6": (1, 2),
-    "1": (2, 0), "2": (2, 1), "3": (2, 2),
-                 "0": (3, 1), "A": (3, 2)
+    "0": [("2", "^"), ("A", ">")],
+    "1": [("2", ">"), ("4", "^")],
+    "2": [("0", "v"), ("1", "<"), ("3", ">"), ("5", "^")],
+    "3": [("2", "<"), ("6", "^"), ("A", "v")],
+    "4": [("1", "v"), ("5", ">"), ("7", "^")],
+    "5": [("2", "v"), ("4", "<"), ("6", ">"), ("8", "^")],
+    "6": [("3", "v"), ("5", "<"), ("9", "^")],
+    "7": [("4", "v"), ("8", ">")],
+    "8": [("5", "v"), ("7", "<"), ("9", ">")],
+    "9": [("6", "v"), ("8", "<")],
+    "A": [("0", "<"), ("3", "^")],
 }
 D_PAD = {
-                 "^": (0, 1), "A": (0, 2),
-    "<": (1, 0), "v": (1, 1), ">": (1, 2)
+    "^": [("A", ">"), ("v", "v")],
+    "<": [("v", ">")],
+    "v": [("<", "<"), ("^", "^"), (">", ">")],
+    ">": [("v", "<"), ("A", "^")],
+    "A": [("^", "<"), (">", "v")],
 }
 PADS = [N_PAD, D_PAD]
-OFFSETS = {"<": (0, -1), ">": (0, 1), "^": (-1, 0), "v": (1, 0)}
 
-@cache
-def get_button_paths(start: str, end: str, idx_pad: int) -> list[str]:
-    (r1, c1) = PADS[idx_pad][start]
-    (r2, c2) = PADS[idx_pad][end]
 
-    button_dr, button_dc = r2 - r1, c2 - c1
-    movements = (
-        "<" * -button_dc + ">" * button_dc
-      + "^" * -button_dr + "v" * button_dr
-    )
+def bfs(start: str, target: str, graph: dict) -> list[str]:
+    """Find all shortest paths from start to target in graph.
 
+    Args:
+        start: Starting node
+        target: Target node
+        graph: Dictionary representing the graph where values are lists of (node, direction) tuples
+
+    Returns:
+        List of paths represented as strings of directions
+    """
+    queue = deque([(start, [], {start})])
+    shortest_length = None
     paths = []
-    for sequence in set(it.permutations(movements)):
-        robot_r, robot_c = r1, c1
-        for movement in sequence:
-            robot_dr, robot_dc = OFFSETS[movement]
-            robot_r += robot_dr
-            robot_c += robot_dc
-            if idx_pad == 0 and (robot_r, robot_c) == (3,0):
-                break
-            if idx_pad == 1 and (robot_r, robot_c) == (0,0):
-                break
-        else:
-            paths.append("".join(sequence) + "A")
+
+    while queue:
+        current, path, visited = queue.popleft()
+
+        # Found target - record path if it's shortest
+        if current == target:
+            if shortest_length is None:
+                shortest_length = len(path)
+            if len(path) == shortest_length:
+                paths.append("".join(path + ["A"]))
+            continue
+
+        # Skip if path is longer than shortest known path
+        if shortest_length is not None and len(path) >= shortest_length:
+            continue
+
+        # Explore neighbors
+        for neighbor, direction in graph[current]:
+            if neighbor not in visited:
+                queue.append((
+                    neighbor,
+                    path + [direction],
+                    visited | {neighbor}
+                ))
 
     return paths
 
+
 @cache
-def get_min_sequence_length(code: str, depth: int, idx_pad=0) -> int:
-    result = 0
-    for button1, button2 in zip("A" + code, code):
-        paths = get_button_paths(button1, button2, idx_pad)
-        if depth == 0:
-            result += min(map(len, paths))
+def dfs(sequence: str, recursion_depth: int, pad_index: int = 0) -> int:
+    """Calculate minimum path length through a sequence of nodes with nested recursion.
+
+    Args:
+        sequence: String of nodes to traverse
+        recursion_depth: Number of recursive levels to process
+        pad_index: Index of pad configuration to use (0=N_PAD, 1=D_PAD)
+
+    Returns:
+        Minimum total path length through the sequence
+    """
+    pad = PADS[pad_index]
+    total_length = 0
+    full_sequence = "A" + sequence  # Ensure sequence starts from A
+
+    # Process each consecutive pair of nodes
+    for current, next_node in pairwise(full_sequence):
+        # Find all possible paths between current pair of nodes
+        possible_paths = bfs(current, next_node, pad)
+
+        if recursion_depth == 0:
+            # Base case: add minimum path length
+            total_length += min(len(path) for path in possible_paths)
         else:
-            result += min(
-                get_min_sequence_length(path, depth - 1 , idx_pad=1)
-                for path in paths
+            # Recursive case: find minimum length through nested paths
+            total_length += min(
+                dfs(path, recursion_depth - 1, 1)
+                for path in possible_paths
             )
-    return result
+
+    return total_length
 
 def part1(input_file: str) -> int:
     total = 0
     codes = read_input(input_file)
     for code in codes:
         keycode_number = int(code[:-1])
-        min_sequence_length = get_min_sequence_length(code, depth=2)
+        min_sequence_length = dfs(code, 2)
         total += min_sequence_length * keycode_number
     return total
 
@@ -78,7 +129,7 @@ def part2(input_file: str) -> int:
     codes = read_input(input_file)
     for code in codes:
         keycode_number = int(code[:-1])
-        min_sequence_length = get_min_sequence_length(code, depth=25)
+        min_sequence_length = dfs(code, 25)
         total += min_sequence_length * keycode_number
     return total
 
