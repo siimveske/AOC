@@ -45,20 +45,44 @@ def filter_triplets(triplets: set[tuple[str, str, str]], prefix="t") -> set[tupl
     return filtered_triplets
 
 
-def bron_kerbosch(r, p, x, network):
-    if not p and not x:
-        return r
+def bron_kerbosch(current_clique: set, candidates: set, excluded: set, network: dict[str, set[str]]) -> set[str]:
+    """Find maximum clique in undirected graph using Bron-Kerbosch algorithm with pivoting.
+
+    Args:
+        current_clique: Current clique being built
+        candidates: Vertices that can extend current clique
+        excluded: Vertices already processed
+        network: Graph as adjacency list
+
+    Returns:
+        Largest clique found in the graph
+    """
+    # Base case: if no vertices left to process, return current clique
+    if not candidates and not excluded:
+        return current_clique
+
     max_clique = set()
-    pivot = next(iter(p | x))
-    for v in p - network[pivot]:
-        new_r = r | {v}
-        new_p = p & network[v]
-        new_x = x & network[v]
-        result = bron_kerbosch(new_r, new_p, new_x, network)
+    # Choose pivot vertex from candidates union excluded
+    pivot = next(iter(candidates | excluded))
+    # Process vertices not connected to pivot
+    possible_vertices = candidates - network[pivot]
+
+    for vertex in possible_vertices:
+        neighbors = network[vertex]
+        # Recursively find cliques with vertex added
+        result = bron_kerbosch(
+            current_clique | {vertex},  # Add vertex to current clique
+            candidates & neighbors,      # Intersect candidates with vertex neighbors
+            excluded & neighbors,        # Intersect excluded with vertex neighbors
+            network
+        )
+        # Update max clique if larger one found
         if len(result) > len(max_clique):
             max_clique = result
-        p = p - {v}
-        x = x | {v}
+        # Move vertex from candidates to excluded
+        candidates.remove(vertex)
+        excluded.add(vertex)
+
     return max_clique
 
 
