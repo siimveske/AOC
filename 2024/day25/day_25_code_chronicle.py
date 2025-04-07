@@ -4,50 +4,46 @@ import os
 def read_input(filename: str) -> tuple:
     file_path = os.path.join(os.path.dirname(__file__), filename)
 
+    def count_blocks_in_column(lines: list, col_index: int) -> int:
+        return sum(1 for row in lines if row[col_index] == "#")
+
+    def get_height_pattern(item: str) -> tuple:
+        lines = item.splitlines()
+        column_count = len(lines[0])
+        heights = [count_blocks_in_column(lines, col) for col in range(column_count)]
+        return tuple(heights)
+
     keys = []
     locks = []
-    with open(file_path, "r") as file:
-        for item in file.read().strip().split("\n\n"):
-            lines = item.splitlines()
-            heights = []
-            for c in range(len(lines[0])):
-                cnt = 0
-                for r in range(len(lines)):
-                    if lines[r][c] == "#":
-                        cnt += 1
-                heights.append(cnt)
 
-            heights = tuple(heights)
-            if item.startswith("#####"):
+    with open(file_path, "r") as file:
+        patterns = file.read().strip().split("\n\n")
+        free_space = len(patterns[0].splitlines())
+
+        for pattern in patterns:
+            heights = get_height_pattern(pattern)
+            if pattern.startswith("#####"):
                 locks.append(heights)
             else:
                 keys.append(heights)
-        free_space=len(lines)
 
     return locks, keys, free_space
 
 
 def part1(input_file: str) -> int:
     locks, keys, free_space = read_input(input_file)
-    pairs = set()
+    compatible_pairs = set()
+
+    def can_fit_together(lock, key):
+        return all(l + k <= free_space for l, k in zip(lock, key))
+
     for lock in locks:
         for key in keys:
-            overlap = False
-            for l, k in zip(lock, key):
-                if l+k > free_space:
-                    overlap = True
-                    break
-            if not overlap:
-                pairs.add((lock, key))
-    return len(pairs)
+            if can_fit_together(lock, key):
+                compatible_pairs.add((lock, key))
 
+    return len(compatible_pairs)
 
-# def part2(input_file: str) -> int:
-#     network = read_input(input_file)
-#     vertices = set(network.keys())
-#     max_clique = bron_kerbosch(set(), vertices, set(), network)
-#     result = ','.join(sorted(max_clique))
-#     return result
 
 def test():
     print("---- TEST ----")
@@ -55,9 +51,6 @@ def test():
     filename = "test_input.txt"
     assert part1(filename) == 3
     print("Part 1 OK")
-
-    # assert part2(filename) == "co,de,ka,ta"
-    # print("Part 2 OK")
 
 
 def main():
@@ -67,11 +60,7 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
-
     assert solution_part1 == 2900
-    # assert solution_part2 == "bu,fq,fz,pn,rr,st,sv,tr,un,uy,zf,zi,zy"
 
 
 if __name__ == "__main__":
