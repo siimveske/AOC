@@ -9,19 +9,12 @@ def checksum(data: str) -> str:
         )
     return data
 
-
-def part1(initial_state: str, disk_length: int) -> str:
+def solve(initial_state: str, disk_length: int) -> str:
     data = initial_state
     while len(data) < disk_length:
         data = process(data)
     data = data[:disk_length]
     return checksum(data)
-
-
-# def part2(filename: str) -> int:
-#     disks = read_input(filename)
-#     return calculate_time(disks + [(11, 0)])
-
 
 def test():
     print("---- TEST ----")
@@ -31,7 +24,7 @@ def test():
     assert process("11111") == "11111000000"
     assert process("111100001010") == "1111000010100101011110000"
     assert checksum("110010110100") == "100"
-    assert part1("10000", 20) == "01100"
+    assert solve("10000", 20) == "01100"
 
     print("OK")
 
@@ -39,13 +32,13 @@ def test():
 def main():
     print("---- MAIN ----")
 
-    solution_part1 = part1(initial_state="10011111011011001", disk_length=272)
+    solution_part1 = solve(initial_state="10011111011011001", disk_length=272)
     print(f"Solution for Part 1: {solution_part1}")
     assert solution_part1 == "10111110010110110"
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}")
-    # assert solution_part2 == 3045959
+    solution_part2 = solve(initial_state="10011111011011001", disk_length=35651584)
+    print(f"Solution for Part 2: {solution_part2}")
+    assert solution_part2 == "01101100001100100"
 
 
 if __name__ == "__main__":
