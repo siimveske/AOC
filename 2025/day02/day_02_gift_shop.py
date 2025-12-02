@@ -8,13 +8,22 @@ def read_input(filename: str) -> list[tuple[int, int]]:
     product_id_ranges = []
 
     with open(input_file_path, 'r') as f:
-        raw_data = f.read().strip()
-        splitted_data = raw_data.split(',')
-        for item in splitted_data:
-            start_str, end_str = item.split('-')
+        ranges = f.read().strip().split(',')
+        for product_range in ranges:
+            start_str, end_str = product_range.split('-')
             product_id_ranges.append((int(start_str), int(end_str)))
 
     return product_id_ranges
+
+
+def has_repeating_pattern(s: str) -> bool:
+    """Check if string consists of a repeating pattern."""
+    for pattern_length in range(1, len(s) // 2 + 1):
+        if len(s) % pattern_length == 0:
+            pattern = s[:pattern_length]
+            if pattern * (len(s) // pattern_length) == s:
+                return True
+    return False
 
 
 def part1(input_file: str) -> int:
@@ -42,17 +51,7 @@ def part2(input_file: str) -> int:
     total = 0
     for start, end in ranges:
         for i in range(start, end + 1):
-
-            # check if there is a repeating pattern in the number
-            str_i = str(i)
-            found_pattern = False
-            for pattern_length in range(1, len(str_i) // 2 + 1):
-                pattern = str_i[:pattern_length]
-                repetitions = len(str_i) // pattern_length
-                if pattern * repetitions == str_i:
-                    found_pattern = True
-                    break
-            if found_pattern:
+            if has_repeating_pattern(str(i)):
                 total += i
 
     return total
