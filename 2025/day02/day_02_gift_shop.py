@@ -19,6 +19,7 @@ def read_input(filename: str) -> list[tuple[int, int]]:
 
 def part1(input_file: str) -> int:
     ranges = read_input(input_file)
+
     total = 0
     for start, end in ranges:
         for i in range(start, end + 1):
@@ -35,19 +36,26 @@ def part1(input_file: str) -> int:
     return total
 
 
-# def part2(input_file: str) -> int:
-#     numbers = read_input(input_file)
-#     position = 50
-#     code = 0
+def part2(input_file: str) -> int:
+    ranges = read_input(input_file)
 
-#     for number in numbers:
-#         for _ in range(abs(number)):
-#             step = 1 if number > 0 else -1
-#             position = (position + step) % 100
-#             if position == 0:
-#                 code += 1
+    total = 0
+    for start, end in ranges:
+        for i in range(start, end + 1):
 
-#     return code
+            # check if there is a repeating pattern in the number
+            str_i = str(i)
+            found_pattern = False
+            for pattern_length in range(1, len(str_i) // 2 + 1):
+                pattern = str_i[:pattern_length]
+                repetitions = len(str_i) // pattern_length
+                if pattern * repetitions == str_i:
+                    found_pattern = True
+                    break
+            if found_pattern:
+                total += i
+
+    return total
 
 
 def test():
@@ -57,8 +65,8 @@ def test():
     assert part1(filename) == 1227775554
     print('Part 1 OK')
 
-    # assert part2(filename) == 6
-    # print('Part 2 OK')
+    assert part2(filename) == 4174379265
+    print('Part 2 OK')
 
 
 def main():
@@ -68,11 +76,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 35367539282
-    # assert solution_part2 == 5831
+    assert solution_part2 == 45814076230
 
 
 if __name__ == '__main__':
