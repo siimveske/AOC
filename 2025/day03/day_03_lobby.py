@@ -1,3 +1,4 @@
+from collections import deque
 import os
 
 
@@ -32,16 +33,50 @@ def part1(input_file: str) -> int:
     return total_joltage
 
 
-# def part2(input_file: str) -> int:
-#     ranges = read_input(input_file)
-#
-#     total = 0
-#     for start, end in ranges:
-#         for i in range(start, end + 1):
-#             if has_repeating_pattern(str(i)):
-#                 total += i
-#
-#     return total
+def part2(input_file: str) -> int:
+    joltage_list = read_input(input_file)
+
+    total_joltage = 0
+    for joltages in joltage_list:
+
+        j = ''.join([str(i) for i in joltages])
+        a = j[0]
+        b = j[1:]
+        queue = deque([(a, b)])
+
+        max_joltage = 0
+
+        while queue:
+            val, numbers = queue.popleft()
+
+            # If we have managed to construct a 12-digit number, check if it's the largest
+            if len(val) == 12:
+                tmp_val = int(val)
+                if tmp_val > max_joltage:
+                    max_joltage = tmp_val
+                continue
+
+            # there are no digits left to process
+            if not numbers:
+                continue
+
+            # If there are not enough digits left to reach 12 digits, skip
+            if len(val) + len(numbers) < 12:
+                continue
+
+            # Take the next digit and add it to the current value
+            next_digit = numbers[0]
+            queue.append((val + next_digit, numbers[1:]))
+
+            # Discard the next digit
+            queue.append((val, numbers[1:]))
+
+            # Discard current value and start build new value with next digit
+            queue.append((next_digit, numbers[1:]))
+
+        total_joltage += max_joltage
+
+    return total_joltage
 
 
 def test():
@@ -51,8 +86,8 @@ def test():
     assert part1(filename) == 357
     print('Part 1 OK')
 
-    # assert part2(filename) == 4174379265
-    # print('Part 2 OK')
+    assert part2(filename) == 3121910778619
+    print('Part 2 OK')
 
 
 def main():
@@ -62,8 +97,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     # assert solution_part1 == 35367539282
     # assert solution_part2 == 45814076230
