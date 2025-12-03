@@ -17,16 +17,16 @@ def read_input(filename: str) -> list[list[int]]:
 
 def part1(input_file: str) -> int:
     joltage_list = read_input(input_file)
-
     total_joltage = 0
+
     for joltages in joltage_list:
         max_joltage = 0
         for i in range(len(joltages) - 1):
-            a = joltages[i]
-            b = max(joltages[i + 1:])
-            ab = int(str(a) + str(b))
-            if ab > max_joltage:
-                max_joltage = ab
+            first_digit = joltages[i]
+            second_digit = max(joltages[i + 1:])
+            combined = int(str(first_digit) + str(second_digit))
+            max_joltage = max(max_joltage, combined)
+
         total_joltage += max_joltage
 
     return total_joltage
@@ -34,22 +34,26 @@ def part1(input_file: str) -> int:
 
 def part2(input_file: str) -> int:
     joltage_list = read_input(input_file)
-
     total_joltage = 0
+
     for joltages in joltage_list:
         digits = []
-        idx = 0
-        remaining_digits = 12
-        while remaining_digits:
-            end = len(joltages) - (remaining_digits - 1)
-            segment = joltages[idx:end]
-            nxt_digit = max(segment)
-            digits.append(nxt_digit)
-            idx += segment.index(nxt_digit) + 1
-            remaining_digits -= 1
+        current_index = 0
+
+        # Extract 12 digits by finding max in sliding window
+        for _ in range(12):
+            remaining = 12 - len(digits)
+            window_end = len(joltages) - (remaining - 1)
+            window = joltages[current_index:window_end]
+
+            max_digit = max(window)
+            digits.append(max_digit)
+
+            # Move index past the max digit found
+            current_index += window.index(max_digit) + 1
+
         joltage = int(''.join(str(d) for d in digits))
         total_joltage += joltage
-
 
     return total_joltage
 
