@@ -1,4 +1,3 @@
-from collections import deque
 import os
 
 
@@ -38,43 +37,19 @@ def part2(input_file: str) -> int:
 
     total_joltage = 0
     for joltages in joltage_list:
+        digits = []
+        idx = 0
+        remaining_digits = 12
+        while remaining_digits:
+            end = len(joltages) - (remaining_digits - 1)
+            segment = joltages[idx:end]
+            nxt_digit = max(segment)
+            digits.append(nxt_digit)
+            idx += segment.index(nxt_digit) + 1
+            remaining_digits -= 1
+        joltage = int(''.join(str(d) for d in digits))
+        total_joltage += joltage
 
-        j = ''.join([str(i) for i in joltages])
-        a = j[0]
-        b = j[1:]
-        queue = deque([(a, b)])
-
-        max_joltage = 0
-
-        while queue:
-            val, numbers = queue.popleft()
-
-            # If we have managed to construct a 12-digit number, check if it's the largest
-            if len(val) == 12:
-                tmp_val = int(val)
-                if tmp_val > max_joltage:
-                    max_joltage = tmp_val
-                continue
-
-            # there are no digits left to process
-            if not numbers:
-                continue
-
-            # If there are not enough digits left to reach 12 digits, skip
-            if len(val) + len(numbers) < 12:
-                continue
-
-            # Take the next digit and add it to the current value
-            next_digit = numbers[0]
-            queue.append((val + next_digit, numbers[1:]))
-
-            # Discard the next digit
-            queue.append((val, numbers[1:]))
-
-            # Discard current value and start build new value with next digit
-            queue.append((next_digit, numbers[1:]))
-
-        total_joltage += max_joltage
 
     return total_joltage
 
@@ -100,8 +75,8 @@ def main():
     solution_part2 = part2(filename)
     print(f'Solution for Part 2: {solution_part2}\n')
 
-    # assert solution_part1 == 35367539282
-    # assert solution_part2 == 45814076230
+    assert solution_part1 == 17554
+    assert solution_part2 == 175053592950232
 
 
 if __name__ == '__main__':
