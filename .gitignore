@@ -12,3 +12,5 @@
 .spyproject/*
 
 2020/help/*
+
+.idea/*
