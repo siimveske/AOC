@@ -1,26 +1,25 @@
 import os
 
 
-def read_input(filename: str) -> list[str]:
+def read_input(filename: str) -> list[list[str]]:
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
     grid = []
     with open(input_file_path, 'r') as f:
-        grid = [line.strip() for line in f]
+        grid = [[*line.strip()] for line in f]
 
     return grid
 
 
-def part1(input_file: str) -> int:
-    grid = read_input(input_file)
+def get_movable_positions(grid:list[list[str]]) -> list[tuple[int, int]]:
     rows = len(grid)
     cols = len(grid[0])
     direction = [(-1, -1), (-1, 0), (-1, 1),
                  (0, -1),           (0, 1),
                  (1, -1),  (1, 0),  (1, 1)]
 
-    number_of_accessible_paper_rolls = 0
+    movable_positions = []
     for r_idx in range(rows):
         for c_idx in range(cols):
             current = grid[r_idx][c_idx]
@@ -37,35 +36,30 @@ def part1(input_file: str) -> int:
                     if grid[nr][nc] == '@':
                         neighbours_cnt += 1
             if neighbours_cnt < 4:
-                number_of_accessible_paper_rolls += 1
+                movable_positions.append((r_idx, c_idx))
 
-    return number_of_accessible_paper_rolls
+    return movable_positions
+
+
+def part1(input_file: str) -> int:
+    grid = read_input(input_file)
+    movable_paper_rolls = get_movable_positions(grid)
+    result = len(movable_paper_rolls)
+    return result
 
 
 def part2(input_file: str) -> int:
-    joltage_list = read_input(input_file)
-    total_joltage = 0
+    grid = read_input(input_file)
+    removable_rolls_cnt = 0
 
-    for joltages in joltage_list:
-        digits = []
-        current_index = 0
+    removable_rolls = get_movable_positions(grid)
+    while removable_rolls:
+        for r_idx, c_idx in removable_rolls:
+            grid[r_idx][c_idx] = '.'
+            removable_rolls_cnt += 1
+        removable_rolls = get_movable_positions(grid)
 
-        # Extract 12 digits by finding max in sliding window
-        for _ in range(12):
-            remaining = 12 - len(digits)
-            window_end = len(joltages) - (remaining - 1)
-            window = joltages[current_index:window_end]
-
-            max_digit = max(window)
-            digits.append(max_digit)
-
-            # Move index past the max digit found
-            current_index += window.index(max_digit) + 1
-
-        joltage = int(''.join(str(d) for d in digits))
-        total_joltage += joltage
-
-    return total_joltage
+    return removable_rolls_cnt
 
 
 def test():
@@ -75,8 +69,8 @@ def test():
     assert part1(filename) == 13
     print('Part 1 OK')
 
-    # assert part2(filename) == 3121910778619
-    # print('Part 2 OK')
+    assert part2(filename) == 43
+    print('Part 2 OK')
 
 
 def main():
@@ -86,11 +80,11 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 1356
-    # assert solution_part2 == 175053592950232
+    assert solution_part2 == 8713
 
 
 if __name__ == '__main__':
