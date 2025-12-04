@@ -7,34 +7,32 @@ def read_input(filename: str) -> list[list[str]]:
 
     grid = []
     with open(input_file_path, 'r') as f:
-        grid = [[*line.strip()] for line in f]
+        grid = [list(line.strip()) for line in f]
 
     return grid
 
 
-def get_movable_positions(grid:list[list[str]]) -> list[tuple[int, int]]:
+def get_movable_positions(grid: list[list[str]]) -> list[tuple[int, int]]:
     rows = len(grid)
     cols = len(grid[0])
-    direction = [(-1, -1), (-1, 0), (-1, 1),
-                 (0, -1),           (0, 1),
-                 (1, -1),  (1, 0),  (1, 1)]
+    directions = [
+        (-1, -1), (-1, 0), (-1, 1),
+        (0, -1),           (0, 1),
+        (1, -1),  (1, 0),  (1, 1)
+    ]
 
     movable_positions = []
     for r_idx in range(rows):
         for c_idx in range(cols):
-            current = grid[r_idx][c_idx]
-
-            # Only consider positions with a paper roll
-            if current != '@':
+            if grid[r_idx][c_idx] != '@':
                 continue
 
             # Count paper rolls in the eight adjacent positions
             neighbours_cnt = 0
-            for dr, dc in direction:
+            for dr, dc in directions:
                 nr, nc = r_idx + dr, c_idx + dc
-                if 0 <= nr < rows and 0 <= nc < cols:
-                    if grid[nr][nc] == '@':
-                        neighbours_cnt += 1
+                if (0 <= nr < rows) and (0 <= nc < cols) and (grid[nr][nc] == '@'):
+                    neighbours_cnt += 1
             if neighbours_cnt < 4:
                 movable_positions.append((r_idx, c_idx))
 
@@ -43,23 +41,22 @@ def get_movable_positions(grid:list[list[str]]) -> list[tuple[int, int]]:
 
 def part1(input_file: str) -> int:
     grid = read_input(input_file)
-    movable_paper_rolls = get_movable_positions(grid)
-    result = len(movable_paper_rolls)
-    return result
+    movable_rolls = get_movable_positions(grid)
+    return len(movable_rolls)
 
 
 def part2(input_file: str) -> int:
     grid = read_input(input_file)
-    removable_rolls_cnt = 0
+    removable_count = 0
 
     removable_rolls = get_movable_positions(grid)
     while removable_rolls:
         for r_idx, c_idx in removable_rolls:
             grid[r_idx][c_idx] = '.'
-            removable_rolls_cnt += 1
+            removable_count += 1
         removable_rolls = get_movable_positions(grid)
 
-    return removable_rolls_cnt
+    return removable_count
 
 
 def test():
