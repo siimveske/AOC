@@ -1,4 +1,5 @@
 import os
+import re
 
 
 def read_input(filename: str) -> tuple[list[tuple[int, int]], list[int]]:
@@ -37,17 +38,46 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    grid = read_input(input_file)
-    removable_count = 0
+    ranges, _ = read_input(input_file)
 
-    removable_rolls = get_movable_positions(grid)
-    while removable_rolls:
-        for r_idx, c_idx in removable_rolls:
-            grid[r_idx][c_idx] = '.'
-            removable_count += 1
-        removable_rolls = get_movable_positions(grid)
+    # Merge ranges and collect all fresh ingredient IDs
+    merged_ranges = []
+    while ranges:
+        current_start, current_end = ranges.pop(0)
+        range_merged = False
+        for i in range(len(ranges)):
+            start, end = ranges[i]
+            if current_start <= start <= current_end:
+                current_end = max(current_end, end)
+                ranges.pop(i)
+                ranges.append((current_start, current_end))
+                range_merged = True
+                break
+            elif current_start <= end <= current_end:
+                current_start = min(current_start, start)
+                ranges.pop(i)
+                ranges.append((current_start, current_end))
+                range_merged = True
+                break
+        if not range_merged:
+            merged_ranges.append((current_start, current_end))
 
-    return removable_count
+    fresh_id_cnt = 0
+    for start, end in merged_ranges:
+        fresh_id_cnt += (end - start) + 1
+    print("Merged Ranges:", merged_ranges)
+
+    # 340988828813600 - too hight
+    return fresh_id_cnt
+
+
+
+    # for start, end in ranges:
+    #     range_size = (end - start) + 1
+    #     print(f'Range {start}-{end} has size {range_size}')
+    #     fresh_ingredient_ids.update(range(start, end + 1))
+
+    return len(fresh_ingredient_ids)
 
 
 def test():
@@ -57,8 +87,8 @@ def test():
     assert part1(filename) == 3
     print('Part 1 OK')
 
-    # assert part2(filename) == 43
-    # print('Part 2 OK')
+    assert part2(filename) == 14
+    print('Part 2 OK')
 
 
 def main():
@@ -68,8 +98,8 @@ def main():
     solution_part1 = part1(filename)
     print(f'Solution for Part 1: {solution_part1}')
 
-    # solution_part2 = part2(filename)
-    # print(f'Solution for Part 2: {solution_part2}\n')
+    solution_part2 = part2(filename)
+    print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 525
     # assert solution_part2 == 8713
