@@ -1,5 +1,4 @@
 import os
-import re
 
 
 def read_input(filename: str) -> tuple[list[tuple[int, int]], list[int]]:
@@ -40,44 +39,38 @@ def part1(input_file: str) -> int:
 def part2(input_file: str) -> int:
     ranges, _ = read_input(input_file)
 
-    # Merge ranges and collect all fresh ingredient IDs
-    merged_ranges = []
-    while ranges:
-        current_start, current_end = ranges.pop(0)
-        range_merged = False
-        for i in range(len(ranges)):
-            start, end = ranges[i]
-            if current_start <= start <= current_end:
-                current_end = max(current_end, end)
-                ranges.pop(i)
-                ranges.append((current_start, current_end))
-                range_merged = True
-                break
-            elif current_start <= end <= current_end:
-                current_start = min(current_start, start)
-                ranges.pop(i)
-                ranges.append((current_start, current_end))
-                range_merged = True
-                break
-        if not range_merged:
-            merged_ranges.append((current_start, current_end))
+    # Sort the ranges by their start value (the first number)
+    # This is crucial so we only need to compare with the last merged item.
+    sorted_ranges = sorted(ranges, key=lambda x: x[0])
 
+    # Initialize merged ranges with the first sorted range
+    merged = [sorted_ranges[0]]
+
+    # Iterate through the sorted ranges and merge overlapping ones
+    for current_start, current_end in sorted_ranges[1:]:
+        # Get the last range added to our merged list
+        last_start, last_end = merged[-1]
+
+        # Check if the current range overlaps with the last one.
+        # We use <= so that ranges touching (e.g., 3-5 and 5-7) also merge.
+        if current_start <= last_end:
+            # Overlap detected!
+            # We merge them by updating the end of the last range.
+            # We take the max() because the current range might end
+            # before the previous one (e.g., 10-20 and 12-15).
+            new_end = max(last_end, current_end)
+            merged[-1] = (last_start, new_end)
+        else:
+            # No overlap, add the current range to merged ranges
+            merged.append((current_start, current_end))
+
+    # Calculate the total count of fresh ingredient IDs from merged ranges
     fresh_id_cnt = 0
-    for start, end in merged_ranges:
-        fresh_id_cnt += (end - start) + 1
-    print("Merged Ranges:", merged_ranges)
+    for start, end in merged:
+        range_size = (end - start) + 1
+        fresh_id_cnt += range_size
 
-    # 340988828813600 - too hight
     return fresh_id_cnt
-
-
-
-    # for start, end in ranges:
-    #     range_size = (end - start) + 1
-    #     print(f'Range {start}-{end} has size {range_size}')
-    #     fresh_ingredient_ids.update(range(start, end + 1))
-
-    return len(fresh_ingredient_ids)
 
 
 def test():
@@ -102,7 +95,7 @@ def main():
     print(f'Solution for Part 2: {solution_part2}\n')
 
     assert solution_part1 == 525
-    # assert solution_part2 == 8713
+    assert solution_part2 == 333892124923577
 
 
 if __name__ == '__main__':
