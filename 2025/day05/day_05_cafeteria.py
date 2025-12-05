@@ -24,21 +24,15 @@ def read_input(filename: str) -> tuple[list[tuple[int, int]], list[int]]:
     return database
 
 
-def part1(input_file: str) -> int:
-    ranges, ids = read_input(input_file)
-    fresh_ingredient_cnt = 0
-    for _id in ids:
-        for start, end in ranges:
-            if start <= _id <= end:
-                fresh_ingredient_cnt += 1
-                break
+def merge_ranges(ranges: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Merge overlapping ranges into non-overlapping ranges.
 
-    return fresh_ingredient_cnt
+    Args:
+        ranges: List of (start, end) tuples
 
-
-def part2(input_file: str) -> int:
-    ranges, _ = read_input(input_file)
-
+    Returns:
+        List of merged non-overlapping ranges, sorted by start position
+    """
     # Sort the ranges by their start value (the first number)
     # This is crucial so we only need to compare with the last merged item.
     sorted_ranges = sorted(ranges, key=lambda x: x[0])
@@ -63,6 +57,25 @@ def part2(input_file: str) -> int:
         else:
             # No overlap, add the current range to merged ranges
             merged.append((current_start, current_end))
+
+    return merged
+
+
+def part1(input_file: str) -> int:
+    ranges, ids = read_input(input_file)
+    fresh_ingredient_cnt = 0
+    for _id in ids:
+        for start, end in ranges:
+            if start <= _id <= end:
+                fresh_ingredient_cnt += 1
+                break
+
+    return fresh_ingredient_cnt
+
+
+def part2(input_file: str) -> int:
+    ranges, _ = read_input(input_file)
+    merged = merge_ranges(ranges)
 
     # Calculate the total count of fresh ingredient IDs from merged ranges
     fresh_id_cnt = 0
