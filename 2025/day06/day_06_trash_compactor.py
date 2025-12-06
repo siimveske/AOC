@@ -1,8 +1,7 @@
-import re
 import os
 
 
-def read_input(filename: str) -> list:
+def read_input(filename: str):
     script_location = os.path.dirname(os.path.realpath(__file__))
     input_file_path = os.path.join(script_location, filename)
 
@@ -10,68 +9,47 @@ def read_input(filename: str) -> list:
         return f.read().splitlines()
 
 
-def parse1(lines: list[str]) -> list:
-    number_pattern = r"\d+"
-    operands_pattern = r"[\+\-\*\/]"
-
-    operators = lines.pop(-1)  # remove last line with operators
-    operators = re.findall(operands_pattern, operators)
-    math_problems = []
-
-    for line in lines:
-        numbers = re.findall(number_pattern, line)
-        math_problems.append(numbers)
-
-    math_problems.append(operators)
-
-    return math_problems
-
-
 def part1(input_file: str) -> int:
     data = read_input(input_file)
-    math_problems = parse1(data)
-    operands = math_problems.pop(-1)
-    total = 0
-    rows = len(math_problems)
-    cols = len(math_problems[0])
+    data = [line.split() for line in data]
+    transposed_data = list(zip(*data))
 
-    for col in range(cols):
-        col_values = []
-        for row in range(rows):
-            col_values.append(math_problems[row][col])
-        expression = operands[col].join(col_values)
+    total = 0
+    for *args, op in transposed_data:
+        expression = op.join(args)
         total += eval(expression)
     return total
 
 
-def part2(input_file: str) -> int:
-    math_problems = read_input(input_file)
-    operators = math_problems.pop(-1)
-    operands = re.findall(r"[\+\*]", operators)
-    idx_operator = 0
+def evaluate_expression(nums, operator) -> int:
+    if nums:
+        return eval(operator.join(nums))
+    return 0
 
-    # transpose math_problems matrix
-    transposed = list(map(list, zip(*math_problems)))
+
+def part2(input_file: str) -> int:
+    lines = read_input(input_file)
+    transposed = list(zip(*lines))
 
     total = 0
     numbers = []
-    for line in transposed:
-        number = "".join(line).strip()
-        if number.isdigit():
-            numbers.append(number)
-            continue
+    active_op = ""
+    # Read vertically
+    for *digits, op in transposed:
+        num = "".join(digits).strip()
+        op = op.strip()
 
-        operator = operands[idx_operator]
-        idx_operator += 1
-        expression = operator.join(numbers)
-        total += eval(expression)
-        numbers = []
+        if op:
+            active_op = op
 
-    operator = operands[idx_operator]
-    idx_operator += 1
-    expression = operator.join(numbers)
-    total += eval(expression)
-    numbers = []
+        if num:
+            numbers.append(num)
+        else:
+            total += evaluate_expression(numbers, active_op)
+            numbers = []
+
+    # Process remaining numbers
+    total += evaluate_expression(numbers, active_op)
 
     return total
 
@@ -95,7 +73,7 @@ def main():
     print(f"Solution for Part 1: {solution_part1}")
 
     solution_part2 = part2(filename)
-    print(f'Solution for Part 2: {solution_part2}\n')
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 4648618073226
     assert solution_part2 == 7329921182115
