@@ -53,34 +53,32 @@ def part1(input_file: str) -> int:
 
 def part2(input_file: str) -> int:
     grid = read_input(input_file)
-    start = (0, grid[0].index("S"))
-
-    queue = deque()
-    queue.append(start)
-    path_cnt = 0
     rows = len(grid)
+    start = (0, grid[0].index("S"))
+    memo = {}
 
-    while queue:
-        current = queue.popleft()
+    def count_paths(r, c):
+        # # Base case: If we are at the last row, we have found one complete path.
+        if r >= rows - 1:
+            return 1
 
-        current_row, current_col = current
-        nxt_row = current_row + 1
+        # If we've already computed paths from this cell, return the stored value.
+        if (r, c) in memo:
+            return memo[(r, c)]
 
-        in_bounds = 0 <= nxt_row < rows
-        if not in_bounds:
-            path_cnt += 1
-            continue
+        # Recursive step:
+        # If the cell below is a splitter '^', the number of paths is the sum
+        # of paths from the two resulting positions (left and right).
+        # Otherwise, it's the number of paths from the cell directly below.
+        if grid[r + 1][c] == '^':
+            result = count_paths(r + 1, c - 1) + count_paths(r + 1, c + 1)
+        else:  # This will be '.'
+            result = count_paths(r + 1, c)
 
-        if grid[nxt_row][current_col] == ".":
-            queue.append((nxt_row, current_col))
-            continue
+        memo[(r, c)] = result
+        return result
 
-        if grid[nxt_row][current_col] == "^":
-            nxt_left = (nxt_row, current_col - 1)
-            nxt_right = (nxt_row, current_col + 1)
-            queue.append(nxt_left)
-            queue.append(nxt_right)
-
+    path_cnt = count_paths(start[0], start[1])
     return path_cnt
 
 
@@ -106,7 +104,7 @@ def main():
     print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 1633
-    # assert solution_part2 == 7329921182115
+    assert solution_part2 == 34339203133559
 
 
 if __name__ == "__main__":
