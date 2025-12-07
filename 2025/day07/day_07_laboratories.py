@@ -52,8 +52,36 @@ def part1(input_file: str) -> int:
 
 
 def part2(input_file: str) -> int:
-    lines = read_input(input_file)
-    return -1
+    grid = read_input(input_file)
+    start = (0, grid[0].index("S"))
+
+    queue = deque()
+    queue.append(start)
+    path_cnt = 0
+    rows = len(grid)
+
+    while queue:
+        current = queue.popleft()
+
+        current_row, current_col = current
+        nxt_row = current_row + 1
+
+        in_bounds = 0 <= nxt_row < rows
+        if not in_bounds:
+            path_cnt += 1
+            continue
+
+        if grid[nxt_row][current_col] == ".":
+            queue.append((nxt_row, current_col))
+            continue
+
+        if grid[nxt_row][current_col] == "^":
+            nxt_left = (nxt_row, current_col - 1)
+            nxt_right = (nxt_row, current_col + 1)
+            queue.append(nxt_left)
+            queue.append(nxt_right)
+
+    return path_cnt
 
 
 def test():
@@ -63,8 +91,8 @@ def test():
     assert part1(filename) == 21
     print("Part 1 OK")
 
-    # assert part2(filename) == 3263827
-    # print("Part 2 OK")
+    assert part2(filename) == 40
+    print("Part 2 OK")
 
 
 def main():
@@ -74,8 +102,8 @@ def main():
     solution_part1 = part1(filename)
     print(f"Solution for Part 1: {solution_part1}")
 
-    # solution_part2 = part2(filename)
-    # print(f"Solution for Part 2: {solution_part2}\n")
+    solution_part2 = part2(filename)
+    print(f"Solution for Part 2: {solution_part2}\n")
 
     assert solution_part1 == 1633
     # assert solution_part2 == 7329921182115
