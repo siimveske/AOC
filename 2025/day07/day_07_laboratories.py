@@ -16,39 +16,53 @@ def read_input(filename: str):
 
 def part1(input_file: str) -> int:
     grid = read_input(input_file)
-    start = (0, grid[0].index("S"))
+
+    # Map constants
+    START_CHAR = "S"
+    PATH_CHAR = "."
+    SPLIT_CHAR = "^"
+
+    # Initialize starting position
+    # Assume 'S' is always in the first row
+    start_col = grid[0].index(START_CHAR)
+    start_pos = (0, start_col)
 
     queue = deque()
-    queue.append(start)
-    split_cnt = 0
-    rows = len(grid)
+    queue.append(start_pos)
     visited = set()
 
+    total_splits = 0
+    grid_height = len(grid)
+
     while queue:
-        current = queue.popleft()
-        if current in visited:
+        current_row, current_col = queue.popleft()
+
+        # Skip if already processed
+        if (current_row, current_col) in visited:
             continue
-        visited.add(current)
+        visited.add((current_row, current_col))
 
-        current_row, current_col = current
-        nxt_row = current_row + 1
+        # Determine the row directly below the current position
+        next_row = current_row + 1
 
-        in_bounds = 0 <= nxt_row < rows
-        if not in_bounds:
-            continue
-
-        if grid[nxt_row][current_col] == ".":
-            queue.append((nxt_row, current_col))
+        # Check bounds: Stop if we have reached the bottom
+        if next_row >= grid_height:
             continue
 
-        if grid[nxt_row][current_col] == "^":
-            split_cnt += 1
-            nxt_left = (nxt_row, current_col - 1)
-            nxt_right = (nxt_row, current_col + 1)
-            queue.append(nxt_left)
-            queue.append(nxt_right)
+        # Inspect the cell directly below
+        cell_below = grid[next_row][current_col]
 
-    return split_cnt
+        if cell_below == PATH_CHAR:
+            # Path is clear: move straight down
+            queue.append((next_row, current_col))
+
+        elif cell_below == SPLIT_CHAR:
+            # Splitter found: increment count and split left/right
+            total_splits += 1
+            queue.append((next_row, current_col - 1))
+            queue.append((next_row, current_col + 1))
+
+    return total_splits
 
 
 def part2(input_file: str) -> int:
@@ -70,7 +84,7 @@ def part2(input_file: str) -> int:
         # If the cell below is a splitter '^', the number of paths is the sum
         # of paths from the two resulting positions (left and right).
         # Otherwise, it's the number of paths from the cell directly below.
-        if grid[r + 1][c] == '^':
+        if grid[r + 1][c] == "^":
             result = count_paths(r + 1, c - 1) + count_paths(r + 1, c + 1)
         else:  # This will be '.'
             result = count_paths(r + 1, c)
